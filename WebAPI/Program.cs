@@ -31,8 +31,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using WebAPI.Data;
+using WebAPI.Hubs;
 using WebAPI.Models;
 using WebAPI.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,6 +124,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<TokenService>();
 
+builder.Services.AddSignalR();
+builder.Services.AddScoped<NotificationHubService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -135,5 +140,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<AppointmentHub>("/hubs/appointment");
 
 app.Run();

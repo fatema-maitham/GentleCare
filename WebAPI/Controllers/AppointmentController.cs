@@ -5,6 +5,7 @@ using System.Security.Claims;
 using WebAPI.Data;
 using WebAPI.DTOs;
 using WebAPI.Models;
+using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -13,10 +14,14 @@ namespace WebAPI.Controllers
     public class AppointmentController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly NotificationHubService _hubService;
 
-        public AppointmentController(ApplicationDbContext context)
+        public AppointmentController(
+            ApplicationDbContext context,
+            NotificationHubService hubService)
         {
             _context = context;
+            _hubService = hubService;
         }
 
         [HttpGet("lookup")]
@@ -181,6 +186,28 @@ namespace WebAPI.Controllers
 
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
+
+            var updatedAppointment = await _context.Appointments
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (updatedAppointment != null)
+            {
+               
+                await _hubService.NotifyAppointmentStatusChanged(
+                    id,
+                    updatedAppointment.Patient.User.FullName,
+                    updatedAppointment.Doctor.User.FullName,
+                    newStatus.ToString()
+                );
+
+                await _hubService.NotifyPatient(
+                    updatedAppointment.PatientId,
+                    "Appointment Update",
+                    $"Your appointment is now {newStatus}."
+                );
+            }
 
             return Ok(new
             {
