@@ -32,6 +32,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using WebAPI.Data;
 using WebAPI.Models;
+using WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,6 +119,8 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+builder.Services.AddScoped<TokenService>();
 
 var app = builder.Build();
 
