@@ -9,6 +9,9 @@
         public string Frequency { get; set; } = string.Empty;
         public int DurationDays { get; set; }
         public string? Instructions { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation property
         public VisitRecord VisitRecord { get; set; } = null!;
     }
 }
