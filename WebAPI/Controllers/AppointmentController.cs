@@ -24,6 +24,8 @@ namespace WebAPI.Controllers
             _hubService = hubService;
         }
 
+        // GET api/appointment/lookup
+        // PUBLIC - no auth required
         [HttpGet("lookup")]
         public async Task<IActionResult> PublicLookup(
             [FromQuery] string cprNumber,
@@ -47,7 +49,6 @@ namespace WebAPI.Controllers
 
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Include(a => a.Specialization)
                 .Where(a => a.PatientId == patient.Id &&
                     a.AppointmentDate >= DateTime.Today)
                 .OrderBy(a => a.AppointmentDate)
@@ -55,7 +56,6 @@ namespace WebAPI.Controllers
                 {
                     AppointmentId = a.Id,
                     DoctorName = a.Doctor.User.FullName,
-                    Specialization = a.Specialization.Name,
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
                     Status = a.Status.ToString()
@@ -65,6 +65,8 @@ namespace WebAPI.Controllers
             return Ok(appointments);
         }
 
+        // GET api/appointment
+        // Receptionist & ClinicManager only
         [HttpGet]
         [Authorize(Roles = "Receptionist,ClinicManager")]
         public async Task<IActionResult> GetAll()
@@ -72,14 +74,12 @@ namespace WebAPI.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Include(a => a.Specialization)
                 .OrderByDescending(a => a.AppointmentDate)
                 .Select(a => new AppointmentResponseDTO
                 {
                     Id = a.Id,
                     PatientName = a.Patient.User.FullName,
                     DoctorName = a.Doctor.User.FullName,
-                    Specialization = a.Specialization.Name,
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
                     EndTime = a.EndTime.ToString(),
@@ -92,6 +92,8 @@ namespace WebAPI.Controllers
             return Ok(appointments);
         }
 
+        // GET api/appointment/my
+        // Patient sees their own appointments
         [HttpGet("my")]
         [Authorize(Roles = "Patient")]
         public async Task<IActionResult> GetMyAppointments()
@@ -106,7 +108,7 @@ namespace WebAPI.Controllers
 
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Include(a => a.Specialization)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Where(a => a.PatientId == patient.Id)
                 .OrderByDescending(a => a.AppointmentDate)
                 .Select(a => new AppointmentResponseDTO
@@ -114,7 +116,6 @@ namespace WebAPI.Controllers
                     Id = a.Id,
                     PatientName = a.Patient.User.FullName,
                     DoctorName = a.Doctor.User.FullName,
-                    Specialization = a.Specialization.Name,
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
                     EndTime = a.EndTime.ToString(),
@@ -127,6 +128,7 @@ namespace WebAPI.Controllers
             return Ok(appointments);
         }
 
+        // PUT api/appointment/{id}/status
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Doctor,Receptionist,ClinicManager")]
         public async Task<IActionResult> UpdateStatus(
@@ -141,6 +143,7 @@ namespace WebAPI.Controllers
             if (!Enum.TryParse<AppointmentStatus>(dto.Status, out var newStatus))
                 return BadRequest(new { message = "Invalid status value." });
 
+            // Validate status transitions
             var validTransitions = new Dictionary<AppointmentStatus,
                 List<AppointmentStatus>>
             {
@@ -173,20 +176,27 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            var notification = new Notification
+            // Create notification
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.Id == appointment.PatientId);
+
+            if (patient != null)
             {
-                UserId = (await _context.Patients
-                    .Include(p => p.User)
-                    .FirstOrDefaultAsync(p =>
-                        p.Id == appointment.PatientId))!.UserId,
-                Title = "Appointment Status Updated",
-                Message = $"Your appointment status has been updated to {newStatus}.",
-                CreatedAt = DateTime.UtcNow
-            };
+                var notification = new Notification
+                {
+                    UserId = patient.UserId,
+                    Title = "Appointment Status Updated",
+                    Message = $"Your appointment status is now {newStatus}.",
+                    Type = "Appointment",
+                    RelatedEntityId = appointment.Id,
+                    RelatedEntityType = "Appointment",
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
 
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
+            // SignalR broadcast
             var updatedAppointment = await _context.Appointments
                 .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
@@ -194,19 +204,16 @@ namespace WebAPI.Controllers
 
             if (updatedAppointment != null)
             {
-               
                 await _hubService.NotifyAppointmentStatusChanged(
                     id,
                     updatedAppointment.Patient.User.FullName,
                     updatedAppointment.Doctor.User.FullName,
-                    newStatus.ToString()
-                );
+                    newStatus.ToString());
 
                 await _hubService.NotifyPatient(
                     updatedAppointment.PatientId,
                     "Appointment Update",
-                    $"Your appointment is now {newStatus}."
-                );
+                    $"Your appointment is now {newStatus}.");
             }
 
             return Ok(new
