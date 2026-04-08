@@ -111,26 +111,30 @@ namespace WebAPI.Controllers
             [FromQuery] DateTime? from,
             [FromQuery] DateTime? to)
         {
-            var query = _context.Appointments
-                .Include(a => a.Specialization)
-                .AsQueryable();
+            var doctors = await _context.Doctors
+                .Include(d => d.DoctorSpecializations)
+                    .ThenInclude(ds => ds.Specialization)
+                .Include(d => d.Appointments)
+                .ToListAsync();
 
-            if (from.HasValue)
-                query = query.Where(a => a.AppointmentDate >= from.Value);
-
-            if (to.HasValue)
-                query = query.Where(a => a.AppointmentDate <= to.Value);
-
-            var result = await query
-                .GroupBy(a => a.Specialization.Name)
+            var result = doctors
+                .SelectMany(d => d.DoctorSpecializations.Select(ds => new
+                {
+                    SpecializationName = ds.Specialization.Name,
+                    Appointments = d.Appointments
+                        .Where(a => (!from.HasValue || a.AppointmentDate >= from.Value)
+                                 && (!to.HasValue || a.AppointmentDate <= to.Value))
+                        .ToList()
+                }))
+                .GroupBy(x => x.SpecializationName)
                 .Select(g => new SpecializationStatsDTO
                 {
                     SpecializationName = g.Key,
-                    TotalAppointments = g.Count(),
-                    CompletedAppointments = g.Count(a =>
-                        a.Status == AppointmentStatus.Completed)
+                    TotalAppointments = g.Sum(x => x.Appointments.Count),
+                    CompletedAppointments = g.Sum(x => x.Appointments
+                        .Count(a => a.Status == AppointmentStatus.Completed))
                 })
-                .ToListAsync();
+                .ToList();
 
             return Ok(result);
         }
