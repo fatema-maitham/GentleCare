@@ -174,8 +174,8 @@ namespace WebAPI.Controllers
             var bookedSlots = await _context.Appointments
                 .Where(a => a.DoctorId == id &&
                     a.AppointmentDate.Date == date.Date &&
-                    a.Status != AppointmentStatus.Cancelled &&
-                    a.Status != AppointmentStatus.Missed)
+                    a.StatusId != 6 &&
+                    a.StatusId != 7)
                 .Select(a => a.StartTime)
                 .ToListAsync();
 

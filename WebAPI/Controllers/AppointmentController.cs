@@ -49,6 +49,7 @@ namespace WebAPI.Controllers
 
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Status)
                 .Where(a => a.PatientId == patient.Id &&
                     a.AppointmentDate >= DateTime.Today)
                 .OrderBy(a => a.AppointmentDate)
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
                     DoctorName = a.Doctor.User.FullName,
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
-                    Status = a.Status.ToString()
+                    Status = a.Status.Name
                 })
                 .ToListAsync();
 
@@ -74,6 +75,7 @@ namespace WebAPI.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Status)
                 .OrderByDescending(a => a.AppointmentDate)
                 .Select(a => new AppointmentResponseDTO
                 {
@@ -83,7 +85,7 @@ namespace WebAPI.Controllers
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
                     EndTime = a.EndTime.ToString(),
-                    Status = a.Status.ToString(),
+                    Status = a.Status.Name,
                     Notes = a.Notes,
                     CreatedAt = a.CreatedAt
                 })
@@ -109,6 +111,7 @@ namespace WebAPI.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Status)
                 .Where(a => a.PatientId == patient.Id)
                 .OrderByDescending(a => a.AppointmentDate)
                 .Select(a => new AppointmentResponseDTO
@@ -119,7 +122,7 @@ namespace WebAPI.Controllers
                     AppointmentDate = a.AppointmentDate,
                     StartTime = a.StartTime.ToString(),
                     EndTime = a.EndTime.ToString(),
-                    Status = a.Status.ToString(),
+                    Status = a.Status.Name,
                     Notes = a.Notes,
                     CreatedAt = a.CreatedAt
                 })
@@ -135,40 +138,39 @@ namespace WebAPI.Controllers
             int id, [FromBody] UpdateAppointmentStatusDTO dto)
         {
             var appointment = await _context.Appointments
-                .FindAsync(id);
+                .Include(a => a.Status)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (appointment == null)
                 return NotFound(new { message = "Appointment not found." });
 
-            if (!Enum.TryParse<AppointmentStatus>(dto.Status, out var newStatus))
+            // Find new status from lookup table
+            var newStatus = await _context.AppointmentStatuses
+                .FirstOrDefaultAsync(s => s.Name == dto.Status);
+
+            if (newStatus == null)
                 return BadRequest(new { message = "Invalid status value." });
 
             // Validate status transitions
-            var validTransitions = new Dictionary<AppointmentStatus,
-                List<AppointmentStatus>>
+            var validTransitions = new Dictionary<string, List<string>>
             {
-                { AppointmentStatus.Requested, new List<AppointmentStatus>
-                    { AppointmentStatus.Confirmed,
-                      AppointmentStatus.Cancelled } },
-                { AppointmentStatus.Confirmed, new List<AppointmentStatus>
-                    { AppointmentStatus.CheckedIn,
-                      AppointmentStatus.Cancelled } },
-                { AppointmentStatus.CheckedIn, new List<AppointmentStatus>
-                    { AppointmentStatus.InProgress } },
-                { AppointmentStatus.InProgress, new List<AppointmentStatus>
-                    { AppointmentStatus.Completed,
-                      AppointmentStatus.Missed } },
+                { "Requested",  new List<string> { "Confirmed", "Cancelled" } },
+                { "Confirmed",  new List<string> { "CheckedIn", "Cancelled" } },
+                { "CheckedIn",  new List<string> { "InProgress" } },
+                { "InProgress", new List<string> { "Completed", "Missed" } },
             };
 
-            if (validTransitions.ContainsKey(appointment.Status) &&
-                !validTransitions[appointment.Status].Contains(newStatus))
+            var currentStatusName = appointment.Status.Name;
+
+            if (validTransitions.ContainsKey(currentStatusName) &&
+                !validTransitions[currentStatusName].Contains(newStatus.Name))
                 return BadRequest(new
                 {
                     message =
-                    $"Cannot transition from {appointment.Status} to {newStatus}."
+                    $"Cannot transition from {currentStatusName} to {newStatus.Name}."
                 });
 
-            appointment.Status = newStatus;
+            appointment.StatusId = newStatus.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             if (!string.IsNullOrEmpty(dto.CancellationReason))
@@ -182,12 +184,15 @@ namespace WebAPI.Controllers
 
             if (patient != null)
             {
+                var notificationType = await _context.NotificationTypes
+                    .FirstOrDefaultAsync(t => t.Name == "Appointment");
+
                 var notification = new Notification
                 {
                     UserId = patient.UserId,
                     Title = "Appointment Status Updated",
-                    Message = $"Your appointment status is now {newStatus}.",
-                    Type = "Appointment",
+                    Message = $"Your appointment status is now {newStatus.Name}.",
+                    NotificationTypeId = notificationType?.Id,
                     RelatedEntityId = appointment.Id,
                     RelatedEntityType = "Appointment",
                     CreatedAt = DateTime.UtcNow
@@ -200,6 +205,7 @@ namespace WebAPI.Controllers
             var updatedAppointment = await _context.Appointments
                 .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Status)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (updatedAppointment != null)
@@ -208,18 +214,18 @@ namespace WebAPI.Controllers
                     id,
                     updatedAppointment.Patient.User.FullName,
                     updatedAppointment.Doctor.User.FullName,
-                    newStatus.ToString());
+                    newStatus.Name);
 
                 await _hubService.NotifyPatient(
                     updatedAppointment.PatientId,
                     "Appointment Update",
-                    $"Your appointment is now {newStatus}.");
+                    $"Your appointment is now {newStatus.Name}.");
             }
 
             return Ok(new
             {
                 message =
-                $"Appointment status updated to {newStatus}."
+                $"Appointment status updated to {newStatus.Name}."
             });
         }
     }

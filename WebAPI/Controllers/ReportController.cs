@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.DTOs;
-using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -19,6 +18,7 @@ namespace WebAPI.Controllers
             _context = context;
         }
 
+        // GET api/report/appointment-stats
         [HttpGet("appointment-stats")]
         public async Task<IActionResult> GetAppointmentStats(
             [FromQuery] DateTime? from,
@@ -28,26 +28,19 @@ namespace WebAPI.Controllers
 
             if (from.HasValue)
                 query = query.Where(a => a.AppointmentDate >= from.Value);
-
             if (to.HasValue)
                 query = query.Where(a => a.AppointmentDate <= to.Value);
 
             var total = await query.CountAsync();
-
             if (total == 0)
                 return Ok(new AppointmentStatsDTO());
 
-            var completed = await query.CountAsync(a =>
-                a.Status == AppointmentStatus.Completed);
-            var cancelled = await query.CountAsync(a =>
-                a.Status == AppointmentStatus.Cancelled);
-            var missed = await query.CountAsync(a =>
-                a.Status == AppointmentStatus.Missed);
+            var completed = await query.CountAsync(a => a.StatusId == 5);
+            var cancelled = await query.CountAsync(a => a.StatusId == 6);
+            var missed = await query.CountAsync(a => a.StatusId == 7);
             var pending = await query.CountAsync(a =>
-                a.Status == AppointmentStatus.Requested ||
-                a.Status == AppointmentStatus.Confirmed ||
-                a.Status == AppointmentStatus.CheckedIn ||
-                a.Status == AppointmentStatus.InProgress);
+                a.StatusId == 1 || a.StatusId == 2 ||
+                a.StatusId == 3 || a.StatusId == 4);
 
             return Ok(new AppointmentStatsDTO
             {
@@ -61,6 +54,7 @@ namespace WebAPI.Controllers
             });
         }
 
+        // GET api/report/doctor-workload
         [HttpGet("doctor-workload")]
         public async Task<IActionResult> GetDoctorWorkload(
             [FromQuery] DateTime? from,
@@ -75,37 +69,28 @@ namespace WebAPI.Controllers
 
             var result = doctors.Select(d =>
             {
-                var appointments = d.Appointments.AsQueryable();
-
-                if (from.HasValue)
-                    appointments = appointments
-                        .Where(a => a.AppointmentDate >= from.Value);
-
-                if (to.HasValue)
-                    appointments = appointments
-                        .Where(a => a.AppointmentDate <= to.Value);
-
-                var apptList = appointments.ToList();
+                var appts = d.Appointments
+                    .Where(a =>
+                        (!from.HasValue || a.AppointmentDate >= from.Value) &&
+                        (!to.HasValue || a.AppointmentDate <= to.Value))
+                    .ToList();
 
                 return new DoctorWorkloadDTO
                 {
                     DoctorName = d.User.FullName,
                     Specializations = d.DoctorSpecializations
-                        .Select(ds => ds.Specialization.Name)
-                        .ToList(),
-                    TotalAppointments = apptList.Count,
-                    CompletedAppointments = apptList.Count(a =>
-                        a.Status == AppointmentStatus.Completed),
-                    CancelledAppointments = apptList.Count(a =>
-                        a.Status == AppointmentStatus.Cancelled),
-                    MissedAppointments = apptList.Count(a =>
-                        a.Status == AppointmentStatus.Missed)
+                        .Select(ds => ds.Specialization.Name).ToList(),
+                    TotalAppointments = appts.Count,
+                    CompletedAppointments = appts.Count(a => a.StatusId == 5),
+                    CancelledAppointments = appts.Count(a => a.StatusId == 6),
+                    MissedAppointments = appts.Count(a => a.StatusId == 7)
                 };
             }).ToList();
 
             return Ok(result);
         }
 
+        // GET api/report/specialization-stats
         [HttpGet("specialization-stats")]
         public async Task<IActionResult> GetSpecializationStats(
             [FromQuery] DateTime? from,
@@ -122,8 +107,9 @@ namespace WebAPI.Controllers
                 {
                     SpecializationName = ds.Specialization.Name,
                     Appointments = d.Appointments
-                        .Where(a => (!from.HasValue || a.AppointmentDate >= from.Value)
-                                 && (!to.HasValue || a.AppointmentDate <= to.Value))
+                        .Where(a =>
+                            (!from.HasValue || a.AppointmentDate >= from.Value) &&
+                            (!to.HasValue || a.AppointmentDate <= to.Value))
                         .ToList()
                 }))
                 .GroupBy(x => x.SpecializationName)
@@ -131,15 +117,15 @@ namespace WebAPI.Controllers
                 {
                     SpecializationName = g.Key,
                     TotalAppointments = g.Sum(x => x.Appointments.Count),
-                    CompletedAppointments = g.Sum(x => x.Appointments
-                        .Count(a => a.Status == AppointmentStatus.Completed))
+                    CompletedAppointments = g.Sum(x =>
+                        x.Appointments.Count(a => a.StatusId == 5))
                 })
                 .ToList();
 
             return Ok(result);
         }
 
-
+        // GET api/report/daily-summary
         [HttpGet("daily-summary")]
         public async Task<IActionResult> GetDailySummary()
         {
@@ -153,17 +139,12 @@ namespace WebAPI.Controllers
             {
                 Date = today.ToString("yyyy-MM-dd"),
                 Total = todayAppointments.Count,
-                Completed = todayAppointments.Count(a =>
-                    a.Status == AppointmentStatus.Completed),
-                InProgress = todayAppointments.Count(a =>
-                    a.Status == AppointmentStatus.InProgress),
-                Waiting = todayAppointments.Count(a =>
-                    a.Status == AppointmentStatus.CheckedIn),
-                Cancelled = todayAppointments.Count(a =>
-                    a.Status == AppointmentStatus.Cancelled),
+                Completed = todayAppointments.Count(a => a.StatusId == 5),
+                InProgress = todayAppointments.Count(a => a.StatusId == 4),
+                Waiting = todayAppointments.Count(a => a.StatusId == 3),
+                Cancelled = todayAppointments.Count(a => a.StatusId == 6),
                 Upcoming = todayAppointments.Count(a =>
-                    a.Status == AppointmentStatus.Confirmed ||
-                    a.Status == AppointmentStatus.Requested)
+                    a.StatusId == 1 || a.StatusId == 2)
             });
         }
     }
