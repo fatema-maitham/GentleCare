@@ -1,0 +1,48 @@
+﻿@model IEnumerable<MVCApp.ViewModels.Appointment.DoctorAppointmentListItemViewModel>
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">My Appointments</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Patient</th>
+                    <th>Status</th>
+                    <th>Visit Record</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.StartTime - @item.EndTime</td>
+                        <td>@item.PatientName</td>
+                        <td>@item.Status</td>
+                        <td>@(item.HasVisitRecord ? "Created" : "Not Yet")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                            <a asp-action="PatientHistory" asp-route-patientId="@item.PatientId" class="btn btn-sm btn-outline-secondary">Patient History</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
