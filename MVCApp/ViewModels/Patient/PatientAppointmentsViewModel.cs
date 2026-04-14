@@ -1,11 +1,13 @@
-﻿using System;
-
-namespace MVCApp.ViewModels.Patient
+﻿namespace MVCApp.ViewModels.Patient
 {
     public class PatientAppointmentsViewModel
     {
-        public DateTime Date { get; set; }
-        public string DoctorName { get; set; }
-        public string Status { get; set; }
+        public int AppointmentId { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
+        public string DoctorName { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string? Notes { get; set; }
     }
 }

@@ -1,5 +1,120 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<MVCApp.ViewModels.Patient.PatientHistoryViewModel>
+
 @{
+    ViewData["Title"] = "Medical History";
 }
+
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="card border-0 shadow-sm" style="border-radius: 22px;">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Medical History</h2>
+                        <p class="text-muted mb-0">Your completed visits, diagnoses, treatments, and prescriptions.</p>
+                    </div>
+                    <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-secondary mt-3 mt-md-0">
+                        Back to Profile
+                    </a>
+                </div>
+
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        No medical history found.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <div class="border rounded-4 p-4 mb-4 bg-light">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <div class="text-muted small">Appointment Date</div>
+                                    <div class="fw-semibold">@item.AppointmentDate.ToString("dd MMM yyyy")</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="text-muted small">Doctor</div>
+                                    <div class="fw-semibold">@item.DoctorName</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="text-muted small">Appointment ID</div>
+                                    <div class="fw-semibold">@item.AppointmentId</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-muted small">Diagnosis</div>
+                                <div class="fw-semibold">
+                                    @(string.IsNullOrWhiteSpace(item.Diagnosis) ? "Not provided" : item.Diagnosis)
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-muted small">Treatment</div>
+                                <div class="fw-semibold">
+                                    @(string.IsNullOrWhiteSpace(item.Treatment) ? "Not provided" : item.Treatment)
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-muted small">Doctor Notes</div>
+                                <div class="fw-semibold">
+                                    @(string.IsNullOrWhiteSpace(item.DoctorNotes) ? "Not provided" : item.DoctorNotes)
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="text-muted small mb-2">Prescriptions</div>
+
+                                @if (item.Prescriptions == null || !item.Prescriptions.Any())
+                                {
+                                    <div class="text-muted">No prescriptions recorded.</div>
+                                }
+                                else
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Medication</th>
+                                                    <th>Dosage</th>
+                                                    <th>Frequency</th>
+                                                    <th>Duration (Days)</th>
+                                                    <th>Instructions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var prescription in item.Prescriptions)
+                                                {
+                                                    <tr>
+                                                        <td>@prescription.MedicationName</td>
+                                                        <td>@prescription.Dosage</td>
+                                                        <td>@prescription.Frequency</td>
+                                                        <td>@prescription.DurationDays</td>
+                                                        <td>
+                                                            @(string.IsNullOrWhiteSpace(prescription.Instructions) ? "—" : prescription.Instructions)
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="mt-4">
+                    <a asp-controller="Patient" asp-action="Appointments" class="btn btn-outline-primary">
+                        View Appointments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

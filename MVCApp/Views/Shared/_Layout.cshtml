@@ -54,32 +54,32 @@
             backdrop-filter: blur(6px);
         }
 
-        .main-navbar .navbar {
-            padding-top: 0.9rem;
-            padding-bottom: 0.9rem;
-        }
+            .main-navbar .navbar {
+                padding-top: 0.9rem;
+                padding-bottom: 0.9rem;
+            }
 
-        .main-navbar .nav-link {
-            color: rgba(255,255,255,0.92) !important;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 10px;
-            padding: 10px 16px !important;
-            transition: all 0.2s ease;
-        }
+            .main-navbar .nav-link {
+                color: rgba(255,255,255,0.92) !important;
+                font-weight: 600;
+                font-size: 1rem;
+                border-radius: 10px;
+                padding: 10px 16px !important;
+                transition: all 0.2s ease;
+            }
 
-        .main-navbar .nav-link:hover {
-            background: rgba(255,255,255,0.12);
-            color: #ffffff !important;
-        }
+                .main-navbar .nav-link:hover {
+                    background: rgba(255,255,255,0.12);
+                    color: #ffffff !important;
+                }
 
-        .main-navbar .navbar-toggler {
-            border-color: rgba(255,255,255,0.25);
-        }
+            .main-navbar .navbar-toggler {
+                border-color: rgba(255,255,255,0.25);
+            }
 
-        .main-navbar .navbar-toggler:focus {
-            box-shadow: none;
-        }
+                .main-navbar .navbar-toggler:focus {
+                    box-shadow: none;
+                }
 
         .user-badge {
             background: rgba(255,255,255,0.14);
@@ -112,15 +112,15 @@
             transition: all 0.2s ease;
         }
 
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.12);
-            color: #ffffff;
-        }
+            .logout-btn:hover {
+                background: rgba(255,255,255,0.12);
+                color: #ffffff;
+            }
 
-        .logout-btn:focus {
-            outline: none;
-            box-shadow: none;
-        }
+            .logout-btn:focus {
+                outline: none;
+                box-shadow: none;
+            }
 
         .page-shell {
             padding: 36px 0 48px 0;
@@ -192,10 +192,6 @@
 
                     <div class="collapse navbar-collapse" id="mainNav">
                         <ul class="navbar-nav me-auto align-items-lg-center gap-lg-2">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Public" asp-action="Lookup">Public Lookup</a>
-                            </li>
-
                             @if (User.Identity != null && User.Identity.IsAuthenticated)
                             {
                                 @if (User.IsInRole("Patient"))
@@ -225,15 +221,18 @@
                                     </li>
                                 }
 
-                                @if (User.IsInRole("Clinic Manager") || User.IsInRole("ClinicManager"))
+                                @if (User.IsInRole("ClinicManager"))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Manager Dashboard</a>
+                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Clinic Manager Dashboard</a>
                                     </li>
                                 }
                             }
                             else
                             {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Public" asp-action="Lookup">Public Lookup</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                                 </li>
