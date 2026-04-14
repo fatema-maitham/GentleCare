@@ -44,10 +44,26 @@ builder.Services.AddHttpClient("WebAPI", client =>
 
 var app = builder.Build();
 
+// Seed roles
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roles = { "Patient", "Doctor", "Receptionist", "ClinicManager" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Account/AccessDenied");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -63,6 +79,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Public}/{action=Lookup}/{id?}");
 
 app.Run();

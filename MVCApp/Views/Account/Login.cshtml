@@ -1,6 +1,55 @@
-﻿@{
+﻿@model MVCApp.ViewModels.LoginViewModel
+
+@{
     ViewData["Title"] = "Login";
 }
 
-<h2>Login</h2>
-<p>Login page is working with the shared layout.</p>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="card border-0 shadow-sm" style="border-radius: 22px;">
+            <div class="card-body p-4 p-md-5">
+                <div class="mb-4 text-center">
+                    <h2 class="fw-bold mb-2">Welcome Back</h2>
+                    <p class="text-muted mb-0">Login to access your clinic account.</p>
+                </div>
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UsernameOrEmail" class="form-label fw-semibold"></label>
+                        <input asp-for="UsernameOrEmail" class="form-control form-control-lg" placeholder="Enter username or email" />
+                        <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                    </div>
+
+                    <div class="text-center">
+                        <a asp-controller="Account" asp-action="Register" class="d-block mb-2">Create Patient Account</a>
+                        <a asp-controller="Public" asp-action="Lookup">Back to Public Lookup</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

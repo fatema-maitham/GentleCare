@@ -1,142 +1,295 @@
-﻿@{
-    var pageTitle = ViewData["Title"] as string ?? "HCARS";
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@pageTitle - HCARS</title>
+    <title>@ViewData["Title"] - HCARS</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MVCApp.styles.css" asp-append-version="true" />
 
     <style>
         html {
-            font-size: 14px;
+            font-size: 16px;
+            position: relative;
+            min-height: 100%;
         }
 
         body {
-            background: #f8fafc;
-            color: #1f2937;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: Arial, Helvetica, sans-serif;
             margin: 0;
+            background: #f4f7fb;
+            color: #1f2937;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .app-header {
-            background: #0f172a;
+            background: linear-gradient(135deg, #0b1736 0%, #132a5c 100%);
             color: #fff;
-            padding-top: 18px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
-        .app-brand {
-            font-size: 1.7rem;
-            font-weight: 700;
+        .brand-wrap {
+            padding: 26px 0 18px 0;
+        }
+
+        .brand-title {
             margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
-        .app-subtitle {
-            margin: 4px 0 0;
-            color: #cbd5e1;
-            font-size: .95rem;
-            padding-bottom: 14px;
+        .brand-subtitle {
+            margin-top: 6px;
+            margin-bottom: 0;
+            color: rgba(255,255,255,0.88);
+            font-size: 1rem;
+            font-weight: 400;
         }
 
-        .custom-navbar {
-            background: #1e293b;
-            padding: 12px 0;
+        .main-navbar {
+            background: rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(6px);
         }
 
-            .custom-navbar .container {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 16px;
-                flex-wrap: wrap;
-            }
+        .main-navbar .navbar {
+            padding-top: 0.9rem;
+            padding-bottom: 0.9rem;
+        }
 
-        .nav-links {
-            display: flex;
+        .main-navbar .nav-link {
+            color: rgba(255,255,255,0.92) !important;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 10px;
+            padding: 10px 16px !important;
+            transition: all 0.2s ease;
+        }
+
+        .main-navbar .nav-link:hover {
+            background: rgba(255,255,255,0.12);
+            color: #ffffff !important;
+        }
+
+        .main-navbar .navbar-toggler {
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        .main-navbar .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 8px;
+            white-space: nowrap;
         }
 
-            .nav-links a {
-                color: #ffffff;
-                text-decoration: none;
-                padding: 8px 14px;
-                border-radius: 10px;
-                transition: background-color .2s ease;
-                font-size: 14px;
-            }
-
-                .nav-links a:hover {
-                    background-color: rgba(255, 255, 255, 0.12);
-                    color: #ffffff;
-                }
-
-        .nav-user {
-            color: #cbd5e1;
-            font-size: 14px;
+        .user-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #5eead4;
+            display: inline-block;
         }
 
-        .main-wrapper {
-            flex: 1;
-            padding: 32px 0;
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.92);
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 10px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #ffffff;
+        }
+
+        .logout-btn:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .page-shell {
+            padding: 36px 0 48px 0;
         }
 
         .page-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            padding: 30px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+            padding: 28px;
+            min-height: 72vh;
         }
 
         .app-footer {
-            border-top: 1px solid #e5e7eb;
-            background: #fff;
+            margin-top: 18px;
+            padding: 18px 0 28px 0;
             color: #64748b;
-            text-align: center;
-            padding: 18px 0;
-            margin-top: 30px;
+            font-size: 0.95rem;
+        }
+
+        @@media (max-width: 991.98px) {
+            .brand-wrap {
+                padding: 22px 0 14px 0;
+            }
+
+            .brand-title {
+                font-size: 1.7rem;
+            }
+
+            .brand-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .user-badge {
+                margin-top: 12px;
+            }
+
+            .main-navbar .nav-link,
+            .logout-btn {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .page-card {
+                border-radius: 20px;
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <header class="app-header">
         <div class="container">
-            <h1 class="app-brand">HCARS</h1>
-            <p class="app-subtitle">Healthcare Clinic Appointment &amp; Resource System</p>
+            <div class="brand-wrap">
+                <h1 class="brand-title">HCARS</h1>
+                <p class="brand-subtitle">Healthcare Clinic Appointment &amp; Resource System</p>
+            </div>
         </div>
 
-        <partial name="_Navbar" />
+        <div class="main-navbar">
+            <div class="container">
+                <nav class="navbar navbar-expand-lg navbar-dark">
+                    <a class="navbar-brand d-lg-none fw-bold" asp-controller="Public" asp-action="Lookup">HCARS</a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="mainNav">
+                        <ul class="navbar-nav me-auto align-items-lg-center gap-lg-2">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Public" asp-action="Lookup">Public Lookup</a>
+                            </li>
+
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                @if (User.IsInRole("Patient"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Patient" asp-action="Profile">Profile</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Patient" asp-action="Appointments">Appointments</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Patient" asp-action="History">History</a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole("Doctor"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Doctor" asp-action="Dashboard">Doctor Dashboard</a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole("Receptionist"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Receptionist Dashboard</a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole("Clinic Manager") || User.IsInRole("ClinicManager"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Manager Dashboard</a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="d-flex align-items-lg-center">
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2">
+                                    <div class="user-badge">
+                                        <span class="user-dot"></span>
+                                        <span>@User.Identity.Name</span>
+                                    </div>
+
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="logout-btn">Logout</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="user-badge">
+                                    <span class="user-dot"></span>
+                                    <span>Guest User</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
     </header>
 
-    <div class="main-wrapper">
+    <main class="page-shell">
         <div class="container">
-            <main role="main" class="page-card">
-                <partial name="_AlertMessages" />
+            <div class="page-card">
                 @RenderBody()
-            </main>
+            </div>
         </div>
-    </div>
+    </main>
 
     <footer class="app-footer">
-        <div class="container">
-            &copy; @DateTime.Now.Year - HCARS MVC Application
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - HCARS
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
