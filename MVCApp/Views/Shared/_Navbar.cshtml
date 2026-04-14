@@ -1,0 +1,51 @@
+﻿<nav class="custom-navbar">
+    <div class="container">
+        <div class="nav-links">
+            <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
+
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                @if (User.IsInRole("Patient"))
+                {
+                    <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
+                    <a asp-controller="Appointment" asp-action="List">My Appointments</a>
+                    <a asp-controller="Patient" asp-action="History">History</a>
+                }
+
+                @if (User.IsInRole("Doctor"))
+                {
+                    <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
+                }
+
+                @if (User.IsInRole("Receptionist"))
+                {
+                    <a asp-controller="Appointment" asp-action="List">Appointments</a>
+                }
+
+                @if (User.IsInRole("ClinicManager"))
+                {
+                    <a asp-controller="Doctor" asp-action="List">Manage Doctors</a>
+                }
+
+                <a asp-controller="Account" asp-action="Logout">Logout</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login">Login</a>
+                <a asp-controller="Account" asp-action="Register">Register</a>
+            }
+        </div>
+
+        <div class="nav-user">
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <span>Hello, @User.Identity.Name</span>
+            }
+            else
+            {
+                <span>Guest User</span>
+            }
+        </div>
+    </div>
+</nav>
