@@ -4,47 +4,53 @@
             <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
             <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
 
-            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            @if (User?.Identity != null && User.Identity.IsAuthenticated)
             {
-                @if (User.IsInRole("Patient"))
+            @if (User.IsInRole("Patient"))
                 {
-                    <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
-                    <a asp-controller="Appointment" asp-action="List">My Appointments</a>
-                    <a asp-controller="Patient" asp-action="History">History</a>
+            <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
+            <a asp-controller="Appointment" asp-action="List">My Appointments</a>
+            <a asp-controller="Patient" asp-action="History">History</a>
                 }
 
-                @if (User.IsInRole("Doctor"))
+            @if (User.IsInRole("Doctor"))
                 {
-                    <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
+            <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
+            <a asp-controller="Doctor" asp-action="Schedule">Schedule</a>
+            <a asp-controller="Doctor" asp-action="MyPatients">My Patients</a>
                 }
 
-                @if (User.IsInRole("Receptionist"))
+            @if (User.IsInRole("Receptionist"))
                 {
-                    <a asp-controller="Appointment" asp-action="List">Appointments</a>
+            <a asp-controller="Receptionist" asp-action="BookAppointment">Book Appointment</a>
+            <a asp-controller="Receptionist" asp-action="ManageAppointments">Appointments</a>
+            <a asp-controller="Receptionist" asp-action="CheckIn">Check-In</a>
                 }
 
-                @if (User.IsInRole("ClinicManager"))
+            @if (User.IsInRole("ClinicManager"))
                 {
-                    <a asp-controller="Doctor" asp-action="List">Manage Doctors</a>
+            <a asp-controller="ClinicManager" asp-action="Doctors">Manage Doctors</a>
+            <a asp-controller="ClinicManager" asp-action="ManageSchedules">Schedules</a>
+            <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
                 }
 
-                <a asp-controller="Account" asp-action="Logout">Logout</a>
+            <a asp-controller="Account" asp-action="Logout">Logout</a>
             }
             else
             {
-                <a asp-controller="Account" asp-action="Login">Login</a>
-                <a asp-controller="Account" asp-action="Register">Register</a>
+            <a asp-controller="Account" asp-action="Login">Login</a>
+            <a asp-controller="Account" asp-action="Register">Register</a>
             }
         </div>
 
         <div class="nav-user">
-            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            @if (User?.Identity != null && User.Identity.IsAuthenticated)
             {
-                <span>Hello, @User.Identity.Name</span>
+            <span>Hello, @User.Identity.Name</span>
             }
             else
             {
-                <span>Guest User</span>
+            <span>Guest User</span>
             }
         </div>
     </div>
