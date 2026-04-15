@@ -1,0 +1,91 @@
+﻿@model List<MVCApp.ViewModels.Patient.PatientAppointmentsViewModel>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="card border-0 shadow-sm" style="border-radius: 22px;">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">My Appointments</h2>
+                        <p class="text-muted mb-0">Your upcoming and previous appointments.</p>
+                    </div>
+                    <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-secondary mt-3 mt-md-0">
+                        Back to Profile
+                    </a>
+                </div>
+
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        No appointments found.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Appointment ID</th>
+                                    <th>Date</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    var displayStatus = item.Status switch
+                                    {
+                                        "CheckedIn" => "Checked In",
+                                        "InProgress" => "In Progress",
+                                        _ => item.Status
+                                    };
+
+                                    var badgeClass = item.Status switch
+                                    {
+                                        "Requested" => "bg-secondary",
+                                        "Confirmed" => "bg-primary",
+                                        "CheckedIn" => "bg-info text-dark",
+                                        "InProgress" => "bg-warning text-dark",
+                                        "Completed" => "bg-success",
+                                        "Cancelled" => "bg-danger",
+                                        "Missed" => "bg-dark",
+                                        _ => "bg-secondary"
+                                    };
+
+                                    <tr>
+                                        <td>@item.AppointmentId</td>
+                                        <td>@item.AppointmentDate.ToString("dd MMM yyyy")</td>
+                                        <td>@item.StartTime</td>
+                                        <td>@item.EndTime</td>
+                                        <td>@item.DoctorName</td>
+                                        <td>
+                                            <span class="badge @badgeClass">@displayStatus</span>
+                                        </td>
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(item.Notes) ? "—" : item.Notes)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <a asp-controller="Patient" asp-action="History" class="btn btn-outline-primary">
+                        View Medical History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

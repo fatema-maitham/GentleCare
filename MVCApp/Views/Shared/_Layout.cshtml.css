@@ -1,48 +1,160 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿@ {
+    var pageTitle = ViewData["Title"] as string ?? "HCARS";
 }
 
-a {
-  color: #0077cc;
+<!DOCTYPE html >
+<html lang="en" >
+<head >
+<meta charset="utf-8" / >
+<meta name="viewport" content="width=device-width, initial-scale=1.0" / >
+<title > @pageTitle - HCARS</title >
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" / >
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" / >
+<link rel="stylesheet" href="~/MVCApp.styles.css" asp-append-version="true" / >
+
+<style >
+html {
+    font-size: 14px;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+body {
+    background: #f8fafc;
+    color: #1f2937;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.app-header {
+    background: #0f172a;
+    color: #fff;
+    padding-top: 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.app-brand {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+.app-subtitle {
+    margin: 4px 0 0;
+    color: #cbd5e1;
+    font-size: .95rem;
+    padding-bottom: 14px;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+.custom-navbar {
+    background: #1e293b;
+    padding: 12px 0;
 }
+
+    .custom-navbar .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+    .nav-links a {
+        color: #ffffff;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        transition: background-color .2s ease;
+        font-size: 14px;
+        display: inline-block;
+    }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+.nav-user {
+    color: #cbd5e1;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.main-wrapper {
+    flex: 1;
+    padding: 32px 0;
+}
+
+.page-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    padding: 30px;
+}
+
+.app-footer {
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+    color: #64748b;
+    text-align: center;
+    padding: 18px 0;
+    margin-top: 30px;
+}
+
+@@media (max-width: 768px) {
+    .custom-navbar .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-user {
+        margin-top: 8px;
+    }
+
+    .page-card {
+        padding: 20px;
+    }
+}
+
+</style >
+</head >
+<body >
+<header class="app-header" >
+<div class="container" >
+<h1 class="app-brand" > HCARS</h1 >
+<p class="app-subtitle" > Healthcare Clinic Appointment &amp; Resource System</p >
+</div >
+
+<partial name="_Navbar" / >
+</header >
+
+<div class="main-wrapper" >
+<div class="container" >
+<main role="main" class="page-card" >
+<partial name="_AlertMessages" / >
+@RenderBody()
+</main >
+</div >
+</div >
+
+<footer class="app-footer" >
+<div class="container" >
+&copy; @DateTime.Now.Year - HCARS MVC Application
+</div >
+</footer >
+
+<script src="~/lib/jquery/dist/jquery.min.js" > </script >
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" > </script >
+<script src="~/js/site.js" asp-append-version="true" > </script >
+@await RenderSectionAsync("Scripts", required: false)
+</body >
+</html >
