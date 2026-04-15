@@ -1,91 +1,85 @@
 ﻿@model MVCApp.ViewModels.Doctor.DoctorProfileViewModel
+
 @{
     ViewData["Title"] = "My Profile";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">My Doctor Profile</h2>
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="mb-1">My Profile</h2>
+            <p class="text-muted mb-0">Doctor information</p>
+        </div>
+
+        <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">@TempData["Error"]</div>
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
     }
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <h4>@Model.FullName</h4>
-            <p class="mb-1"><strong>Email:</strong> @Model.Email</p>
-            <p class="mb-1"><strong>License Number:</strong> @Model.LicenseNumber</p>
-            <p class="mb-0"><strong>Bio:</strong> @(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio added." : Model.Bio)</p>
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Profile Details</h5>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">Specializations</div>
-                <div class="card-body">
-                    @if (Model.Specializations.Any())
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Doctor ID</dt>
+                        <dd class="col-sm-8">@Model.DoctorId</dd>
+
+                        <dt class="col-sm-4">Full Name</dt>
+                        <dd class="col-sm-8">@Model.FullName</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">License No.</dt>
+                        <dd class="col-sm-8">@Model.LicenseNumber</dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <h6>Bio</h6>
+                    @if (string.IsNullOrWhiteSpace(Model.Bio))
                     {
-                        <ul class="mb-0">
-                            @foreach (var item in Model.Specializations)
-                            {
-                                <li>@item</li>
-                            }
-                        </ul>
+                        <p class="text-muted">No bio available.</p>
                     }
                     else
                     {
-                        <p class="mb-0">No specializations assigned.</p>
+                        <p>@Model.Bio</p>
                     }
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">Schedules</div>
-                <div class="card-body">
-                    @if (Model.Schedules.Any())
+                    <h6 class="mt-4">Specializations</h6>
+                    @if (Model.Specializations == null || !Model.Specializations.Any())
                     {
-                        <ul class="mb-0">
-                            @foreach (var item in Model.Schedules)
-                            {
-                                <li>@item.DayOfWeek - @item.StartTime to @item.EndTime (@item.SlotDurationMinutes min)</li>
-                            }
-                        </ul>
+                        <p class="text-muted mb-0">No specializations assigned.</p>
                     }
                     else
                     {
-                        <p class="mb-0">No schedule found.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var specialization in Model.Specializations)
+                            {
+                                <span class="badge bg-primary">@specialization</span>
+                            }
+                        </div>
                     }
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">Leave Periods</div>
-        <div class="card-body">
-            @if (Model.Leaves.Any())
-            {
-                <ul class="mb-0">
-                    @foreach (var leave in Model.Leaves)
-                    {
-                        <li>
-                            @leave.StartDate.ToString("yyyy-MM-dd") to @leave.EndDate.ToString("yyyy-MM-dd")
-                            @if (!string.IsNullOrWhiteSpace(leave.Reason))
-                            {
-                                <span>- @leave.Reason</span>
-                            }
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p class="mb-0">No leave periods recorded.</p>
-            }
         </div>
     </div>
 </div>
