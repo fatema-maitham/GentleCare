@@ -129,6 +129,15 @@ builder.Services.AddScoped<NotificationHubService>();
 
 var app = builder.Build();
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await DbSeeder.SeedUsersAsync(userManager, roleManager);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
