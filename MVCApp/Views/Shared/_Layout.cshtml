@@ -210,14 +210,20 @@
                                 @if (User.IsInRole("Doctor"))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Doctor" asp-action="Dashboard">Doctor Dashboard</a>
+                                        <a class="nav-link" asp-controller="Appointment" asp-action="MyAppointments">My Appointments</a>
                                     </li>
                                 }
 
                                 @if (User.IsInRole("Receptionist"))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Receptionist Dashboard</a>
+                                        <a class="nav-link" asp-controller="Receptionist" asp-action="Index">Receptionist Dashboard</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Receptionist" asp-action="Appointments">Manage Appointments</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Receptionist" asp-action="BookAppointment">Book Appointment</a>
                                     </li>
                                 }
 

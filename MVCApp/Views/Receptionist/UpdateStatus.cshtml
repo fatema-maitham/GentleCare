@@ -1,0 +1,82 @@
+﻿@model MVCApp.ViewModels.Receptionist.ReceptionistUpdateAppointmentStatusViewModel
+
+@{
+    ViewData["Title"] = "Update Appointment Status";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Update Appointment Status</h2>
+                        <p class="text-muted mb-0">Manage the current appointment lifecycle step.</p>
+                    </div>
+                    <a asp-controller="Receptionist" asp-action="Appointments" class="btn btn-outline-secondary mt-3 mt-md-0">
+                        Back to Appointments
+                    </a>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="small text-muted">Patient</div>
+                        <div class="fw-semibold">@Model.PatientName</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted">Doctor</div>
+                        <div class="fw-semibold">@Model.DoctorName</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted">Date</div>
+                        <div class="fw-semibold">@Model.AppointmentDate.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted">Time</div>
+                        <div class="fw-semibold">@Model.StartTime - @Model.EndTime</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="small text-muted">Current Status</div>
+                        <div class="fw-semibold">@Model.CurrentStatus</div>
+                    </div>
+                </div>
+
+                @if (Model.AllowedStatuses == null || !Model.AllowedStatuses.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        No further status transitions are available for this appointment.
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="UpdateStatus" method="post">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="AppointmentId" type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewStatus" class="form-label fw-semibold"></label>
+                            <select asp-for="NewStatus" asp-items="Model.AllowedStatuses" class="form-select">
+                                <option value="">Select new status</option>
+                            </select>
+                            <span asp-validation-for="NewStatus" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="CancellationReason" class="form-label fw-semibold"></label>
+                            <textarea asp-for="CancellationReason" class="form-control" rows="3" placeholder="Required only when cancelling an appointment"></textarea>
+                            <span asp-validation-for="CancellationReason" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

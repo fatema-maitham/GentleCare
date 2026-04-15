@@ -90,12 +90,12 @@ namespace MVCApp.Controllers
 
             if (await _userManager.IsInRoleAsync(user, "Doctor"))
             {
-                return RedirectToAction("Dashboard", "Doctor");
+                return RedirectToAction("MyAppointments", "Appointment");
             }
 
             if (await _userManager.IsInRoleAsync(user, "Receptionist"))
             {
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Index", "Receptionist");
             }
 
             if (await _userManager.IsInRoleAsync(user, "ClinicManager"))
