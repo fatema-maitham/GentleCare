@@ -100,7 +100,7 @@ namespace MVCApp.Controllers
 
             if (await _userManager.IsInRoleAsync(user, "ClinicManager"))
             {
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Dashboard", "ClinicManager");
             }
 
             return RedirectToAction("Lookup", "Public");

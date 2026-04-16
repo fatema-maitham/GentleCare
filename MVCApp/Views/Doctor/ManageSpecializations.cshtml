@@ -1,0 +1,47 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ManageDoctorSpecializationsViewModel
+
+@{
+    ViewData["Title"] = "Manage Specializations";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Manage Specializations</h2>
+            <p class="text-muted mb-0">@Model.DoctorName</p>
+        </div>
+        <a asp-controller="ClinicManager" asp-action="DoctorDetails" asp-route-id="@Model.DoctorId" class="btn btn-outline-secondary">Back to Details</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-controller="ClinicManager" asp-action="ManageSpecializations" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="DoctorId" type="hidden" />
+
+                <div class="row g-3">
+                    @for (int i = 0; i < Model.Specializations.Count; i++)
+                    {
+                        <div class="col-md-6">
+                            <div class="form-check border rounded p-3">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       name="SelectedSpecializationIds"
+                                       value="@Model.Specializations[i].SpecializationId"
+                                       checked="@Model.Specializations[i].IsSelected" />
+                                <label class="form-check-label fw-semibold">
+                                    @Model.Specializations[i].SpecializationName
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Save Specializations</button>
+                    <a asp-controller="ClinicManager" asp-action="DoctorDetails" asp-route-id="@Model.DoctorId" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
