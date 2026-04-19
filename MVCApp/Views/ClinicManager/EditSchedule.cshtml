@@ -1,0 +1,62 @@
+﻿@model MVCApp.ViewModels.ClinicManager.UpsertDoctorScheduleViewModel
+
+@{
+    ViewData["Title"] = "Edit Schedule";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Edit Schedule</h2>
+            <p class="text-muted mb-0">Doctor ID: @Model.DoctorId</p>
+        </div>
+        <a asp-controller="ClinicManager" asp-action="ManageSchedule" asp-route-doctorId="@Model.DoctorId" class="btn btn-outline-secondary">Back to Schedule</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="DoctorId" type="hidden" />
+                <input asp-for="DoctorScheduleId" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="DayOfWeek" class="form-label"></label>
+                        <select asp-for="DayOfWeek" class="form-select" asp-items="Html.GetEnumSelectList<DayOfWeek>()"></select>
+                        <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="StartTime" class="form-label"></label>
+                        <input asp-for="StartTime" class="form-control" type="time" />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="EndTime" class="form-label"></label>
+                        <input asp-for="EndTime" class="form-control" type="time" />
+                        <span asp-validation-for="EndTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="SlotDurationMinutes" class="form-label"></label>
+                        <input asp-for="SlotDurationMinutes" class="form-control" type="number" min="1" />
+                        <span asp-validation-for="SlotDurationMinutes" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a asp-controller="ClinicManager" asp-action="ManageSchedule" asp-route-doctorId="@Model.DoctorId" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

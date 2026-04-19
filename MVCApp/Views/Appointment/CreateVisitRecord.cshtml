@@ -1,0 +1,48 @@
+﻿@model MVCApp.ViewModels.Appointment.CreateVisitRecordViewModel
+@{
+    ViewData["Title"] = "Create Visit Record";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Create Visit Record</h2>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="mb-1"><strong>Patient:</strong> @Model.PatientName</p>
+            <p class="mb-0"><strong>Appointment Date:</strong> @Model.AppointmentDate.ToString("yyyy-MM-dd")</p>
+        </div>
+    </div>
+
+    <form asp-action="CreateVisitRecord" method="post">
+        <input type="hidden" asp-for="AppointmentId" />
+        <input type="hidden" asp-for="PatientName" />
+        <input type="hidden" asp-for="AppointmentDate" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="DoctorNotes" class="form-label"></label>
+            <textarea asp-for="DoctorNotes" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="DoctorNotes" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Diagnosis" class="form-label"></label>
+            <input asp-for="Diagnosis" class="form-control" />
+            <span asp-validation-for="Diagnosis" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Treatment" class="form-label"></label>
+            <textarea asp-for="Treatment" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Treatment" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Visit Record</button>
+        <a asp-action="Details" asp-route-id="@Model.AppointmentId" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
