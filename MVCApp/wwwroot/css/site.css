@@ -96,7 +96,7 @@ body {
     padding: 30px;
 }
 
-/* Cards and tables */
+/* Bootstrap polish */
 .card {
     border-radius: 14px;
 }
@@ -114,7 +114,6 @@ body {
     font-weight: 600;
 }
 
-/* Forms */
 .form-control,
 .form-select {
     border-radius: 10px;
