@@ -168,3 +168,32 @@ body {
         padding: 20px;
     }
 }
+
+.logout-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+    .nav-link-button:hover {
+        background-color: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+    }
+
+    .nav-link-button:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.45);
+        outline-offset: 2px;
+    }
