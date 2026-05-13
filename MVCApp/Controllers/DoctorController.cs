@@ -309,12 +309,14 @@ namespace MVCApp.Controllers
                 return View(model);
             }
 
+            var oldStatusName = appointment.Status.Name;
+
             appointment.StatusId = newStatus.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             await CreateAppointmentStatusNotificationAsync(
                 appointment,
-                appointment.Status.Name,
+                oldStatusName,
                 newStatus.Name);
 
             await _context.SaveChangesAsync();
