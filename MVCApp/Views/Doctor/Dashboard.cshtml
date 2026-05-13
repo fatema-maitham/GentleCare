@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Doctor Dashboard";
-    var todayValue = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
 <div class="doctor-dashboard">
@@ -18,45 +17,35 @@
 
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <a asp-controller="Doctor"
-               asp-action="Appointments"
-               asp-route-date="@todayValue"
-               class="dashboard-stat-card text-decoration-none">
+            <div class="dashboard-stat-card">
                 <span class="stat-label">Today's Appointments</span>
                 <span class="stat-number">@Model.TotalAppointmentsToday</span>
                 <span class="stat-help">Total assigned today</span>
-            </a>
+            </div>
         </div>
 
         <div class="col-md-3">
-            <a asp-controller="Doctor"
-               asp-action="Appointments"
-               asp-route-date="@todayValue"
-               class="dashboard-stat-card text-decoration-none">
+            <div class="dashboard-stat-card">
                 <span class="stat-label">Remaining Today</span>
                 <span class="stat-number">@Model.RemainingAppointmentsToday</span>
                 <span class="stat-help">Not completed yet</span>
-            </a>
+            </div>
         </div>
 
         <div class="col-md-3">
-            <a asp-controller="Doctor"
-               asp-action="Appointments"
-               class="dashboard-stat-card text-decoration-none">
+            <div class="dashboard-stat-card">
                 <span class="stat-label">Upcoming</span>
                 <span class="stat-number">@Model.UpcomingAppointmentsCount</span>
                 <span class="stat-help">Future active appointments</span>
-            </a>
+            </div>
         </div>
 
         <div class="col-md-3">
-            <a asp-controller="Doctor"
-               asp-action="Notifications"
-               class="dashboard-stat-card text-decoration-none">
+            <div class="dashboard-stat-card">
                 <span class="stat-label">Unread Notifications</span>
                 <span class="stat-number">@Model.UnreadNotificationsCount</span>
                 <span class="stat-help">Require attention</span>
-            </a>
+            </div>
         </div>
     </div>
 
@@ -93,44 +82,6 @@
                         <span class="workflow-label">Completed</span>
                         <strong>@Model.CompletedAppointmentsToday</strong>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 fw-bold">Doctor Actions</h5>
-        </div>
-
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <a asp-controller="Doctor"
-                       asp-action="Appointments"
-                       asp-route-date="@todayValue"
-                       class="doctor-action-card">
-                        <span class="action-title">Work on Today's Queue</span>
-                        <span class="action-text">Open today's appointments and update patient progress.</span>
-                    </a>
-                </div>
-
-                <div class="col-md-4">
-                    <a asp-controller="Doctor"
-                       asp-action="Prescriptions"
-                       class="doctor-action-card">
-                        <span class="action-title">Review Prescriptions</span>
-                        <span class="action-text">Check prescriptions recorded from completed visits.</span>
-                    </a>
-                </div>
-
-                <div class="col-md-4">
-                    <a asp-controller="Doctor"
-                       asp-action="Notifications"
-                       class="doctor-action-card">
-                        <span class="action-title">Check Notifications</span>
-                        <span class="action-text">Review appointment updates and clinic messages.</span>
-                    </a>
                 </div>
             </div>
         </div>
