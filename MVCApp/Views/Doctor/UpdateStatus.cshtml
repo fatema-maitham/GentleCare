@@ -4,80 +4,121 @@
     ViewData["Title"] = "Update Appointment Status";
 }
 
-<div class="container py-4">
+<div class="container mt-4">
+
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Update Appointment Status</h2>
+            <p class="text-muted mb-0">
+                Move the appointment to the next valid workflow status.
+            </p>
+        </div>
+
+        <a asp-controller="Doctor"
+           asp-action="AppointmentDetails"
+           asp-route-id="@Model.AppointmentId"
+           class="btn btn-outline-secondary">
+            Back to Details
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    }
+
     <div class="row justify-content-center">
         <div class="col-lg-7">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Update Appointment Status</h2>
-                    <p class="text-muted mb-0">Appointment ID: @Model.AppointmentId</p>
-                </div>
 
-                <a asp-controller="Doctor"
-                   asp-action="AppointmentDetails"
-                   asp-route-id="@Model.AppointmentId"
-                   class="btn btn-outline-secondary">
-                    Back to Details
-                </a>
-            </div>
-
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success">
-                    @TempData["Success"]
-                </div>
-            }
-
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">
-                    @TempData["Error"]
-                </div>
-            }
-
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0">Change Status</h5>
+                    <h5 class="fw-bold mb-0">Status Update Form</h5>
                 </div>
 
                 <div class="card-body">
-                    <form asp-controller="Doctor" asp-action="UpdateStatus" method="post">
+
+                    <!-- Shows validation errors from the controller workflow checks -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <form asp-controller="Doctor"
+                          asp-action="UpdateStatus"
+                          method="post">
+
                         @Html.AntiForgeryToken()
 
                         <input asp-for="AppointmentId" type="hidden" />
 
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
                         <div class="mb-3">
-                            <label asp-for="CurrentStatusName" class="form-label"></label>
-                            <input asp-for="CurrentStatusName" class="form-control" readonly />
+                            <label asp-for="CurrentStatusName" class="form-label">Current Status</label>
+                            <input asp-for="CurrentStatusName"
+                                   class="form-control"
+                                   readonly />
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label asp-for="NewStatusName" class="form-label"></label>
                             <select asp-for="NewStatusName"
                                     asp-items="Model.AvailableStatuses"
                                     class="form-select">
-                                <option value="">-- Select New Status --</option>
+                                <option value="">Select new status</option>
                             </select>
                             <span asp-validation-for="NewStatusName" class="text-danger"></span>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                Save Status
-                            </button>
+                        <div class="mb-3">
+                            <label asp-for="StatusNote" class="form-label"></label>
+                            <textarea asp-for="StatusNote"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Optional note about this status update"></textarea>
+                            <span asp-validation-for="StatusNote" class="text-danger"></span>
+                        </div>
 
+                        @if (!Model.HasAvailableStatuses)
+                        {
+                        <div class="alert alert-info">
+                            No next status is available for this appointment.
+                        </div>
+                        }
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
                             <a asp-controller="Doctor"
                                asp-action="AppointmentDetails"
                                asp-route-id="@Model.AppointmentId"
                                class="btn btn-outline-secondary">
                                 Cancel
                             </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    disabled="@(!Model.HasAvailableStatuses)">
+                                Save Status
+                            </button>
                         </div>
                     </form>
+
                 </div>
             </div>
+
+            <!-- Small workflow note for the doctor -->
+            <div class="alert alert-light border mt-4 mb-0">
+                <strong>Note:</strong>
+                Only valid appointment workflow transitions are shown.
+                Completed, cancelled, or missed appointments cannot be moved forward by the doctor.
+            </div>
+
         </div>
     </div>
 </div>
