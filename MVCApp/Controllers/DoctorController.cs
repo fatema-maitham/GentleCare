@@ -15,6 +15,24 @@ namespace MVCApp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private static class StatusNames
+        {
+            public const string Requested = "Requested";
+            public const string Confirmed = "Confirmed";
+            public const string CheckedIn = "CheckedIn";
+            public const string InProgress = "InProgress";
+            public const string Completed = "Completed";
+            public const string Cancelled = "Cancelled";
+            public const string Missed = "Missed";
+        }
+
+        private static class NotificationTypeNames
+        {
+            public const string Appointment = "Appointment";
+            public const string Prescription = "Prescription";
+            public const string General = "General";
+        }
+
         public DoctorController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager)
@@ -49,9 +67,9 @@ namespace MVCApp.Controllers
                 .Where(a =>
                     a.DoctorId == doctor.Id &&
                     a.AppointmentDate.Date >= today &&
-                    a.Status.Name != "Completed" &&
-                    a.Status.Name != "Cancelled" &&
-                    a.Status.Name != "Missed")
+                    a.Status.Name != StatusNames.Completed &&
+                    a.Status.Name != StatusNames.Cancelled &&
+                    a.Status.Name != StatusNames.Missed)
                 .CountAsync();
 
             var unreadNotificationsCount = await _context.Notifications
@@ -62,7 +80,9 @@ namespace MVCApp.Controllers
             var totalPatientsSeen = await _context.Appointments
                 .AsNoTracking()
                 .Include(a => a.Status)
-                .Where(a => a.DoctorId == doctor.Id && a.Status.Name == "Completed")
+                .Where(a =>
+                    a.DoctorId == doctor.Id &&
+                    a.Status.Name == StatusNames.Completed)
                 .Select(a => a.PatientId)
                 .Distinct()
                 .CountAsync();
@@ -71,10 +91,10 @@ namespace MVCApp.Controllers
             {
                 DoctorFullName = doctor.User.FullName,
                 TotalAppointmentsToday = todaysAppointments.Count,
-                ConfirmedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "Confirmed"),
-                CheckedInAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "CheckedIn"),
-                InProgressAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "InProgress"),
-                CompletedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "Completed"),
+                ConfirmedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.Confirmed),
+                CheckedInAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.CheckedIn),
+                InProgressAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.InProgress),
+                CompletedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.Completed),
                 UpcomingAppointmentsCount = upcomingAppointmentsCount,
                 UnreadNotificationsCount = unreadNotificationsCount,
                 TotalPatientsSeen = totalPatientsSeen
@@ -174,18 +194,22 @@ namespace MVCApp.Controllers
                 StatusName = FormatStatusName(appointment.Status.Name),
                 Notes = appointment.Notes,
                 CancellationReason = appointment.CancellationReason,
+
                 PatientId = appointment.PatientId,
                 PatientFullName = appointment.Patient.User.FullName,
                 PatientReferenceNumber = appointment.Patient.ReferenceNumber,
                 PatientCprNumber = appointment.Patient.CPRNumber,
+
                 DoctorNotes = appointment.VisitRecord?.DoctorNotes,
                 Diagnosis = appointment.VisitRecord?.Diagnosis,
                 Treatment = appointment.VisitRecord?.Treatment,
+
                 HasVisitRecord = appointment.VisitRecord != null,
                 CanCreateVisitRecord = appointment.VisitRecord == null && CanCreateVisitRecord(appointment.Status.Name),
                 CanEditVisitRecord = appointment.VisitRecord != null,
                 CanUpdateStatus = allowedNextStatuses.Any(),
                 AvailableNextStatuses = allowedNextStatuses,
+
                 Prescriptions = appointment.VisitRecord?.Prescriptions
                     .Select(p => new PrescriptionInputViewModel
                     {
@@ -214,6 +238,7 @@ namespace MVCApp.Controllers
             }
 
             var availableStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
+
             if (!availableStatuses.Any())
             {
                 TempData["Error"] = "This appointment cannot be updated by the doctor at its current status.";
@@ -254,6 +279,11 @@ namespace MVCApp.Controllers
                 ModelState.AddModelError(nameof(model.NewStatusName), "Invalid status transition for doctor workflow.");
             }
 
+            if (model.NewStatusName == StatusNames.Missed && !CanMarkAsMissed(appointment))
+            {
+                ModelState.AddModelError(nameof(model.NewStatusName), "The appointment can only be marked as missed after its scheduled time has passed.");
+            }
+
             if (!ModelState.IsValid)
             {
                 model.CurrentStatusName = FormatStatusName(appointment.Status.Name);
@@ -272,8 +302,15 @@ namespace MVCApp.Controllers
                 return View(model);
             }
 
+            var oldStatusName = appointment.Status.Name;
+
             appointment.StatusId = newStatus.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
+
+            await CreateAppointmentStatusNotificationAsync(
+                appointment,
+                oldStatusName,
+                newStatus.Name);
 
             await _context.SaveChangesAsync();
 
@@ -464,14 +501,23 @@ namespace MVCApp.Controllers
                     await _context.Prescriptions.AddRangeAsync(prescriptions);
                 }
 
-                if (appointment.Status.Name != "Completed")
+                if (appointment.Status.Name != StatusNames.Completed)
                 {
+                    var oldStatusName = appointment.Status.Name;
+
                     var completedStatus = await _context.AppointmentStatuses
-                        .FirstAsync(s => s.Name == "Completed");
+                        .FirstAsync(s => s.Name == StatusNames.Completed);
 
                     appointment.StatusId = completedStatus.Id;
                     appointment.UpdatedAt = DateTime.UtcNow;
+
+                    await CreateAppointmentStatusNotificationAsync(
+                        appointment,
+                        oldStatusName,
+                        completedStatus.Name);
                 }
+
+                await CreatePrescriptionNotificationIfNeededAsync(appointment, cleanedPrescriptions.Count);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -598,6 +644,8 @@ namespace MVCApp.Controllers
                 }
 
                 appointment.UpdatedAt = DateTime.UtcNow;
+
+                await CreatePrescriptionNotificationIfNeededAsync(appointment, cleanedPrescriptions.Count);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -760,7 +808,9 @@ namespace MVCApp.Controllers
                     .OrderBy(s => s.DayOfWeek)
                     .ThenBy(s => s.StartTime)
                     .ToList(),
-                Leaves = doctor.Leaves.ToList()
+                Leaves = doctor.Leaves
+                    .OrderByDescending(l => l.StartDate)
+                    .ToList()
             };
 
             return View(model);
@@ -770,32 +820,59 @@ namespace MVCApp.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return null;
+            }
+
             return await _context.Doctors
                 .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.UserId == userId);
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
         }
 
         private async Task<Appointment?> GetDoctorAppointmentAsync(int appointmentId)
         {
             var userId = _userManager.GetUserId(User);
 
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return null;
+            }
+
             return await _context.Appointments
                 .Include(a => a.Patient)
                     .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
                 .Include(a => a.Status)
                 .Include(a => a.VisitRecord)
                     .ThenInclude(v => v.Prescriptions)
-                .FirstOrDefaultAsync(a => a.Id == appointmentId && a.Doctor.UserId == userId);
+                .FirstOrDefaultAsync(a =>
+                    a.Id == appointmentId &&
+                    a.Doctor.UserId == userId);
         }
 
         private static List<string> GetAllowedNextStatuses(string currentStatusName)
         {
             return currentStatusName switch
             {
-                "Confirmed" => new List<string> { "CheckedIn", "Missed" },
-                "CheckedIn" => new List<string> { "InProgress", "Missed" },
-                "InProgress" => new List<string> { "Completed" },
+                StatusNames.Confirmed => new List<string>
+                {
+                    StatusNames.CheckedIn,
+                    StatusNames.Missed
+                },
+
+                StatusNames.CheckedIn => new List<string>
+                {
+                    StatusNames.InProgress,
+                    StatusNames.Missed
+                },
+
+                StatusNames.InProgress => new List<string>
+                {
+                    StatusNames.Completed
+                },
+
                 _ => new List<string>()
             };
         }
@@ -813,7 +890,16 @@ namespace MVCApp.Controllers
 
         private static bool CanCreateVisitRecord(string currentStatusName)
         {
-            return currentStatusName == "InProgress" || currentStatusName == "Completed";
+            return currentStatusName == StatusNames.InProgress ||
+                   currentStatusName == StatusNames.Completed;
+        }
+
+        private static bool CanMarkAsMissed(Appointment appointment)
+        {
+            var appointmentEndDateTime = appointment.AppointmentDate.Date
+                .Add(appointment.EndTime.ToTimeSpan());
+
+            return DateTime.Now >= appointmentEndDateTime;
         }
 
         private void ValidateVisitRecordInput(string? doctorNotes, string? diagnosis)
@@ -831,7 +917,7 @@ namespace MVCApp.Controllers
 
         private void ValidatePrescriptionInputs(List<PrescriptionInputViewModel> prescriptions)
         {
-            for (int i = 0; i < prescriptions.Count; i++)
+            for (var i = 0; i < prescriptions.Count; i++)
             {
                 var item = prescriptions[i];
 
@@ -872,6 +958,16 @@ namespace MVCApp.Controllers
                     !string.IsNullOrWhiteSpace(p.Frequency) ||
                     p.DurationDays > 0 ||
                     !string.IsNullOrWhiteSpace(p.Instructions))
+                .Select(p => new PrescriptionInputViewModel
+                {
+                    MedicationName = p.MedicationName?.Trim() ?? string.Empty,
+                    Dosage = p.Dosage?.Trim() ?? string.Empty,
+                    Frequency = p.Frequency?.Trim() ?? string.Empty,
+                    DurationDays = p.DurationDays,
+                    Instructions = string.IsNullOrWhiteSpace(p.Instructions)
+                        ? null
+                        : p.Instructions.Trim()
+                })
                 .ToList();
         }
 
@@ -897,12 +993,65 @@ namespace MVCApp.Controllers
             model.EndTime = appointment.EndTime;
         }
 
+        private async Task CreateAppointmentStatusNotificationAsync(
+            Appointment appointment,
+            string oldStatusName,
+            string newStatusName)
+        {
+            var notificationTypeId = await GetNotificationTypeIdAsync(NotificationTypeNames.Appointment);
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = appointment.Patient.UserId,
+                NotificationTypeId = notificationTypeId,
+                Title = "Appointment Status Updated",
+                Message = $"Your appointment on {appointment.AppointmentDate:dd MMM yyyy} from {appointment.StartTime:HH\\:mm} to {appointment.EndTime:HH\\:mm} changed from {FormatStatusName(oldStatusName)} to {FormatStatusName(newStatusName)}.",
+                RelatedEntityId = appointment.Id,
+                RelatedEntityType = nameof(Appointment),
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        private async Task CreatePrescriptionNotificationIfNeededAsync(
+            Appointment appointment,
+            int prescriptionCount)
+        {
+            if (prescriptionCount <= 0)
+            {
+                return;
+            }
+
+            var notificationTypeId = await GetNotificationTypeIdAsync(NotificationTypeNames.Prescription);
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = appointment.Patient.UserId,
+                NotificationTypeId = notificationTypeId,
+                Title = "Prescription Updated",
+                Message = $"A prescription has been recorded for your visit on {appointment.AppointmentDate:dd MMM yyyy}.",
+                RelatedEntityId = appointment.Id,
+                RelatedEntityType = nameof(Prescription),
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        private async Task<int?> GetNotificationTypeIdAsync(string typeName)
+        {
+            return await _context.NotificationTypes
+                .AsNoTracking()
+                .Where(t => t.Name == typeName)
+                .Select(t => (int?)t.Id)
+                .FirstOrDefaultAsync();
+        }
+
         private static string FormatStatusName(string statusName)
         {
             return statusName switch
             {
-                "CheckedIn" => "Checked In",
-                "InProgress" => "In Progress",
+                StatusNames.CheckedIn => "Checked In",
+                StatusNames.InProgress => "In Progress",
                 _ => statusName
             };
         }
