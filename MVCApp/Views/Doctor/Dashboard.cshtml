@@ -2,166 +2,149 @@
 
 @{
     ViewData["Title"] = "Doctor Dashboard";
+    var todayValue = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
-<div class="container mt-4">
-    <div class="mb-4">
-        <h2 class="fw-bold">Doctor Dashboard</h2>
-        <p class="text-muted mb-0">
-            Welcome, Dr. @Model.DoctorFullName. Here is your appointment summary for today.
-        </p>
+<div class="doctor-dashboard">
+
+    <div class="page-title-row mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Doctor Dashboard</h2>
+            <p class="text-muted mb-0">
+                Welcome, Dr. @Model.DoctorFullName. Here is your appointment summary for today.
+            </p>
+        </div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
-
-    <!-- Main dashboard summary cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Today's Appointments</h6>
-                    <h2 class="fw-bold">@Model.TotalAppointmentsToday</h2>
-                    <p class="mb-0 text-muted">Total assigned today</p>
-                </div>
-            </div>
+            <a asp-controller="Doctor"
+               asp-action="Appointments"
+               asp-route-date="@todayValue"
+               class="dashboard-stat-card text-decoration-none">
+                <span class="stat-label">Today's Appointments</span>
+                <span class="stat-number">@Model.TotalAppointmentsToday</span>
+                <span class="stat-help">Total assigned today</span>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Remaining Today</h6>
-                    <h2 class="fw-bold">@Model.RemainingAppointmentsToday</h2>
-                    <p class="mb-0 text-muted">Not completed yet</p>
-                </div>
-            </div>
+            <a asp-controller="Doctor"
+               asp-action="Appointments"
+               asp-route-date="@todayValue"
+               class="dashboard-stat-card text-decoration-none">
+                <span class="stat-label">Remaining Today</span>
+                <span class="stat-number">@Model.RemainingAppointmentsToday</span>
+                <span class="stat-help">Not completed yet</span>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Upcoming</h6>
-                    <h2 class="fw-bold">@Model.UpcomingAppointmentsCount</h2>
-                    <p class="mb-0 text-muted">Future active appointments</p>
-                </div>
-            </div>
+            <a asp-controller="Doctor"
+               asp-action="Appointments"
+               class="dashboard-stat-card text-decoration-none">
+                <span class="stat-label">Upcoming</span>
+                <span class="stat-number">@Model.UpcomingAppointmentsCount</span>
+                <span class="stat-help">Future active appointments</span>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Unread Notifications</h6>
-                    <h2 class="fw-bold">@Model.UnreadNotificationsCount</h2>
-                    <p class="mb-0 text-muted">Require attention</p>
-                </div>
-            </div>
+            <a asp-controller="Doctor"
+               asp-action="Notifications"
+               class="dashboard-stat-card text-decoration-none">
+                <span class="stat-label">Unread Notifications</span>
+                <span class="stat-number">@Model.UnreadNotificationsCount</span>
+                <span class="stat-help">Require attention</span>
+            </a>
         </div>
     </div>
 
-    <!-- Appointment workflow summary for today -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Confirmed</h6>
-                    <h3 class="fw-bold">@Model.ConfirmedAppointmentsToday</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Checked In</h6>
-                    <h3 class="fw-bold">@Model.CheckedInAppointmentsToday</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">In Progress</h6>
-                    <h3 class="fw-bold">@Model.InProgressAppointmentsToday</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Completed</h6>
-                    <h3 class="fw-bold">@Model.CompletedAppointmentsToday</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick doctor actions -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white">
-            <h5 class="mb-0">Quick Actions</h5>
+            <h5 class="mb-0 fw-bold">Today's Workflow</h5>
         </div>
 
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-3">
+                    <div class="workflow-box">
+                        <span class="workflow-label">Confirmed</span>
+                        <strong>@Model.ConfirmedAppointmentsToday</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="workflow-box">
+                        <span class="workflow-label">Checked In</span>
+                        <strong>@Model.CheckedInAppointmentsToday</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="workflow-box">
+                        <span class="workflow-label">In Progress</span>
+                        <strong>@Model.InProgressAppointmentsToday</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="workflow-box">
+                        <span class="workflow-label">Completed</span>
+                        <strong>@Model.CompletedAppointmentsToday</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">Doctor Actions</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
                     <a asp-controller="Doctor"
                        asp-action="Appointments"
-                       class="btn btn-primary w-100">
-                        View Appointments
+                       asp-route-date="@todayValue"
+                       class="doctor-action-card">
+                        <span class="action-title">Work on Today's Queue</span>
+                        <span class="action-text">Open today's appointments and update patient progress.</span>
                     </a>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <a asp-controller="Doctor"
-                       asp-action="Schedule"
-                       class="btn btn-outline-primary w-100">
-                        View Schedule
+                       asp-action="Prescriptions"
+                       class="doctor-action-card">
+                        <span class="action-title">Review Prescriptions</span>
+                        <span class="action-text">Check prescriptions recorded from completed visits.</span>
                     </a>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <a asp-controller="Doctor"
                        asp-action="Notifications"
-                       class="btn btn-outline-primary w-100">
-                        View Notifications
-                    </a>
-                </div>
-
-                <div class="col-md-3">
-                    <a asp-controller="Doctor"
-                       asp-action="Profile"
-                       class="btn btn-outline-primary w-100">
-                        My Profile
+                       class="doctor-action-card">
+                        <span class="action-title">Check Notifications</span>
+                        <span class="action-text">Review appointment updates and clinic messages.</span>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Small profile metric -->
-    <div class="card shadow-sm mt-4">
+    <div class="card shadow-sm border-0">
         <div class="card-body">
-            <h5 class="fw-bold">Patients Seen</h5>
-            <p class="mb-0">
+            <h5 class="fw-bold mb-2">Patients Seen</h5>
+            <p class="mb-0 text-muted">
                 You have completed appointments with
-                <strong>@Model.TotalPatientsSeen</strong>
+                <strong class="text-dark">@Model.TotalPatientsSeen</strong>
                 unique patient(s).
             </p>
         </div>
     </div>
+
 </div>
