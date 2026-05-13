@@ -1,61 +1,79 @@
-﻿@model MVCApp.ViewModels.Doctor.DoctorAppointmentsViewModel
+﻿@model MVCApp.ViewModels.Doctor.DoctorAppointmentListViewModel
 
 @{
     ViewData["Title"] = "My Appointments";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<div class="container mt-4">
+
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">My Appointments</h2>
-            <p class="text-muted mb-0">Doctor: @Model.DoctorFullName</p>
+            <h2 class="fw-bold mb-1">My Appointments</h2>
+            <p class="text-muted mb-0">
+                View and manage appointments assigned to Dr. @Model.DoctorFullName.
+            </p>
         </div>
 
-        <div>
-            <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-outline-secondary">
-                Back to Dashboard
-            </a>
-        </div>
+        <a asp-controller="Doctor"
+           asp-action="Dashboard"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
-    <div class="card shadow-sm mb-4">
+    <!-- Filters help the doctor quickly find appointments by status or date -->
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white">
-            <h5 class="mb-0">Filter Appointments</h5>
+            <h5 class="mb-0 fw-bold">Filter Appointments</h5>
         </div>
+
         <div class="card-body">
-            <form asp-controller="Doctor" asp-action="Appointments" method="get" class="row g-3">
+            <form asp-controller="Doctor"
+                  asp-action="Appointments"
+                  method="get"
+                  class="row g-3 align-items-end">
+
                 <div class="col-md-4">
                     <label asp-for="SelectedStatus" class="form-label">Status</label>
-                    <select asp-for="SelectedStatus" asp-items="Model.StatusOptions" class="form-select">
-                        <option value="">All Statuses</option>
+                    <select asp-for="SelectedStatus"
+                            asp-items="Model.StatusOptions"
+                            class="form-select">
+                        <option value="">All statuses</option>
                     </select>
                 </div>
 
                 <div class="col-md-4">
                     <label asp-for="SelectedDate" class="form-label">Date</label>
-                    <input asp-for="SelectedDate" type="date" class="form-control" />
+                    <input asp-for="SelectedDate"
+                           type="date"
+                           class="form-control" />
                 </div>
 
-                <div class="col-md-4 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
                         Apply Filter
                     </button>
 
-                    <a asp-controller="Doctor" asp-action="Appointments" class="btn btn-outline-secondary">
+                    <a asp-controller="Doctor"
+                       asp-action="Appointments"
+                       class="btn btn-outline-secondary flex-fill">
                         Clear
                     </a>
                 </div>
@@ -63,85 +81,108 @@
         </div>
     </div>
 
-    <div class="card shadow-sm">
+    <!-- Appointment list -->
+    <div class="card shadow-sm border-0">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Appointments List</h5>
-            <span class="badge bg-primary">@Model.Appointments.Count</span>
+            <h5 class="mb-0 fw-bold">Appointments</h5>
+            <span class="badge bg-primary">
+                @Model.TotalAppointments result(s)
+            </span>
         </div>
 
-        <div class="card-body p-0">
-            @if (Model.Appointments == null || !Model.Appointments.Any())
+        <div class="card-body">
+
+            @if (Model.HasAppointments)
             {
-                <div class="p-4 text-center text-muted">
-                    No appointments found.
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Patient</th>
-                                <th>Reference No.</th>
-                                <th>Status</th>
-                                <th>Notes</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.Appointments)
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Patient</th>
+                            <th>Reference No.</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var appointment in Model.Appointments)
                             {
-                                <tr>
-                                    <td>@item.AppointmentDate.ToString("dd MMM yyyy")</td>
-                                    <td>@item.StartTime.ToString(@"hh\:mm") - @item.EndTime.ToString(@"hh\:mm")</td>
-                                    <td>@item.PatientFullName</td>
-                                    <td>@item.PatientReferenceNumber</td>
-                                    <td>
-                                        <span class="badge bg-secondary">@item.StatusName</span>
-                                    </td>
-                                    <td>
-                                        @if (string.IsNullOrWhiteSpace(item.Notes))
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@appointment.PatientFullName</div>
+                            </td>
+
+                            <td>
+                                <span class="text-muted">
+                                    @appointment.PatientReferenceNumber
+                                </span>
+                            </td>
+
+                            <td>@appointment.AppointmentDateDisplay</td>
+
+                            <td>@appointment.TimeDisplay</td>
+
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @appointment.StatusName
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(appointment.Notes))
                                         {
-                                            <span class="text-muted">No notes</span>
+                                <span>@appointment.Notes</span>
                                         }
                                         else
                                         {
-                                            @item.Notes
+                                <span class="text-muted">No notes</span>
                                         }
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end flex-wrap gap-2">
-                                            <a asp-controller="Doctor"
-                                               asp-action="AppointmentDetails"
-                                               asp-route-id="@item.AppointmentId"
-                                               class="btn btn-sm btn-outline-primary">
-                                                Details
-                                            </a>
+                            </td>
 
-                                            <a asp-controller="Doctor"
-                                               asp-action="UpdateStatus"
-                                               asp-route-id="@item.AppointmentId"
-                                               class="btn btn-sm btn-outline-warning">
-                                                Update Status
-                                            </a>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a asp-controller="Doctor"
+                                       asp-action="AppointmentDetails"
+                                       asp-route-id="@appointment.AppointmentId"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Details
+                                    </a>
 
-                                            <a asp-controller="Doctor"
-                                               asp-action="PatientHistory"
-                                               asp-route-patientId="@item.PatientId"
-                                               class="btn btn-sm btn-outline-info">
-                                                Patient History
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    @if (appointment.CanUpdateStatus)
+                                            {
+                                    <a asp-controller="Doctor"
+                                       asp-action="UpdateStatus"
+                                       asp-route-id="@appointment.AppointmentId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Update Status
+                                    </a>
+                                            }
+
+                                    <a asp-controller="Doctor"
+                                       asp-action="PatientHistory"
+                                       asp-route-patientId="@appointment.PatientId"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        History
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                             }
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
+            </div>
             }
+            else
+            {
+            <div class="alert alert-info mb-0">
+                No appointments found for the selected filters.
+            </div>
+            }
+
         </div>
     </div>
 </div>
