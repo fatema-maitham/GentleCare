@@ -103,9 +103,9 @@ namespace MVCApp.Controllers
         }
 
         // Lists only the logged-in doctor's appointments.
-        // Optional filters allow the doctor to search by status or date.
+        // Optional filters allow the doctor to search by patient, status, or date.
         [HttpGet]
-        public async Task<IActionResult> Appointments(string? status = null, DateTime? date = null)
+        public async Task<IActionResult> Appointments(string? searchTerm = null, string? status = null, DateTime? date = null)
         {
             ViewData["Title"] = "My Appointments";
 
@@ -116,6 +116,9 @@ namespace MVCApp.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
+            searchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
+            status = string.IsNullOrWhiteSpace(status) ? null : status.Trim();
+
             var query = _context.Appointments
                 .AsNoTracking()
                 .Include(a => a.Patient)
@@ -123,6 +126,15 @@ namespace MVCApp.Controllers
                 .Include(a => a.Status)
                 .Where(a => a.DoctorId == doctor.Id)
                 .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(a =>
+                    a.Patient.User.FullName.Contains(searchTerm) ||
+                    a.Patient.CPRNumber.Contains(searchTerm) ||
+                    a.Patient.ReferenceNumber.Contains(searchTerm) ||
+                    (a.Notes != null && a.Notes.Contains(searchTerm)));
+            }
 
             if (!string.IsNullOrWhiteSpace(status))
             {
@@ -146,13 +158,15 @@ namespace MVCApp.Controllers
                 .Select(s => new SelectListItem
                 {
                     Value = s.Name,
-                    Text = FormatStatusName(s.Name)
+                    Text = FormatStatusName(s.Name),
+                    Selected = s.Name == status
                 })
                 .ToListAsync();
 
             var model = new DoctorAppointmentListViewModel
             {
                 DoctorFullName = doctor.User.FullName,
+                SearchTerm = searchTerm,
                 SelectedStatus = status,
                 SelectedDate = date,
                 StatusOptions = statusOptions,
@@ -172,6 +186,8 @@ namespace MVCApp.Controllers
 
             return View(model);
         }
+
+
 
         // Shows full appointment details, including patient information,
         // visit record, prescriptions, and allowed next status actions.
