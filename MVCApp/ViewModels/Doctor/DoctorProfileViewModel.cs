@@ -1,4 +1,4 @@
-﻿nnamespace MVCApp.ViewModels.Doctor
+﻿namespace MVCApp.ViewModels.Doctor
 {
     // ViewModel used by the Doctor Profile page.
     // It shows the logged-in doctor's profile details and assigned specializations.
