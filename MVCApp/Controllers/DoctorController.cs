@@ -679,6 +679,48 @@ namespace MVCApp.Controllers
             }
         }
 
+        // Displays prescriptions recorded by the logged-in doctor.
+        [HttpGet]
+        public async Task<IActionResult> Prescriptions()
+        {
+            ViewData["Title"] = "My Prescriptions";
+
+            var doctor = await GetCurrentDoctorWithUserAsync();
+            if (doctor == null)
+            {
+                TempData["Error"] = "Doctor profile was not found for the current user.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var prescriptions = await _context.Prescriptions
+                .AsNoTracking()
+                .Include(p => p.VisitRecord)
+                    .ThenInclude(v => v.Appointment)
+                        .ThenInclude(a => a.Patient)
+                            .ThenInclude(p => p.User)
+                .Where(p => p.VisitRecord.Appointment.DoctorId == doctor.Id)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new DoctorPrescriptionViewModel
+                {
+                    PrescriptionId = p.Id,
+                    VisitRecordId = p.VisitRecordId,
+                    AppointmentId = p.VisitRecord.AppointmentId,
+                    PatientId = p.VisitRecord.Appointment.PatientId,
+                    PatientFullName = p.VisitRecord.Appointment.Patient.User.FullName,
+                    PatientReferenceNumber = p.VisitRecord.Appointment.Patient.ReferenceNumber,
+                    AppointmentDate = p.VisitRecord.Appointment.AppointmentDate,
+                    MedicationName = p.MedicationName,
+                    Dosage = p.Dosage,
+                    Frequency = p.Frequency,
+                    DurationDays = p.DurationDays,
+                    Instructions = p.Instructions,
+                    CreatedAt = p.CreatedAt
+                })
+                .ToListAsync();
+
+            return View(prescriptions);
+        }
+
         // Displays all notifications for the logged-in doctor.
         [HttpGet]
         public async Task<IActionResult> Notifications()
