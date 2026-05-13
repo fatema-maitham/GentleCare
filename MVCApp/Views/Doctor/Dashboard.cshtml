@@ -7,13 +7,14 @@
 <style>
     body {
         background: #eef4ff !important;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     }
 
     .doctor-dashboard-page {
         max-width: 1120px;
         margin: 35px auto;
         padding: 0 20px 40px;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .dashboard-header {
@@ -23,10 +24,6 @@
         border-radius: 8px;
         box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
         margin-bottom: 22px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
     }
 
         .dashboard-header small {
@@ -36,6 +33,7 @@
             letter-spacing: 0.8px;
             margin-bottom: 6px;
             text-transform: uppercase;
+            font-size: 13px;
         }
 
         .dashboard-header h2 {
@@ -43,21 +41,14 @@
             font-size: 30px;
             font-weight: 800;
             color: white;
+            line-height: 1.2;
         }
 
         .dashboard-header p {
-            margin: 6px 0 0;
+            margin: 7px 0 0;
             color: #e6efff;
+            font-size: 15px;
         }
-
-    .selected-day-box {
-        background: white;
-        color: #0b2a6f;
-        padding: 10px 16px;
-        border-radius: 6px;
-        font-weight: 800;
-        white-space: nowrap;
-    }
 
     .dashboard-stats {
         display: grid;
@@ -80,12 +71,13 @@
             color: #475569;
             font-weight: 700;
             margin-bottom: 10px;
+            font-size: 14px;
         }
 
         .dashboard-stat strong {
             display: block;
             color: #111827;
-            font-size: 30px;
+            font-size: 31px;
             font-weight: 800;
             line-height: 1;
             margin-bottom: 8px;
@@ -95,6 +87,7 @@
             margin: 0;
             color: #64748b;
             font-size: 14px;
+            line-height: 1.4;
         }
 
     .dashboard-main-grid {
@@ -123,10 +116,11 @@
             color: #111827;
             font-size: 19px;
             font-weight: 800;
+            line-height: 1.2;
         }
 
         .dashboard-card-header p {
-            margin: 4px 0 0;
+            margin: 5px 0 0;
             color: #64748b;
             font-size: 14px;
         }
@@ -157,15 +151,17 @@
         .calendar-month h3 {
             margin: 0;
             color: #111827;
-            font-size: 30px;
-            font-weight: 300;
+            font-size: 31px;
+            font-weight: 400;
             letter-spacing: 2px;
+            line-height: 1.1;
         }
 
         .calendar-month small {
             color: #64748b;
             font-weight: 700;
             letter-spacing: 1px;
+            font-size: 13px;
         }
 
     .calendar-weekdays,
@@ -193,6 +189,7 @@
         color: #111827;
         position: relative;
         font-weight: 600;
+        font-size: 14px;
     }
 
         .calendar-day:hover {
@@ -247,6 +244,7 @@
         color: #0b2a6f;
         font-weight: 800;
         margin-bottom: 8px;
+        font-size: 14px;
     }
 
     .appointment-patient {
@@ -258,7 +256,7 @@
 
     .appointment-ref {
         color: #64748b;
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 8px;
     }
 
@@ -277,6 +275,7 @@
         color: #475569;
         font-size: 14px;
         margin-bottom: 12px;
+        line-height: 1.4;
     }
 
     .appointment-details-btn {
@@ -287,6 +286,7 @@
         padding: 8px 12px;
         border-radius: 6px;
         font-weight: 700;
+        font-size: 14px;
     }
 
         .appointment-details-btn:hover {
@@ -299,44 +299,7 @@
         font-size: 15px;
     }
 
-    .workflow-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .workflow-item {
-        padding: 18px;
-        border-right: 1px solid #edf2f7;
-    }
-
-        .workflow-item:last-child {
-            border-right: none;
-        }
-
-        .workflow-item span {
-            display: block;
-            color: #475569;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .workflow-item strong {
-            color: #111827;
-            font-size: 26px;
-            font-weight: 800;
-        }
-
     @@media (max-width: 950px) {
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .selected-day-box {
-            width: 100%;
-            text-align: center;
-        }
-
         .dashboard-stats {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -344,48 +307,29 @@
         .dashboard-main-grid {
             grid-template-columns: 1fr;
         }
-
-        .workflow-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .workflow-item {
-            border-bottom: 1px solid #edf2f7;
-        }
     }
 
     @@media (max-width: 600px) {
+        .dashboard-header h2 {
+            font-size: 25px;
+        }
+
         .dashboard-stats {
             grid-template-columns: 1fr;
         }
 
-        .workflow-grid {
-            grid-template-columns: 1fr;
+        .calendar-month h3 {
+            font-size: 26px;
         }
-
-        .workflow-item {
-            border-right: none;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-            .workflow-item:last-child {
-                border-bottom: none;
-            }
     }
 </style>
 
 <div class="doctor-dashboard-page">
 
     <div class="dashboard-header">
-        <div>
-            <small>Doctor Dashboard</small>
-            <h2>Welcome, Dr. @Model.DoctorFullName</h2>
-            <p>Select a day from the calendar to view patients and appointment times.</p>
-        </div>
-
-        <div class="selected-day-box">
-            @Model.SelectedDate.ToString("dd MMM yyyy")
-        </div>
+        <small>Doctor Dashboard</small>
+        <h2>Welcome, Dr. @Model.DoctorFullName</h2>
+        <p>Select a day from the calendar to view patients and appointment times.</p>
     </div>
 
     <div class="dashboard-stats">
@@ -491,10 +435,10 @@
 
                     <div class="appointment-status">@appointment.StatusName</div>
 
-                    if (!string.IsNullOrWhiteSpace(appointment.Notes))
-                    {
+                    @if (!string.IsNullOrWhiteSpace(appointment.Notes))
+                            {
                     <div class="appointment-notes">@appointment.Notes</div>
-                    }
+                            }
 
                     <a asp-controller="Doctor"
                        asp-action="AppointmentDetails"
@@ -514,35 +458,6 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="dashboard-card">
-        <div class="dashboard-card-header">
-            <h4>Selected Day Workflow</h4>
-            <p>Status breakdown for the chosen date</p>
-        </div>
-
-        <div class="workflow-grid">
-            <div class="workflow-item">
-                <span>Confirmed</span>
-                <strong>@Model.ConfirmedAppointmentsForSelectedDate</strong>
-            </div>
-
-            <div class="workflow-item">
-                <span>Checked In</span>
-                <strong>@Model.CheckedInAppointmentsForSelectedDate</strong>
-            </div>
-
-            <div class="workflow-item">
-                <span>In Progress</span>
-                <strong>@Model.InProgressAppointmentsForSelectedDate</strong>
-            </div>
-
-            <div class="workflow-item">
-                <span>Completed</span>
-                <strong>@Model.CompletedAppointmentsForSelectedDate</strong>
-            </div>
-        </div>
     </div>
 
 </div>
