@@ -5,184 +5,163 @@
 }
 
 <div class="container mt-4">
-
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Doctor Dashboard</h2>
-            <p class="text-muted mb-0">
-                Welcome back, Dr. @Model.DoctorFullName
-            </p>
-        </div>
-
-        <a asp-controller="Doctor" asp-action="Appointments" class="btn btn-primary">
-            View Appointments
-        </a>
+    <div class="mb-4">
+        <h2 class="fw-bold">Doctor Dashboard</h2>
+        <p class="text-muted mb-0">
+            Welcome, Dr. @Model.DoctorFullName. Here is your appointment summary for today.
+        </p>
     </div>
 
-    <!-- Summary Cards -->
+    @if (TempData["Success"] != null)
+    {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    }
+
+    <!-- Main dashboard summary cards -->
     <div class="row g-3 mb-4">
-
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <p class="text-muted mb-1">Today Appointments</p>
-                    <h3 class="fw-bold">@Model.TodayAppointmentsCount</h3>
+                    <h6 class="text-muted">Today's Appointments</h6>
+                    <h2 class="fw-bold">@Model.TotalAppointmentsToday</h2>
+                    <p class="mb-0 text-muted">Total assigned today</p>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <p class="text-muted mb-1">Pending</p>
-                    <h3 class="fw-bold text-warning">@Model.PendingAppointmentsCount</h3>
+                    <h6 class="text-muted">Remaining Today</h6>
+                    <h2 class="fw-bold">@Model.RemainingAppointmentsToday</h2>
+                    <p class="mb-0 text-muted">Not completed yet</p>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <p class="text-muted mb-1">Completed</p>
-                    <h3 class="fw-bold text-success">@Model.CompletedAppointmentsCount</h3>
+                    <h6 class="text-muted">Upcoming</h6>
+                    <h2 class="fw-bold">@Model.UpcomingAppointmentsCount</h2>
+                    <p class="mb-0 text-muted">Future active appointments</p>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <p class="text-muted mb-1">Total Patients</p>
-                    <h3 class="fw-bold text-info">@Model.TotalPatientsCount</h3>
+                    <h6 class="text-muted">Unread Notifications</h6>
+                    <h2 class="fw-bold">@Model.UnreadNotificationsCount</h2>
+                    <p class="mb-0 text-muted">Require attention</p>
                 </div>
             </div>
         </div>
-
     </div>
 
-    <div class="row g-4">
-
-        <!-- Upcoming Appointments -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Upcoming Appointments</h5>
-                    <a asp-controller="Doctor" asp-action="Appointments" class="btn btn-sm btn-outline-primary">
-                        See All
-                    </a>
-                </div>
-
+    <!-- Appointment workflow summary for today -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-
-                    @if (Model.UpcomingAppointments != null && Model.UpcomingAppointments.Any())
-                    {
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Patient</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach (var appointment in Model.UpcomingAppointments)
-                                    {
-                                <tr>
-                                    <td>@appointment.PatientName</td>
-                                    <td>@appointment.AppointmentDate.ToString("dd MMM yyyy")</td>
-                                    <td>@appointment.AppointmentTime</td>
-                                    <td>
-                                        <span class="badge bg-secondary">
-                                            @appointment.Status
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a asp-controller="Doctor"
-                                           asp-action="AppointmentDetails"
-                                           asp-route-id="@appointment.AppointmentId"
-                                           class="btn btn-sm btn-outline-dark">
-                                            Details
-                                        </a>
-                                    </td>
-                                </tr>
-                                    }
-                            </tbody>
-                        </table>
-                    </div>
-                    }
-                    else
-                    {
-                    <div class="alert alert-info mb-0">
-                        No upcoming appointments found.
-                    </div>
-                    }
-
+                    <h6 class="text-muted">Confirmed</h6>
+                    <h3 class="fw-bold">@Model.ConfirmedAppointmentsToday</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Checked In</h6>
+                    <h3 class="fw-bold">@Model.CheckedInAppointmentsToday</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">In Progress</h6>
+                    <h3 class="fw-bold">@Model.InProgressAppointmentsToday</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Completed</h6>
+                    <h3 class="fw-bold">@Model.CompletedAppointmentsToday</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick doctor actions -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Quick Actions</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a asp-controller="Doctor"
+                       asp-action="Appointments"
+                       class="btn btn-primary w-100">
+                        View Appointments
+                    </a>
                 </div>
 
-                <div class="card-body d-grid gap-2">
-                    <a asp-controller="Doctor" asp-action="Appointments" class="btn btn-outline-primary">
-                        Manage Appointments
-                    </a>
-
-                    <a asp-controller="Doctor" asp-action="PatientHistory" class="btn btn-outline-secondary">
-                        Patient History
-                    </a>
-
-                    <a asp-controller="Doctor" asp-action="Schedule" class="btn btn-outline-success">
+                <div class="col-md-3">
+                    <a asp-controller="Doctor"
+                       asp-action="Schedule"
+                       class="btn btn-outline-primary w-100">
                         View Schedule
                     </a>
+                </div>
 
-                    <a asp-controller="Doctor" asp-action="Profile" class="btn btn-outline-dark">
+                <div class="col-md-3">
+                    <a asp-controller="Doctor"
+                       asp-action="Notifications"
+                       class="btn btn-outline-primary w-100">
+                        View Notifications
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <a asp-controller="Doctor"
+                       asp-action="Profile"
+                       class="btn btn-outline-primary w-100">
                         My Profile
                     </a>
                 </div>
             </div>
-
-            <!-- Notifications -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Notifications</h5>
-                    <a asp-controller="Doctor" asp-action="Notifications" class="btn btn-sm btn-outline-primary">
-                        View
-                    </a>
-                </div>
-
-                <div class="card-body">
-
-                    @if (Model.RecentNotifications != null && Model.RecentNotifications.Any())
-                    {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var notification in Model.RecentNotifications)
-                            {
-                        <li class="list-group-item px-0">
-                            <div class="fw-semibold">@notification.Title</div>
-                            <small class="text-muted">@notification.Message</small>
-                        </li>
-                            }
-                    </ul>
-                    }
-                    else
-                    {
-                    <p class="text-muted mb-0">No new notifications.</p>
-                    }
-
-                </div>
-            </div>
         </div>
+    </div>
 
+    <!-- Small profile metric -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="fw-bold">Patients Seen</h5>
+            <p class="mb-0">
+                You have completed appointments with
+                <strong>@Model.TotalPatientsSeen</strong>
+                unique patient(s).
+            </p>
+        </div>
     </div>
 </div>
