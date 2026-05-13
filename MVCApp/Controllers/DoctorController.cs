@@ -9,12 +9,16 @@ using WebAPI.Models;
 
 namespace MVCApp.Controllers
 {
+    // Handles all MVC pages for the Doctor role.
+    // Doctors can view their own appointments, update appointment progress,
+    // create visit records, add prescriptions, and view their notifications.
     [Authorize(Roles = "Doctor")]
     public class DoctorController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        // Centralized status names to avoid spelling mistakes in workflow checks.
         private static class StatusNames
         {
             public const string Requested = "Requested";
@@ -26,13 +30,6 @@ namespace MVCApp.Controllers
             public const string Missed = "Missed";
         }
 
-        private static class NotificationTypeNames
-        {
-            public const string Appointment = "Appointment";
-            public const string Prescription = "Prescription";
-            public const string General = "General";
-        }
-
         public DoctorController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager)
@@ -41,6 +38,8 @@ namespace MVCApp.Controllers
             _userManager = userManager;
         }
 
+        // Shows the doctor's daily summary, including today's appointments,
+        // completed visits, unread notifications, and total patients seen.
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
@@ -103,6 +102,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Lists only the logged-in doctor's appointments.
+        // Optional filters allow the doctor to search by status or date.
         [HttpGet]
         public async Task<IActionResult> Appointments(string? status = null, DateTime? date = null)
         {
@@ -172,6 +173,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Shows full appointment details, including patient information,
+        // visit record, prescriptions, and allowed next status actions.
         [HttpGet]
         public async Task<IActionResult> AppointmentDetails(int id)
         {
@@ -226,6 +229,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Displays the valid next statuses for this appointment based on
+        // the clinic appointment lifecycle rules.
         [HttpGet]
         public async Task<IActionResult> UpdateStatus(int id)
         {
@@ -238,7 +243,6 @@ namespace MVCApp.Controllers
             }
 
             var availableStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
-
             if (!availableStatuses.Any())
             {
                 TempData["Error"] = "This appointment cannot be updated by the doctor at its current status.";
@@ -256,6 +260,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Updates the appointment status after validating that the transition
+        // is allowed for the doctor workflow.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(UpdateAppointmentStatusViewModel model)
@@ -279,6 +285,7 @@ namespace MVCApp.Controllers
                 ModelState.AddModelError(nameof(model.NewStatusName), "Invalid status transition for doctor workflow.");
             }
 
+            // A doctor should not mark an appointment as missed before its scheduled time has passed.
             if (model.NewStatusName == StatusNames.Missed && !CanMarkAsMissed(appointment))
             {
                 ModelState.AddModelError(nameof(model.NewStatusName), "The appointment can only be marked as missed after its scheduled time has passed.");
@@ -302,14 +309,12 @@ namespace MVCApp.Controllers
                 return View(model);
             }
 
-            var oldStatusName = appointment.Status.Name;
-
             appointment.StatusId = newStatus.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             await CreateAppointmentStatusNotificationAsync(
                 appointment,
-                oldStatusName,
+                appointment.Status.Name,
                 newStatus.Name);
 
             await _context.SaveChangesAsync();
@@ -318,6 +323,8 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(AppointmentDetails), new { id = appointment.Id });
         }
 
+        // Shows the visit history for a patient only if the current doctor
+        // has treated or has an appointment with that patient.
         [HttpGet]
         public async Task<IActionResult> PatientHistory(int patientId)
         {
@@ -340,6 +347,7 @@ namespace MVCApp.Controllers
                 return NotFound();
             }
 
+            // Security check: doctors can only view history for their own patients.
             var hasRelationship = await _context.Appointments
                 .AsNoTracking()
                 .AnyAsync(a => a.DoctorId == doctor.Id && a.PatientId == patientId);
@@ -390,6 +398,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Opens the visit record form for an appointment that is in progress
+        // or completed and does not already have a visit record.
         [HttpGet]
         public async Task<IActionResult> CreateVisitRecord(int appointmentId)
         {
@@ -430,6 +440,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Saves the doctor's notes, diagnosis, treatment, and prescriptions.
+        // The appointment is automatically marked as completed after the visit record is saved.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateVisitRecord(CreateVisitRecordViewModel model)
@@ -469,6 +481,8 @@ namespace MVCApp.Controllers
                 return View(model);
             }
 
+            // Transaction keeps the visit record, prescriptions, status update,
+            // and notification saved together as one complete operation.
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -503,18 +517,11 @@ namespace MVCApp.Controllers
 
                 if (appointment.Status.Name != StatusNames.Completed)
                 {
-                    var oldStatusName = appointment.Status.Name;
-
                     var completedStatus = await _context.AppointmentStatuses
                         .FirstAsync(s => s.Name == StatusNames.Completed);
 
                     appointment.StatusId = completedStatus.Id;
                     appointment.UpdatedAt = DateTime.UtcNow;
-
-                    await CreateAppointmentStatusNotificationAsync(
-                        appointment,
-                        oldStatusName,
-                        completedStatus.Name);
                 }
 
                 await CreatePrescriptionNotificationIfNeededAsync(appointment, cleanedPrescriptions.Count);
@@ -539,6 +546,8 @@ namespace MVCApp.Controllers
             }
         }
 
+        // Opens an existing visit record so the doctor can update notes,
+        // diagnosis, treatment, or prescriptions.
         [HttpGet]
         public async Task<IActionResult> EditVisitRecord(int appointmentId)
         {
@@ -582,6 +591,8 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Updates the existing visit record and replaces the old prescription list
+        // with the latest prescription details entered by the doctor.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditVisitRecord(EditVisitRecordViewModel model)
@@ -615,6 +626,7 @@ namespace MVCApp.Controllers
                 return View(model);
             }
 
+            // Transaction prevents partial updates if prescription replacement fails.
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -667,6 +679,7 @@ namespace MVCApp.Controllers
             }
         }
 
+        // Displays all notifications for the logged-in doctor.
         [HttpGet]
         public async Task<IActionResult> Notifications()
         {
@@ -694,6 +707,7 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Marks one doctor notification as read.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationAsRead(int id)
@@ -720,6 +734,7 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(Notifications));
         }
 
+        // Marks all unread doctor notifications as read.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllNotificationsAsRead()
@@ -749,6 +764,7 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(Notifications));
         }
 
+        // Displays the doctor's profile and assigned specializations.
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
@@ -783,6 +799,7 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Displays the doctor's weekly schedule and approved leave periods.
         [HttpGet]
         public async Task<IActionResult> Schedule()
         {
@@ -816,6 +833,7 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // Finds the Doctor record linked to the currently logged-in Identity user.
         private async Task<Doctor?> GetCurrentDoctorWithUserAsync()
         {
             var userId = _userManager.GetUserId(User);
@@ -830,6 +848,7 @@ namespace MVCApp.Controllers
                 .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
         }
 
+        // Loads an appointment only if it belongs to the currently logged-in doctor.
         private async Task<Appointment?> GetDoctorAppointmentAsync(int appointmentId)
         {
             var userId = _userManager.GetUserId(User);
@@ -852,6 +871,7 @@ namespace MVCApp.Controllers
                     a.Doctor.UserId == userId);
         }
 
+        // Defines the allowed appointment workflow transitions for doctors.
         private static List<string> GetAllowedNextStatuses(string currentStatusName)
         {
             return currentStatusName switch
@@ -888,12 +908,14 @@ namespace MVCApp.Controllers
                 .ToList();
         }
 
+        // Visit records should only be created once the consultation is in progress or completed.
         private static bool CanCreateVisitRecord(string currentStatusName)
         {
             return currentStatusName == StatusNames.InProgress ||
                    currentStatusName == StatusNames.Completed;
         }
 
+        // Prevents marking future appointments as missed.
         private static bool CanMarkAsMissed(Appointment appointment)
         {
             var appointmentEndDateTime = appointment.AppointmentDate.Date
@@ -943,6 +965,7 @@ namespace MVCApp.Controllers
             }
         }
 
+        // Removes empty prescription rows and trims user input before saving.
         private static List<PrescriptionInputViewModel> NormalizePrescriptionInputs(
             IEnumerable<PrescriptionInputViewModel>? prescriptions)
         {
@@ -993,19 +1016,20 @@ namespace MVCApp.Controllers
             model.EndTime = appointment.EndTime;
         }
 
+        // Creates a patient notification whenever the doctor changes appointment status.
         private async Task CreateAppointmentStatusNotificationAsync(
             Appointment appointment,
             string oldStatusName,
             string newStatusName)
         {
-            var notificationTypeId = await GetNotificationTypeIdAsync(NotificationTypeNames.Appointment);
+            var notificationTypeId = await GetNotificationTypeIdAsync("Appointment");
 
             _context.Notifications.Add(new Notification
             {
                 UserId = appointment.Patient.UserId,
                 NotificationTypeId = notificationTypeId,
                 Title = "Appointment Status Updated",
-                Message = $"Your appointment on {appointment.AppointmentDate:dd MMM yyyy} from {appointment.StartTime:HH\\:mm} to {appointment.EndTime:HH\\:mm} changed from {FormatStatusName(oldStatusName)} to {FormatStatusName(newStatusName)}.",
+                Message = $"Your appointment on {appointment.AppointmentDate:dd MMM yyyy} changed from {FormatStatusName(oldStatusName)} to {FormatStatusName(newStatusName)}.",
                 RelatedEntityId = appointment.Id,
                 RelatedEntityType = nameof(Appointment),
                 IsRead = false,
@@ -1013,6 +1037,7 @@ namespace MVCApp.Controllers
             });
         }
 
+        // Notifies the patient when prescriptions are added or updated.
         private async Task CreatePrescriptionNotificationIfNeededAsync(
             Appointment appointment,
             int prescriptionCount)
@@ -1022,7 +1047,7 @@ namespace MVCApp.Controllers
                 return;
             }
 
-            var notificationTypeId = await GetNotificationTypeIdAsync(NotificationTypeNames.Prescription);
+            var notificationTypeId = await GetNotificationTypeIdAsync("Prescription");
 
             _context.Notifications.Add(new Notification
             {
