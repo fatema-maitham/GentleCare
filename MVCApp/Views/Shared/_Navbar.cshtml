@@ -6,7 +6,7 @@
             {
             <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
 
-            @if (User.IsInRole("Patient"))
+                if (User.IsInRole("Patient"))
                 {
             <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
             <a asp-controller="Appointment" asp-action="List">My Appointments</a>
@@ -14,7 +14,7 @@
             <a asp-controller="Patient" asp-action="Profile">Profile</a>
                 }
 
-            @if (User.IsInRole("Doctor"))
+                if (User.IsInRole("Doctor"))
                 {
             <a asp-controller="Doctor" asp-action="Dashboard">Doctor Dashboard</a>
             <a asp-controller="Doctor" asp-action="Appointments">My Appointments</a>
@@ -24,14 +24,14 @@
             <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
                 }
 
-            @if (User.IsInRole("Receptionist"))
+                if (User.IsInRole("Receptionist"))
                 {
             <a asp-controller="Receptionist" asp-action="Index">Receptionist Dashboard</a>
             <a asp-controller="Receptionist" asp-action="BookAppointment">Book Appointment</a>
             <a asp-controller="Receptionist" asp-action="Appointments">Appointments</a>
                 }
 
-            @if (User.IsInRole("ClinicManager"))
+                if (User.IsInRole("ClinicManager"))
                 {
             <a asp-controller="ClinicManager" asp-action="Dashboard">Manager Dashboard</a>
             <a asp-controller="ClinicManager" asp-action="Doctors">Manage Doctors</a>

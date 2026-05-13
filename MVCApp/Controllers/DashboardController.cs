@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MVCApp.Controllers
 {
@@ -27,7 +26,7 @@ namespace MVCApp.Controllers
 
             if (User.IsInRole("Receptionist"))
             {
-                return RedirectToAction("Dashboard", "Receptionist");
+                return RedirectToAction("Index", "Receptionist");
             }
 
             if (User.IsInRole("Patient"))
