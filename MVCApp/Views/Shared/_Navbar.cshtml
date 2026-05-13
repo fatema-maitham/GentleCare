@@ -2,7 +2,6 @@
     <div class="container">
         <div class="nav-links">
             <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-            <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
 
             @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Patient"))
             {
@@ -42,6 +41,7 @@
             }
             else
             {
+            <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
             <a asp-controller="Account" asp-action="Login">Login</a>
             <a asp-controller="Account" asp-action="Register">Register</a>
             }
