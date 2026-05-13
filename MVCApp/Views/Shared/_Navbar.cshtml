@@ -4,36 +4,40 @@
             <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
             <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
 
-            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+            @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Patient"))
             {
-            @if (User.IsInRole("Patient"))
-                {
             <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
             <a asp-controller="Appointment" asp-action="List">My Appointments</a>
             <a asp-controller="Patient" asp-action="History">History</a>
-                }
+            }
 
-            @if (User.IsInRole("Doctor"))
-                {
-            <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
+            @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Doctor"))
+            {
+            <a asp-controller="Doctor" asp-action="Dashboard">Doctor Dashboard</a>
+            <a asp-controller="Doctor" asp-action="Appointments">My Appointments</a>
             <a asp-controller="Doctor" asp-action="Schedule">Schedule</a>
-            <a asp-controller="Doctor" asp-action="MyPatients">My Patients</a>
-                }
+            <a asp-controller="Doctor" asp-action="Prescriptions">Prescriptions</a>
+            <a asp-controller="Doctor" asp-action="Notifications">Notifications</a>
+            <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
+            }
 
-            @if (User.IsInRole("Receptionist"))
-                {
+            @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Receptionist"))
+            {
             <a asp-controller="Receptionist" asp-action="BookAppointment">Book Appointment</a>
             <a asp-controller="Receptionist" asp-action="ManageAppointments">Appointments</a>
             <a asp-controller="Receptionist" asp-action="CheckIn">Check-In</a>
-                }
+            }
 
-            @if (User.IsInRole("ClinicManager"))
-                {
+            @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("ClinicManager"))
+            {
+            <a asp-controller="ClinicManager" asp-action="Dashboard">Manager Dashboard</a>
             <a asp-controller="ClinicManager" asp-action="Doctors">Manage Doctors</a>
-            <a asp-controller="ClinicManager" asp-action="ManageSchedules">Schedules</a>
+            <a asp-controller="ClinicManager" asp-action="Appointments">Appointments</a>
             <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
-                }
+            }
 
+            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+            {
             <a asp-controller="Account" asp-action="Logout">Logout</a>
             }
             else
