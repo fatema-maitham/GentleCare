@@ -4,97 +4,252 @@
     ViewData["Title"] = "Doctor Dashboard";
 }
 
-<div class="doctor-dashboard">
+<style>
+    body {
+        background: #eef4ff !important;
+    }
 
-    <div class="page-title-row mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Doctor Dashboard</h2>
-            <p class="text-muted mb-0">
-                Welcome, Dr. @Model.DoctorFullName. Here is your appointment summary for today.
-            </p>
+    .doctor-dashboard-page {
+        max-width: 1100px;
+        margin: 35px auto;
+        padding: 0 20px 40px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .dashboard-header {
+        background: #0b2a6f;
+        color: white;
+        padding: 26px 30px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
+        margin-bottom: 22px;
+    }
+
+        .dashboard-header small {
+            display: block;
+            color: #cfe0ff;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .dashboard-header p {
+            margin: 8px 0 0;
+            color: #e6efff;
+        }
+
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .dashboard-stat {
+        background: white;
+        border: 1px solid #d7e0ec;
+        border-radius: 8px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        border-top: 4px solid #0b2a6f;
+    }
+
+        .dashboard-stat span {
+            display: block;
+            color: #475569;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-stat strong {
+            display: block;
+            font-size: 32px;
+            color: #111827;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-stat p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #d7e0ec;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    .dashboard-card-header {
+        background: #f8fbff;
+        border-bottom: 1px solid #d7e0ec;
+        padding: 16px 18px;
+    }
+
+        .dashboard-card-header h4 {
+            margin: 0;
+            color: #111827;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+    .workflow-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+    }
+
+    .workflow-item {
+        padding: 18px;
+        border-right: 1px solid #edf2f7;
+    }
+
+        .workflow-item:last-child {
+            border-right: none;
+        }
+
+        .workflow-item span {
+            display: block;
+            color: #475569;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .workflow-item strong {
+            color: #111827;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+    .patients-seen-body {
+        padding: 18px;
+        color: #475569;
+    }
+
+        .patients-seen-body strong {
+            color: #0b2a6f;
+            font-weight: 800;
+        }
+
+    @@media (max-width: 900px) {
+        .dashboard-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .workflow-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .workflow-item {
+            border-bottom: 1px solid #edf2f7;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .dashboard-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .workflow-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .workflow-item {
+            border-right: none;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+            .workflow-item:last-child {
+                border-bottom: none;
+            }
+    }
+</style>
+
+<div class="doctor-dashboard-page">
+
+    <div class="dashboard-header">
+        <small>Doctor Dashboard</small>
+        <h2>Welcome, Dr. @Model.DoctorFullName</h2>
+        <p>Here is your appointment summary and workflow status for today.</p>
+    </div>
+
+    <div class="dashboard-stats">
+
+        <div class="dashboard-stat">
+            <span>Today's Appointments</span>
+            <strong>@Model.TotalAppointmentsToday</strong>
+            <p>Total assigned today</p>
+        </div>
+
+        <div class="dashboard-stat">
+            <span>Remaining Today</span>
+            <strong>@Model.RemainingAppointmentsToday</strong>
+            <p>Not completed yet</p>
+        </div>
+
+        <div class="dashboard-stat">
+            <span>Upcoming</span>
+            <strong>@Model.UpcomingAppointmentsCount</strong>
+            <p>Future active appointments</p>
+        </div>
+
+        <div class="dashboard-stat">
+            <span>Unread Notifications</span>
+            <strong>@Model.UnreadNotificationsCount</strong>
+            <p>Require attention</p>
+        </div>
+
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h4>Today's Workflow</h4>
+        </div>
+
+        <div class="workflow-grid">
+            <div class="workflow-item">
+                <span>Confirmed</span>
+                <strong>@Model.ConfirmedAppointmentsToday</strong>
+            </div>
+
+            <div class="workflow-item">
+                <span>Checked In</span>
+                <strong>@Model.CheckedInAppointmentsToday</strong>
+            </div>
+
+            <div class="workflow-item">
+                <span>In Progress</span>
+                <strong>@Model.InProgressAppointmentsToday</strong>
+            </div>
+
+            <div class="workflow-item">
+                <span>Completed</span>
+                <strong>@Model.CompletedAppointmentsToday</strong>
+            </div>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="dashboard-stat-card">
-                <span class="stat-label">Today's Appointments</span>
-                <span class="stat-number">@Model.TotalAppointmentsToday</span>
-                <span class="stat-help">Total assigned today</span>
-            </div>
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h4>Patients Seen</h4>
         </div>
 
-        <div class="col-md-3">
-            <div class="dashboard-stat-card">
-                <span class="stat-label">Remaining Today</span>
-                <span class="stat-number">@Model.RemainingAppointmentsToday</span>
-                <span class="stat-help">Not completed yet</span>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="dashboard-stat-card">
-                <span class="stat-label">Upcoming</span>
-                <span class="stat-number">@Model.UpcomingAppointmentsCount</span>
-                <span class="stat-help">Future active appointments</span>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="dashboard-stat-card">
-                <span class="stat-label">Unread Notifications</span>
-                <span class="stat-number">@Model.UnreadNotificationsCount</span>
-                <span class="stat-help">Require attention</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 fw-bold">Today's Workflow</h5>
-        </div>
-
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <div class="workflow-box">
-                        <span class="workflow-label">Confirmed</span>
-                        <strong>@Model.ConfirmedAppointmentsToday</strong>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="workflow-box">
-                        <span class="workflow-label">Checked In</span>
-                        <strong>@Model.CheckedInAppointmentsToday</strong>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="workflow-box">
-                        <span class="workflow-label">In Progress</span>
-                        <strong>@Model.InProgressAppointmentsToday</strong>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="workflow-box">
-                        <span class="workflow-label">Completed</span>
-                        <strong>@Model.CompletedAppointmentsToday</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="fw-bold mb-2">Patients Seen</h5>
-            <p class="mb-0 text-muted">
-                You have completed appointments with
-                <strong class="text-dark">@Model.TotalPatientsSeen</strong>
-                unique patient(s).
-            </p>
+        <div class="patients-seen-body">
+            You have completed appointments with
+            <strong>@Model.TotalPatientsSeen</strong>
+            unique patient(s).
         </div>
     </div>
 
