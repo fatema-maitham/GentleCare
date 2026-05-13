@@ -1,32 +1,75 @@
 ﻿namespace MVCApp.ViewModels.Doctor
 {
-    // ViewModel used by the Doctor Dashboard page.
-    // It contains only summary values needed by the dashboard view.
     public class DoctorDashboardViewModel
     {
-        // Doctor name displayed in the dashboard welcome message.
         public string DoctorFullName { get; set; } = string.Empty;
 
-        // Total number of appointments assigned to this doctor today.
-        public int TotalAppointmentsToday { get; set; }
+        public DateTime SelectedDate { get; set; } = DateTime.Today;
 
-        // Today's appointments grouped by appointment workflow status.
-        public int ConfirmedAppointmentsToday { get; set; }
-        public int CheckedInAppointmentsToday { get; set; }
-        public int InProgressAppointmentsToday { get; set; }
-        public int CompletedAppointmentsToday { get; set; }
+        public int TotalAppointmentsForSelectedDate { get; set; }
 
-        // Future appointments that are not completed, cancelled, or missed.
+        public int ConfirmedAppointmentsForSelectedDate { get; set; }
+
+        public int CheckedInAppointmentsForSelectedDate { get; set; }
+
+        public int InProgressAppointmentsForSelectedDate { get; set; }
+
+        public int CompletedAppointmentsForSelectedDate { get; set; }
+
         public int UpcomingAppointmentsCount { get; set; }
 
-        // Number of unread notifications for the logged-in doctor.
         public int UnreadNotificationsCount { get; set; }
 
-        // Number of unique patients this doctor has completed appointments with.
         public int TotalPatientsSeen { get; set; }
 
-        // Helpful computed value for views if you want to show remaining appointments today.
-        public int RemainingAppointmentsToday =>
-            TotalAppointmentsToday - CompletedAppointmentsToday;
+        public string CalendarMonthLabel => SelectedDate.ToString("MMM").ToUpper();
+
+        public int CalendarYear => SelectedDate.Year;
+
+        public DateTime PreviousMonthDate =>
+            new DateTime(SelectedDate.Year, SelectedDate.Month, 1).AddMonths(-1);
+
+        public DateTime NextMonthDate =>
+            new DateTime(SelectedDate.Year, SelectedDate.Month, 1).AddMonths(1);
+
+        public List<DoctorDashboardCalendarDayViewModel> CalendarDays { get; set; } = new();
+
+        public List<DoctorDashboardAppointmentItemViewModel> SelectedDayAppointments { get; set; } = new();
+
+        public bool HasSelectedDayAppointments => SelectedDayAppointments.Any();
+    }
+
+    public class DoctorDashboardCalendarDayViewModel
+    {
+        public DateTime Date { get; set; }
+
+        public int DayNumber { get; set; }
+
+        public bool IsCurrentMonth { get; set; }
+
+        public bool IsSelected { get; set; }
+
+        public bool HasAppointments { get; set; }
+
+        public int AppointmentCount { get; set; }
+    }
+
+    public class DoctorDashboardAppointmentItemViewModel
+    {
+        public int AppointmentId { get; set; }
+
+        public string PatientFullName { get; set; } = string.Empty;
+
+        public string PatientReferenceNumber { get; set; } = string.Empty;
+
+        public TimeOnly StartTime { get; set; }
+
+        public TimeOnly EndTime { get; set; }
+
+        public string StatusName { get; set; } = string.Empty;
+
+        public string? Notes { get; set; }
+
+        public string TimeDisplay => $"{StartTime:HH\\:mm} - {EndTime:HH\\:mm}";
     }
 }

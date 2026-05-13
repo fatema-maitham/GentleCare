@@ -38,10 +38,9 @@ namespace MVCApp.Controllers
             _userManager = userManager;
         }
 
-        // Shows the doctor's daily summary, including today's appointments,
-        // completed visits, unread notifications, and total patients seen.
+
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(DateTime? selectedDate = null)
         {
             ViewData["Title"] = "Doctor Dashboard";
 
@@ -52,23 +51,38 @@ namespace MVCApp.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var today = DateTime.Today;
+            var chosenDate = selectedDate?.Date ?? DateTime.Today;
 
-            var todaysAppointments = await _context.Appointments
+            var firstDayOfMonth = new DateTime(chosenDate.Year, chosenDate.Month, 1);
+            var firstDayOfNextMonth = firstDayOfMonth.AddMonths(1);
+
+            var monthAppointments = await _context.Appointments
                 .AsNoTracking()
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
                 .Include(a => a.Status)
-                .Where(a => a.DoctorId == doctor.Id && a.AppointmentDate.Date == today)
+                .Where(a =>
+                    a.DoctorId == doctor.Id &&
+                    a.AppointmentDate >= firstDayOfMonth &&
+                    a.AppointmentDate < firstDayOfNextMonth)
+                .OrderBy(a => a.AppointmentDate)
+                .ThenBy(a => a.StartTime)
                 .ToListAsync();
+
+            var selectedDayAppointments = monthAppointments
+                .Where(a => a.AppointmentDate.Date == chosenDate.Date)
+                .OrderBy(a => a.StartTime)
+                .ToList();
 
             var upcomingAppointmentsCount = await _context.Appointments
                 .AsNoTracking()
                 .Include(a => a.Status)
                 .Where(a =>
                     a.DoctorId == doctor.Id &&
-                    a.AppointmentDate.Date >= today &&
-                    a.Status.Name != StatusNames.Completed &&
-                    a.Status.Name != StatusNames.Cancelled &&
-                    a.Status.Name != StatusNames.Missed)
+                    a.AppointmentDate.Date >= DateTime.Today &&
+                    a.Status.Name != "Completed" &&
+                    a.Status.Name != "Cancelled" &&
+                    a.Status.Name != "Missed")
                 .CountAsync();
 
             var unreadNotificationsCount = await _context.Notifications
@@ -81,7 +95,7 @@ namespace MVCApp.Controllers
                 .Include(a => a.Status)
                 .Where(a =>
                     a.DoctorId == doctor.Id &&
-                    a.Status.Name == StatusNames.Completed)
+                    a.Status.Name == "Completed")
                 .Select(a => a.PatientId)
                 .Distinct()
                 .CountAsync();
@@ -89,17 +103,77 @@ namespace MVCApp.Controllers
             var model = new DoctorDashboardViewModel
             {
                 DoctorFullName = doctor.User.FullName,
-                TotalAppointmentsToday = todaysAppointments.Count,
-                ConfirmedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.Confirmed),
-                CheckedInAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.CheckedIn),
-                InProgressAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.InProgress),
-                CompletedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == StatusNames.Completed),
+                SelectedDate = chosenDate,
+                TotalAppointmentsForSelectedDate = selectedDayAppointments.Count,
+                ConfirmedAppointmentsForSelectedDate = selectedDayAppointments.Count(a => a.Status.Name == "Confirmed"),
+                CheckedInAppointmentsForSelectedDate = selectedDayAppointments.Count(a => a.Status.Name == "CheckedIn"),
+                InProgressAppointmentsForSelectedDate = selectedDayAppointments.Count(a => a.Status.Name == "InProgress"),
+                CompletedAppointmentsForSelectedDate = selectedDayAppointments.Count(a => a.Status.Name == "Completed"),
                 UpcomingAppointmentsCount = upcomingAppointmentsCount,
                 UnreadNotificationsCount = unreadNotificationsCount,
-                TotalPatientsSeen = totalPatientsSeen
+                TotalPatientsSeen = totalPatientsSeen,
+                CalendarDays = BuildDoctorCalendarDays(chosenDate, monthAppointments),
+                SelectedDayAppointments = selectedDayAppointments.Select(a => new DoctorDashboardAppointmentItemViewModel
+                {
+                    AppointmentId = a.Id,
+                    PatientFullName = a.Patient.User.FullName,
+                    PatientReferenceNumber = a.Patient.ReferenceNumber,
+                    StartTime = a.StartTime,
+                    EndTime = a.EndTime,
+                    StatusName = FormatDoctorCalendarStatus(a.Status.Name),
+                    Notes = a.Notes
+                }).ToList()
             };
 
             return View(model);
+        }
+
+
+        private List<DoctorDashboardCalendarDayViewModel> BuildDoctorCalendarDays(
+    DateTime selectedDate,
+    List<Appointment> monthAppointments)
+        {
+            var firstDayOfMonth = new DateTime(selectedDate.Year, selectedDate.Month, 1);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+            var startOffset = (int)firstDayOfMonth.DayOfWeek; // Sunday = 0
+            var endOffset = 6 - (int)lastDayOfMonth.DayOfWeek;
+
+            var calendarStart = firstDayOfMonth.AddDays(-startOffset);
+            var calendarEnd = lastDayOfMonth.AddDays(endOffset);
+
+            var appointmentCounts = monthAppointments
+                .GroupBy(a => a.AppointmentDate.Date)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var days = new List<DoctorDashboardCalendarDayViewModel>();
+
+            for (var date = calendarStart; date <= calendarEnd; date = date.AddDays(1))
+            {
+                appointmentCounts.TryGetValue(date.Date, out var count);
+
+                days.Add(new DoctorDashboardCalendarDayViewModel
+                {
+                    Date = date,
+                    DayNumber = date.Day,
+                    IsCurrentMonth = date.Month == selectedDate.Month,
+                    IsSelected = date.Date == selectedDate.Date,
+                    HasAppointments = count > 0,
+                    AppointmentCount = count
+                });
+            }
+
+            return days;
+        }
+
+        private string FormatDoctorCalendarStatus(string statusName)
+        {
+            return statusName switch
+            {
+                "CheckedIn" => "Checked In",
+                "InProgress" => "In Progress",
+                _ => statusName
+            };
         }
 
         // Lists only the logged-in doctor's appointments.

@@ -10,7 +10,7 @@
     }
 
     .doctor-dashboard-page {
-        max-width: 1100px;
+        max-width: 1120px;
         margin: 35px auto;
         padding: 0 20px 40px;
         font-family: Arial, Helvetica, sans-serif;
@@ -19,10 +19,14 @@
     .dashboard-header {
         background: #0b2a6f;
         color: white;
-        padding: 26px 30px;
+        padding: 24px 28px;
         border-radius: 8px;
         box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
         margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
     }
 
         .dashboard-header small {
@@ -42,9 +46,18 @@
         }
 
         .dashboard-header p {
-            margin: 8px 0 0;
+            margin: 6px 0 0;
             color: #e6efff;
         }
+
+    .selected-day-box {
+        background: white;
+        color: #0b2a6f;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
 
     .dashboard-stats {
         display: grid;
@@ -55,8 +68,8 @@
 
     .dashboard-stat {
         background: white;
-        border: 1px solid #d7e0ec;
         border-radius: 8px;
+        border: 1px solid #d7e0ec;
         padding: 18px;
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
         border-top: 4px solid #0b2a6f;
@@ -66,13 +79,14 @@
             display: block;
             color: #475569;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .dashboard-stat strong {
             display: block;
-            font-size: 32px;
             color: #111827;
+            font-size: 30px;
+            font-weight: 800;
             line-height: 1;
             margin-bottom: 8px;
         }
@@ -83,13 +97,19 @@
             font-size: 14px;
         }
 
+    .dashboard-main-grid {
+        display: grid;
+        grid-template-columns: 430px 1fr;
+        gap: 22px;
+        margin-bottom: 22px;
+    }
+
     .dashboard-card {
         background: white;
         border-radius: 8px;
         border: 1px solid #d7e0ec;
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
         overflow: hidden;
-        margin-bottom: 22px;
     }
 
     .dashboard-card-header {
@@ -105,10 +125,183 @@
             font-weight: 800;
         }
 
+        .dashboard-card-header p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 18px 10px;
+    }
+
+    .calendar-nav {
+        color: #0b2a6f;
+        text-decoration: none;
+        font-size: 22px;
+        font-weight: 800;
+        padding: 4px 8px;
+    }
+
+        .calendar-nav:hover {
+            color: #123b93;
+        }
+
+    .calendar-month {
+        text-align: center;
+    }
+
+        .calendar-month h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .calendar-month small {
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+    .calendar-weekdays,
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        padding: 0 18px 18px;
+    }
+
+        .calendar-weekdays div {
+            text-align: center;
+            color: #111827;
+            font-size: 13px;
+            font-weight: 800;
+            padding-bottom: 6px;
+        }
+
+    .calendar-day {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 44px;
+        text-decoration: none;
+        color: #111827;
+        position: relative;
+        font-weight: 600;
+    }
+
+        .calendar-day:hover {
+            color: #0b2a6f;
+        }
+
+    .calendar-day-number {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .calendar-day.other-month {
+        opacity: 0.28;
+    }
+
+    .calendar-day.selected .calendar-day-number {
+        background: #0b2a6f;
+        color: white;
+        font-weight: 800;
+    }
+
+    .calendar-dot {
+        position: absolute;
+        bottom: 6px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #0b2a6f;
+    }
+
+    .day-panel-body {
+        padding: 18px;
+    }
+
+    .appointment-day-item {
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #0b2a6f;
+        padding: 14px;
+        margin-bottom: 12px;
+        background: #f8fbff;
+    }
+
+        .appointment-day-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .appointment-time {
+        color: #0b2a6f;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .appointment-patient {
+        font-size: 16px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .appointment-ref {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .appointment-status {
+        display: inline-block;
+        background: #eef4ff;
+        color: #0b2a6f;
+        border-left: 4px solid #0b2a6f;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .appointment-notes {
+        color: #475569;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .appointment-details-btn {
+        display: inline-block;
+        background: #0b2a6f;
+        color: white;
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+
+        .appointment-details-btn:hover {
+            background: #123b93;
+            color: white;
+        }
+
+    .empty-day-message {
+        color: #64748b;
+        font-size: 15px;
+    }
+
     .workflow-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0;
     }
 
     .workflow-item {
@@ -133,19 +326,23 @@
             font-weight: 800;
         }
 
-    .patients-seen-body {
-        padding: 18px;
-        color: #475569;
-    }
-
-        .patients-seen-body strong {
-            color: #0b2a6f;
-            font-weight: 800;
+    @@media (max-width: 950px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-    @@media (max-width: 900px) {
+        .selected-day-box {
+            width: 100%;
+            text-align: center;
+        }
+
         .dashboard-stats {
             grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-main-grid {
+            grid-template-columns: 1fr;
         }
 
         .workflow-grid {
@@ -180,23 +377,23 @@
 <div class="doctor-dashboard-page">
 
     <div class="dashboard-header">
-        <small>Doctor Dashboard</small>
-        <h2>Welcome, Dr. @Model.DoctorFullName</h2>
-        <p>Here is your appointment summary and workflow status for today.</p>
+        <div>
+            <small>Doctor Dashboard</small>
+            <h2>Welcome, Dr. @Model.DoctorFullName</h2>
+            <p>Select a day from the calendar to view patients and appointment times.</p>
+        </div>
+
+        <div class="selected-day-box">
+            @Model.SelectedDate.ToString("dd MMM yyyy")
+        </div>
     </div>
 
     <div class="dashboard-stats">
 
         <div class="dashboard-stat">
-            <span>Today's Appointments</span>
-            <strong>@Model.TotalAppointmentsToday</strong>
-            <p>Total assigned today</p>
-        </div>
-
-        <div class="dashboard-stat">
-            <span>Remaining Today</span>
-            <strong>@Model.RemainingAppointmentsToday</strong>
-            <p>Not completed yet</p>
+            <span>Selected Day Appointments</span>
+            <strong>@Model.TotalAppointmentsForSelectedDate</strong>
+            <p>Total appointments on selected day</p>
         </div>
 
         <div class="dashboard-stat">
@@ -211,45 +408,140 @@
             <p>Require attention</p>
         </div>
 
+        <div class="dashboard-stat">
+            <span>Patients Seen</span>
+            <strong>@Model.TotalPatientsSeen</strong>
+            <p>Unique completed patient visits</p>
+        </div>
+
+    </div>
+
+    <div class="dashboard-main-grid">
+
+        <div class="dashboard-card">
+            <div class="calendar-header">
+                <a asp-controller="Doctor"
+                   asp-action="Dashboard"
+                   asp-route-selectedDate="@Model.PreviousMonthDate.ToString("yyyy-MM-dd")"
+                   class="calendar-nav">
+                    ‹
+                </a>
+
+                <div class="calendar-month">
+                    <h3>@Model.CalendarMonthLabel</h3>
+                    <small>@Model.CalendarYear</small>
+                </div>
+
+                <a asp-controller="Doctor"
+                   asp-action="Dashboard"
+                   asp-route-selectedDate="@Model.NextMonthDate.ToString("yyyy-MM-dd")"
+                   class="calendar-nav">
+                    ›
+                </a>
+            </div>
+
+            <div class="calendar-weekdays">
+                <div>S</div>
+                <div>M</div>
+                <div>T</div>
+                <div>W</div>
+                <div>T</div>
+                <div>F</div>
+                <div>S</div>
+            </div>
+
+            <div class="calendar-grid">
+                @foreach (var day in Model.CalendarDays)
+                {
+                <a asp-controller="Doctor"
+                   asp-action="Dashboard"
+                   asp-route-selectedDate="@day.Date.ToString("yyyy-MM-dd")"
+                   class="calendar-day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsSelected ? "selected" : "")">
+
+                    <span class="calendar-day-number">@day.DayNumber</span>
+
+                    @if (day.HasAppointments)
+                        {
+                    <span class="calendar-dot"></span>
+                        }
+                </a>
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h4>Appointments for Selected Day</h4>
+                <p>@Model.SelectedDate.ToString("dddd, dd MMM yyyy")</p>
+            </div>
+
+            <div class="day-panel-body">
+                @if (Model.HasSelectedDayAppointments)
+                {
+                    foreach (var appointment in Model.SelectedDayAppointments)
+                    {
+                <div class="appointment-day-item">
+                    <div class="appointment-time">@appointment.TimeDisplay</div>
+
+                    <div class="appointment-patient">@appointment.PatientFullName</div>
+
+                    <div class="appointment-ref">
+                        Reference No.: @appointment.PatientReferenceNumber
+                    </div>
+
+                    <div class="appointment-status">@appointment.StatusName</div>
+
+                    if (!string.IsNullOrWhiteSpace(appointment.Notes))
+                    {
+                    <div class="appointment-notes">@appointment.Notes</div>
+                    }
+
+                    <a asp-controller="Doctor"
+                       asp-action="AppointmentDetails"
+                       asp-route-id="@appointment.AppointmentId"
+                       class="appointment-details-btn">
+                        View Details
+                    </a>
+                </div>
+                    }
+                }
+                else
+                {
+                <div class="empty-day-message">
+                    No appointments are scheduled for this day.
+                </div>
+                }
+            </div>
+        </div>
+
     </div>
 
     <div class="dashboard-card">
         <div class="dashboard-card-header">
-            <h4>Today's Workflow</h4>
+            <h4>Selected Day Workflow</h4>
+            <p>Status breakdown for the chosen date</p>
         </div>
 
         <div class="workflow-grid">
             <div class="workflow-item">
                 <span>Confirmed</span>
-                <strong>@Model.ConfirmedAppointmentsToday</strong>
+                <strong>@Model.ConfirmedAppointmentsForSelectedDate</strong>
             </div>
 
             <div class="workflow-item">
                 <span>Checked In</span>
-                <strong>@Model.CheckedInAppointmentsToday</strong>
+                <strong>@Model.CheckedInAppointmentsForSelectedDate</strong>
             </div>
 
             <div class="workflow-item">
                 <span>In Progress</span>
-                <strong>@Model.InProgressAppointmentsToday</strong>
+                <strong>@Model.InProgressAppointmentsForSelectedDate</strong>
             </div>
 
             <div class="workflow-item">
                 <span>Completed</span>
-                <strong>@Model.CompletedAppointmentsToday</strong>
+                <strong>@Model.CompletedAppointmentsForSelectedDate</strong>
             </div>
-        </div>
-    </div>
-
-    <div class="dashboard-card">
-        <div class="dashboard-card-header">
-            <h4>Patients Seen</h4>
-        </div>
-
-        <div class="patients-seen-body">
-            You have completed appointments with
-            <strong>@Model.TotalPatientsSeen</strong>
-            unique patient(s).
         </div>
     </div>
 
