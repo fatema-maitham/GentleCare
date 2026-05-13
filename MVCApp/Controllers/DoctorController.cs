@@ -701,7 +701,16 @@ namespace MVCApp.Controllers
             var model = new DoctorNotificationsViewModel
             {
                 UnreadCount = notifications.Count(n => !n.IsRead),
-                Notifications = notifications
+                Notifications = notifications.Select(n => new DoctorNotificationViewModel
+                {
+                    NotificationId = n.Id,
+                    Title = n.Title,
+                    Message = n.Message,
+                    IsRead = n.IsRead,
+                    CreatedAt = n.CreatedAt,
+                    RelatedEntityId = n.RelatedEntityId,
+                    RelatedEntityType = n.RelatedEntityType
+                }).ToList()
             };
 
             return View(model);
