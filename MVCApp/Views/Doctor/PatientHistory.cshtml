@@ -4,179 +4,227 @@
     ViewData["Title"] = "Patient History";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<div class="container mt-4">
+
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Patient History</h2>
-            <p class="text-muted mb-0">@Model.PatientFullName</p>
+            <h2 class="fw-bold mb-1">Patient History</h2>
+            <p class="text-muted mb-0">
+                View previous visit records for this patient.
+            </p>
         </div>
 
-        <a asp-controller="Doctor" asp-action="Appointments" class="btn btn-outline-secondary">
+        <a asp-controller="Doctor"
+           asp-action="Appointments"
+           class="btn btn-outline-secondary">
             Back to Appointments
         </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Patient Information</h5>
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5">Full Name</dt>
-                        <dd class="col-sm-7">@Model.PatientFullName</dd>
-
-                        <dt class="col-sm-5">CPR Number</dt>
-                        <dd class="col-sm-7">@Model.CPRNumber</dd>
-
-                        <dt class="col-sm-5">Reference No.</dt>
-                        <dd class="col-sm-7">@Model.ReferenceNumber</dd>
-
-                        <dt class="col-sm-5">Date of Birth</dt>
-                        <dd class="col-sm-7">@Model.DateOfBirth.ToString("dd MMM yyyy")</dd>
-
-                        <dt class="col-sm-5">Blood Type</dt>
-                        <dd class="col-sm-7">
-                            @if (string.IsNullOrWhiteSpace(Model.BloodType))
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                            else
-                            {
-                                @Model.BloodType
-                            }
-                        </dd>
-
-                        <dt class="col-sm-5">Address</dt>
-                        <dd class="col-sm-7">
-                            @if (string.IsNullOrWhiteSpace(Model.Address))
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                            else
-                            {
-                                @Model.Address
-                            }
-                        </dd>
-
-                        <dt class="col-sm-5">Emergency Contact</dt>
-                        <dd class="col-sm-7">
-                            @if (string.IsNullOrWhiteSpace(Model.EmergencyContactName))
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                            else
-                            {
-                                @Model.EmergencyContactName
-                            }
-                        </dd>
-
-                        <dt class="col-sm-5">Emergency Phone</dt>
-                        <dd class="col-sm-7">
-                            @if (string.IsNullOrWhiteSpace(Model.EmergencyContactPhone))
-                            {
-                                <span class="text-muted">Not provided</span>
-                            }
-                            else
-                            {
-                                @Model.EmergencyContactPhone
-                            }
-                        </dd>
-                    </dl>
-                </div>
-            </div>
+    <!-- Patient information -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0">Patient Information</h5>
         </div>
 
-        <div class="col-lg-8">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Visit Summary</h5>
-                    <span class="badge bg-primary">@Model.Visits.Count Visit(s)</span>
-                </div>
-                <div class="card-body">
-                    @if (Model.Visits == null || !Model.Visits.Any())
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Patient Name</dt>
+                <dd class="col-sm-9">@Model.PatientFullName</dd>
+
+                <dt class="col-sm-3">CPR Number</dt>
+                <dd class="col-sm-9">@Model.CPRNumber</dd>
+
+                <dt class="col-sm-3">Reference Number</dt>
+                <dd class="col-sm-9">@Model.ReferenceNumber</dd>
+
+                <dt class="col-sm-3">Date of Birth</dt>
+                <dd class="col-sm-9">@Model.DateOfBirthDisplay</dd>
+
+                <dt class="col-sm-3">Blood Type</dt>
+                <dd class="col-sm-9">@Model.BloodTypeDisplay</dd>
+
+                <dt class="col-sm-3">Address</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrWhiteSpace(Model.Address))
                     {
-                        <p class="text-muted mb-0">No visit history found for this patient.</p>
+                    <span>@Model.Address</span>
                     }
                     else
                     {
-                        <div class="row g-3">
-                            @foreach (var visit in Model.Visits)
-                            {
-                                <div class="col-12">
-                                    <div class="border rounded p-3">
-                                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
-                                            <div>
-                                                <h6 class="mb-1">Appointment #@visit.AppointmentId</h6>
-                                                <div class="text-muted small">
-                                                    @visit.AppointmentDate.ToString("dd MMM yyyy")
-                                                    |
-                                                    @visit.StartTime.ToString(@"hh\:mm") - @visit.EndTime.ToString(@"hh\:mm")
-                                                </div>
-                                            </div>
-
-                                            <span class="badge bg-secondary">@visit.StatusName</span>
-                                        </div>
-
-                                        <div class="row g-3 mt-1">
-                                            <div class="col-md-4">
-                                                <strong>Doctor Notes</strong>
-                                                <p class="mb-0 mt-1">@visit.DoctorNotes</p>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <strong>Diagnosis</strong>
-                                                <p class="mb-0 mt-1">@visit.Diagnosis</p>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <strong>Treatment</strong>
-                                                <p class="mb-1 mt-1">
-                                                    @if (string.IsNullOrWhiteSpace(visit.Treatment))
-                                                    {
-                                                        <span class="text-muted">No treatment recorded</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        @visit.Treatment
-                                                    }
-                                                </p>
-                                                <div class="small text-muted">
-                                                    Prescriptions: @visit.PrescriptionCount
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <a asp-controller="Doctor"
-                                               asp-action="AppointmentDetails"
-                                               asp-route-id="@visit.AppointmentId"
-                                               class="btn btn-sm btn-outline-primary">
-                                                View Appointment Details
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                    <span class="text-muted">Not recorded</span>
                     }
+                </dd>
+
+                <dt class="col-sm-3">Emergency Contact</dt>
+                <dd class="col-sm-9">
+                    @{
+                        var hasEmergencyName = !string.IsNullOrWhiteSpace(Model.EmergencyContactName);
+                        var hasEmergencyPhone = !string.IsNullOrWhiteSpace(Model.EmergencyContactPhone);
+                    }
+
+                    @if (hasEmergencyName || hasEmergencyPhone)
+                    {
+                        if (hasEmergencyName)
+                        {
+                    <span>@Model.EmergencyContactName</span>
+                        }
+
+                        if (hasEmergencyName && hasEmergencyPhone)
+                        {
+                    <span> - </span>
+                        }
+
+                        if (hasEmergencyPhone)
+                        {
+                    <span>@Model.EmergencyContactPhone</span>
+                        }
+                    }
+                    else
+                    {
+                    <span class="text-muted">Not recorded</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Visit history summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Visits</h6>
+                    <h3 class="fw-bold">@Model.TotalVisits</h3>
+                    <p class="mb-0 text-muted">Completed visit records</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Visit records -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0">Visit Records</h5>
+        </div>
+
+        <div class="card-body">
+            @if (Model.HasVisits)
+            {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Diagnosis</th>
+                            <th>Treatment</th>
+                            <th>Prescriptions</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var visit in Model.Visits)
+                            {
+                        <tr>
+                            <td>@visit.AppointmentDateDisplay</td>
+                            <td>@visit.TimeDisplay</td>
+
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @visit.StatusName
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(visit.Diagnosis))
+                                        {
+                                <span>@visit.Diagnosis</span>
+                                        }
+                                        else
+                                        {
+                                <span class="text-muted">No diagnosis</span>
+                                        }
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(visit.Treatment))
+                                        {
+                                <span>@visit.Treatment</span>
+                                        }
+                                        else
+                                        {
+                                <span class="text-muted">No treatment</span>
+                                        }
+                            </td>
+
+                            <td>
+                                @if (visit.HasPrescriptions)
+                                        {
+                                <span class="badge bg-info text-dark">
+                                    @visit.PrescriptionCount prescription(s)
+                                </span>
+                                        }
+                                        else
+                                        {
+                                <span class="text-muted">None</span>
+                                        }
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-controller="Doctor"
+                                   asp-action="AppointmentDetails"
+                                   asp-route-id="@visit.AppointmentId"
+                                   class="btn btn-sm btn-outline-dark">
+                                    Details
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="7" class="bg-light">
+                                <strong>Doctor Notes:</strong>
+
+                                @if (!string.IsNullOrWhiteSpace(visit.DoctorNotes))
+                                        {
+                                <span>@visit.DoctorNotes</span>
+                                        }
+                                        else
+                                        {
+                                <span class="text-muted">No notes recorded.</span>
+                                        }
+                            </td>
+                        </tr>
+                            }
+                    </tbody>
+                </table>
+            </div>
+            }
+            else
+            {
+            <div class="alert alert-info mb-0">
+                No visit records were found for this patient.
+            </div>
+            }
         </div>
     </div>
 </div>
