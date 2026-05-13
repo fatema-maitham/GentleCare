@@ -150,7 +150,7 @@ namespace MVCApp.Controllers
                 })
                 .ToListAsync();
 
-            var model = new DoctorAppointmentsViewModel
+            var model = new DoctorAppointmentListViewModel
             {
                 DoctorFullName = doctor.User.FullName,
                 SelectedStatus = status,
