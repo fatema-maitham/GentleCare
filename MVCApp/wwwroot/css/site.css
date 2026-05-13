@@ -12,7 +12,7 @@ html {
 
 body {
     background: #f8fafc;
-    color: #1f2937;
+    color: #0f172a;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -29,9 +29,10 @@ body {
 }
 
 .app-brand {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin: 0;
+    letter-spacing: 0.5px;
 }
 
 .app-subtitle {
@@ -58,14 +59,14 @@ body {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
     .nav-links a {
         color: #ffffff;
         text-decoration: none;
-        padding: 8px 14px;
+        padding: 8px 12px;
         border-radius: 10px;
         transition: background-color 0.2s ease;
         font-size: 14px;
@@ -73,12 +74,12 @@ body {
     }
 
         .nav-links a:hover {
-            background-color: rgba(255, 255, 255, 0.12);
+            background-color: rgba(255, 255, 255, 0.14);
             color: #ffffff;
         }
 
 .nav-user {
-    color: #cbd5e1;
+    color: #e2e8f0;
     font-size: 14px;
     white-space: nowrap;
 }
@@ -96,41 +97,51 @@ body {
     padding: 30px;
 }
 
-/* Bootstrap polish */
+/* Cards */
 .card {
     border-radius: 14px;
+    border: 1px solid #e5e7eb;
 }
 
 .card-header {
     border-bottom: 1px solid #e5e7eb;
 }
 
+.shadow-sm {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Tables */
 .table th {
     font-weight: 700;
     color: #334155;
 }
 
-.badge {
-    font-weight: 600;
+.table td {
+    vertical-align: middle;
 }
 
+/* Forms */
 .form-control,
 .form-select {
     border-radius: 10px;
 }
 
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.18);
+    }
+
+/* Buttons and badges */
 .btn {
     border-radius: 10px;
 }
 
-    .btn:focus,
-    .btn:active:focus,
-    .btn-link.nav-link:focus,
-    .form-control:focus,
-    .form-select:focus,
-    .form-check-input:focus {
-        box-shadow: 0 0 0 0.15rem rgba(37, 140, 251, 0.25);
-    }
+.badge {
+    font-weight: 600;
+    padding: 0.45em 0.7em;
+}
 
 /* Footer */
 .app-footer {
