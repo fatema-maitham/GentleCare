@@ -1,0 +1,179 @@
+﻿@model MVCApp.ViewModels.ClinicManager.AppointmentImpactViewModel
+
+@{
+    ViewData["Title"] = "Appointment Impact";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Appointment Impact</h1>
+        <p>Review appointments affected by schedule or leave changes for Dr. @Model.DoctorName.</p>
+    </div>
+
+    <a asp-controller="ClinicManager"
+       asp-action="DoctorDetails"
+       asp-route-id="@Model.DoctorId"
+       class="secondary-btn">
+        Back to Doctor
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Impact Filter</h2>
+    </div>
+
+    <form asp-controller="ClinicManager" asp-action="AppointmentImpact" method="get" class="filter-form">
+        <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+
+        <div class="form-group">
+            <label for="fromDate">From Date</label>
+            <input type="date"
+                   id="fromDate"
+                   name="fromDate"
+                   value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="form-group">
+            <label for="toDate">To Date</label>
+            <input type="date"
+                   id="toDate"
+                   name="toDate"
+                   value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <button type="submit" class="primary-btn">Check Impact</button>
+    </form>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Doctor Information</h2>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Doctor Name</span>
+            <strong>Dr. @Model.DoctorName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Email</span>
+            <strong>@Model.DoctorEmail</strong>
+        </div>
+
+        <div class="details-item">
+            <span>License Number</span>
+            <strong>@Model.LicenseNumber</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Date Range</span>
+            <strong>@Model.DateRangeText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Total Impacted</span>
+            <strong>@Model.TotalImpactedAppointments</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Leave Impacts</span>
+            <strong>@Model.LeaveImpacts</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Schedule Impacts</span>
+            <strong>@Model.ScheduleImpacts</strong>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Impacted Appointments</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="Appointments"
+           asp-route-doctorId="@Model.DoctorId"
+           class="btn-link">
+            View all doctor appointments
+        </a>
+    </div>
+
+    @if (Model.HasImpactedAppointments)
+    {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Patient</th>
+                    <th>Status</th>
+                    <th>Impact Type</th>
+                    <th>Reason</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var appointment in Model.ImpactedAppointments)
+                    {
+                <tr>
+                    <td>@appointment.DateText</td>
+                    <td>@appointment.TimeText</td>
+                    <td>@appointment.PatientName</td>
+                    <td>
+                        <span class="status-pill">@appointment.StatusName</span>
+                    </td>
+                    <td>@appointment.ImpactType</td>
+                    <td>@appointment.ImpactReason</td>
+                    <td>
+                        <a asp-controller="ClinicManager"
+                           asp-action="AppointmentDetails"
+                           asp-route-id="@appointment.AppointmentId"
+                           class="table-link">
+                            Details
+                        </a>
+
+                        @if (appointment.CanCancel)
+                                {
+                        <form asp-controller="ClinicManager"
+                              asp-action="CancelImpactedAppointment"
+                              method="post"
+                              style="display:inline;">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="appointmentId" value="@appointment.AppointmentId" />
+                            <input type="hidden" name="reason" value="Cancelled due to doctor availability change." />
+
+                            <button type="submit"
+                                    class="table-link danger-button"
+                                    onclick="return confirm('Are you sure you want to cancel this impacted appointment?');">
+                                Cancel
+                            </button>
+                        </form>
+                                }
+                    </td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    }
+    else
+    {
+    <p class="empty-text">@Model.EmptyMessage</p>
+    }
+</div>

@@ -1,0 +1,114 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerAppointmentStatusViewModel
+
+@{
+    ViewData["Title"] = "Update Appointment Status";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Update Appointment Status</h1>
+        <p>Change the appointment status using the valid workflow.</p>
+    </div>
+
+    <a asp-controller="ClinicManager"
+       asp-action="AppointmentDetails"
+       asp-route-id="@Model.AppointmentId"
+       class="secondary-btn">
+        Back to Details
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Appointment Summary</h2>
+        <span class="status-pill">@Model.CurrentStatusName</span>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Patient</span>
+            <strong>@Model.PatientName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Doctor</span>
+            <strong>Dr. @Model.DoctorName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Date</span>
+            <strong>@Model.DateText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Time</span>
+            <strong>@Model.TimeText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Current Status</span>
+            <strong>@Model.CurrentStatusName</strong>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <form asp-controller="ClinicManager" asp-action="UpdateAppointmentStatus" method="post">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="AppointmentId" type="hidden" />
+        <input asp-for="DoctorId" type="hidden" />
+        <input asp-for="PatientId" type="hidden" />
+        <input asp-for="PatientName" type="hidden" />
+        <input asp-for="DoctorName" type="hidden" />
+        <input asp-for="AppointmentDate" type="hidden" />
+        <input asp-for="StartTime" type="hidden" />
+        <input asp-for="EndTime" type="hidden" />
+        <input asp-for="CurrentStatusName" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="NewStatusName"></label>
+            <select asp-for="NewStatusName" asp-items="Model.StatusOptions">
+                <option value="">Select new status</option>
+            </select>
+            <span asp-validation-for="NewStatusName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CancellationReason"></label>
+            <textarea asp-for="CancellationReason" rows="4" placeholder="Required if the appointment is cancelled."></textarea>
+            <span asp-validation-for="CancellationReason" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit"
+                    class="primary-btn"
+                    onclick="return confirm('Are you sure you want to update this appointment status?');">
+                Update Status
+            </button>
+
+            <a asp-controller="ClinicManager"
+               asp-action="AppointmentDetails"
+               asp-route-id="@Model.AppointmentId"
+               class="secondary-btn">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

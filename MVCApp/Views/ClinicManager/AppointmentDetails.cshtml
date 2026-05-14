@@ -1,0 +1,189 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerAppointmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Appointment Details</h1>
+        <p>View full appointment, patient, doctor, visit record, and prescription summary.</p>
+    </div>
+
+    <div class="header-actions">
+        <a asp-controller="ClinicManager"
+           asp-action="Appointments"
+           class="secondary-btn">
+            Back to Appointments
+        </a>
+
+        @if (Model.CanUpdateStatus)
+        {
+        <a asp-controller="ClinicManager"
+           asp-action="UpdateAppointmentStatus"
+           asp-route-id="@Model.AppointmentId"
+           class="primary-btn">
+            Update Status
+        </a>
+        }
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Appointment Information</h2>
+        <span class="status-pill">@Model.StatusName</span>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Date</span>
+            <strong>@Model.DateText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Time</span>
+            <strong>@Model.TimeText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Status</span>
+            <strong>@Model.StatusName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Specialization</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.SpecializationName) ? "Not specified" : Model.SpecializationName)</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Created At</span>
+            <strong>@Model.CreatedAt.ToString("dd MMM yyyy")</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Updated At</span>
+            <strong>@(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd MMM yyyy") : "Not updated")</strong>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+    <div class="profile-note">
+        <span>Notes</span>
+        <p>@Model.Notes</p>
+    </div>
+    }
+
+    @if (Model.IsCancelled && !string.IsNullOrWhiteSpace(Model.CancellationReason))
+    {
+    <div class="profile-note">
+        <span>Cancellation Reason</span>
+        <p>@Model.CancellationReason</p>
+    </div>
+    }
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Patient Information</h2>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Patient Name</span>
+            <strong>@Model.PatientName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Email</span>
+            <strong>@Model.PatientEmail</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Phone Number</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.PatientPhoneNumber) ? "Not provided" : Model.PatientPhoneNumber)</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Reference Number</span>
+            <strong>@Model.PatientReferenceNumber</strong>
+        </div>
+
+        <div class="details-item">
+            <span>CPR Number</span>
+            <strong>@Model.PatientCprNumber</strong>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Doctor Information</h2>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Doctor Name</span>
+            <strong>Dr. @Model.DoctorName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Email</span>
+            <strong>@Model.DoctorEmail</strong>
+        </div>
+
+        <div class="details-item">
+            <span>License Number</span>
+            <strong>@Model.DoctorLicenseNumber</strong>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Visit Record Summary</h2>
+    </div>
+
+    @if (Model.HasVisitRecord)
+    {
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Diagnosis</span>
+            <strong>@Model.Diagnosis</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Treatment</span>
+            <strong>@Model.Treatment</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Prescriptions</span>
+            <strong>@Model.PrescriptionCount</strong>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.DoctorNotes))
+        {
+    <div class="profile-note">
+        <span>Doctor Notes</span>
+        <p>@Model.DoctorNotes</p>
+    </div>
+        }
+    }
+    else
+    {
+    <p class="empty-text">No visit record has been added for this appointment yet.</p>
+    }
+</div>
