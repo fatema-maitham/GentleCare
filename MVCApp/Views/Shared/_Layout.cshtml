@@ -55,20 +55,34 @@
             gap: 28px;
         }
 
-        .brand-logo {
+        .text-logo {
             display: flex;
             align-items: center;
+            gap: 10px;
             text-decoration: none;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
-            .brand-logo img {
-                height: 58px;
-                width: auto;
-                max-width: 250px;
-                object-fit: contain;
-                display: block;
-            }
+        .text-logo-mark {
+            width: 38px;
+            height: 38px;
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .text-logo-name {
+            font-size: 27px;
+            font-weight: 900;
+            letter-spacing: -0.7px;
+            color: #ffffff;
+        }
 
         .layout-main {
             max-width: 1180px;
@@ -97,8 +111,8 @@
                 gap: 12px;
             }
 
-            .brand-logo img {
-                height: 50px;
+            .text-logo-name {
+                font-size: 24px;
             }
         }
     </style>
@@ -108,8 +122,9 @@
     <header class="main-navbar">
         <div class="main-navbar-inner">
 
-            <a asp-controller="Dashboard" asp-action="Index" class="brand-logo">
-                <img src="/images/logo.png?v=1" alt="GentleCare Logo" />
+            <a asp-controller="Dashboard" asp-action="Index" class="text-logo">
+                <span class="text-logo-mark">♡</span>
+                <span class="text-logo-name">GentleCare</span>
             </a>
 
             <partial name="_Navbar" />

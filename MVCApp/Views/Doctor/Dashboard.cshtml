@@ -25,56 +25,17 @@
     }
 
     .dashboard-stat {
-        position: relative;
-        overflow: hidden;
         background: #ffffff;
         border: 1px solid #d9e8fb;
         border-radius: 14px;
         padding: 20px;
         box-shadow: 0 8px 20px rgba(0, 136, 255, 0.08);
-        animation: cardFadeUp 0.45s ease both;
-        transition: transform 0.24s ease, border-color 0.24s ease;
+        transition: border-color 0.2s ease, transform 0.2s ease;
     }
 
-        .dashboard-stat:nth-child(1) {
-            animation-delay: 0.03s;
-        }
-
-        .dashboard-stat:nth-child(2) {
-            animation-delay: 0.08s;
-        }
-
-        .dashboard-stat:nth-child(3) {
-            animation-delay: 0.13s;
-        }
-
-        .dashboard-stat:nth-child(4) {
-            animation-delay: 0.18s;
-        }
-
-        .dashboard-stat::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(0,136,255,0.08), rgba(0,136,255,0.00));
-            transition: width 0.28s ease;
-        }
-
         .dashboard-stat:hover {
-            transform: translateY(-5px);
             border-color: #0088FF;
-        }
-
-            .dashboard-stat:hover::before {
-                width: 100%;
-            }
-
-        .dashboard-stat > * {
-            position: relative;
-            z-index: 1;
+            transform: translateY(-4px);
         }
 
         .dashboard-stat span {
@@ -113,14 +74,7 @@
         border-radius: 14px;
         overflow: hidden;
         box-shadow: 0 8px 22px rgba(0, 136, 255, 0.08);
-        animation: cardFadeUp 0.55s ease both;
-        transition: transform 0.24s ease, border-color 0.24s ease;
     }
-
-        .dashboard-card:hover {
-            transform: translateY(-3px);
-            border-color: #0088FF;
-        }
 
     .dashboard-card-header {
         padding: 16px 18px;
@@ -155,12 +109,11 @@
         font-weight: 900;
         padding: 4px 9px;
         border-radius: 8px;
-        transition: background-color 0.22s ease, transform 0.22s ease;
+        transition: background-color 0.18s ease;
     }
 
         .calendar-nav:hover {
             background: #eef6ff;
-            transform: translateY(-2px);
         }
 
     .calendar-month {
@@ -210,12 +163,10 @@
         font-size: 13px;
         font-weight: 800;
         border-radius: 10px;
-        transition: background-color 0.22s ease, transform 0.22s ease;
     }
 
         .calendar-day:hover {
             background: #eef6ff;
-            transform: translateY(-2px);
         }
 
     .calendar-day-number {
@@ -234,7 +185,6 @@
     .calendar-day.selected .calendar-day-number {
         background: #0088FF;
         color: white;
-        animation: selectedPulse 1.5s ease-in-out infinite;
     }
 
     .calendar-dot {
@@ -257,12 +207,10 @@
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 12px;
-        animation: cardFadeUp 0.35s ease both;
-        transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
     }
 
         .appointment-day-item:hover {
-            transform: translateX(6px);
             border-color: #0088FF;
             background: #ffffff;
         }
@@ -318,13 +266,12 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 900;
-        transition: transform 0.22s ease, background-color 0.22s ease;
+        transition: background-color 0.18s ease;
     }
 
         .appointment-details-btn:hover {
             background: #0077e0;
             color: #ffffff;
-            transform: translateY(-2px);
         }
 
     .empty-day-message {
@@ -334,28 +281,6 @@
         border-radius: 10px;
         padding: 14px;
         font-size: 14px;
-    }
-
-    @@keyframes cardFadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @@keyframes selectedPulse {
-        0%, 100% {
-            box-shadow: 0 0 0 0 rgba(0,136,255,0.28);
-        }
-
-        50% {
-            box-shadow: 0 0 0 7px rgba(0,136,255,0.10);
-        }
     }
 
     @@media (max-width: 950px) {
