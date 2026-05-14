@@ -5,7 +5,7 @@
 }
 
 <style>
-    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
     body {
         background: #eef4ff !important;
@@ -14,38 +14,10 @@
 
     .doctor-dashboard-page {
         max-width: 1120px;
-        margin: 35px auto;
-        padding: 0 20px 45px;
+        margin: 0 auto;
+        padding: 0 0 45px;
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
-
-    .dashboard-header {
-        background: linear-gradient(135deg, #0b2a6f, #123b93);
-        color: white;
-        padding: 26px 30px;
-        border-radius: 12px;
-        box-shadow: 0 14px 30px rgba(11, 42, 111, 0.22);
-        margin-bottom: 22px;
-        animation: fadeUp 0.45s ease both;
-    }
-
-        .dashboard-header small {
-            display: block;
-            color: #cfe0ff;
-            font-weight: 800;
-            letter-spacing: 0.9px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-
-        .dashboard-header h2 {
-            margin: 0;
-            font-size: 31px;
-            font-weight: 800;
-            color: white;
-            line-height: 1.2;
-        }
 
     .dashboard-stats {
         display: grid;
@@ -56,51 +28,52 @@
 
     .dashboard-stat {
         background: rgba(255, 255, 255, 0.96);
-        border-radius: 12px;
+        border-radius: 14px;
         border: 1px solid #d7e0ec;
-        padding: 18px;
+        padding: 19px;
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
-        border-top: 4px solid #0b2a6f;
-        transition: transform 0.22s ease, box-shadow 0.22s ease;
-        animation: fadeUp 0.5s ease both;
+        border-top: 4px solid #0b4fb3;
+        transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        animation: cardEnter 0.45s ease both;
     }
 
         .dashboard-stat:nth-child(1) {
-            animation-delay: 0.05s;
+            animation-delay: 0.03s;
         }
 
         .dashboard-stat:nth-child(2) {
-            animation-delay: 0.1s;
+            animation-delay: 0.08s;
         }
 
         .dashboard-stat:nth-child(3) {
-            animation-delay: 0.15s;
+            animation-delay: 0.13s;
         }
 
         .dashboard-stat:nth-child(4) {
-            animation-delay: 0.2s;
+            animation-delay: 0.18s;
         }
 
         .dashboard-stat:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.13);
+            transform: translateY(-6px) scale(1.015);
+            background: #ffffff;
+            border-color: #9cc7ff;
         }
 
         .dashboard-stat span {
             display: block;
             color: #475569;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 10px;
             font-size: 13px;
         }
 
         .dashboard-stat strong {
             display: block;
-            color: #111827;
-            font-size: 32px;
-            font-weight: 800;
+            color: #0b2a6f;
+            font-size: 34px;
+            font-weight: 900;
             line-height: 1;
-            margin-bottom: 8px;
+            margin-bottom: 9px;
         }
 
         .dashboard-stat p {
@@ -112,22 +85,24 @@
 
     .dashboard-main-grid {
         display: grid;
-        grid-template-columns: 430px 1fr;
+        grid-template-columns: 420px 1fr;
         gap: 22px;
         margin-bottom: 22px;
     }
 
     .dashboard-card {
-        background: rgba(255, 255, 255, 0.97);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 14px;
         border: 1px solid #d7e0ec;
         box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
         overflow: hidden;
-        animation: fadeUp 0.55s ease both;
+        animation: cardEnter 0.55s ease both;
+        transition: transform 0.25s ease, border-color 0.25s ease;
     }
 
         .dashboard-card:hover {
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+            transform: translateY(-3px);
+            border-color: #9cc7ff;
         }
 
     .dashboard-card-header {
@@ -140,7 +115,7 @@
             margin: 0;
             color: #111827;
             font-size: 19px;
-            font-weight: 800;
+            font-weight: 900;
             line-height: 1.2;
         }
 
@@ -158,19 +133,19 @@
     }
 
     .calendar-nav {
-        color: #0b2a6f;
+        color: #0b4fb3;
         text-decoration: none;
         font-size: 24px;
-        font-weight: 800;
+        font-weight: 900;
         padding: 4px 9px;
-        border-radius: 8px;
-        transition: background 0.18s ease, transform 0.18s ease;
+        border-radius: 9px;
+        transition: background 0.2s ease, transform 0.2s ease;
     }
 
         .calendar-nav:hover {
             background: #eef4ff;
-            color: #123b93;
-            transform: translateY(-1px);
+            color: #0b2a6f;
+            transform: translateY(-2px);
         }
 
     .calendar-month {
@@ -181,14 +156,14 @@
             margin: 0;
             color: #111827;
             font-size: 31px;
-            font-weight: 500;
+            font-weight: 600;
             letter-spacing: 2px;
             line-height: 1.1;
         }
 
         .calendar-month small {
             color: #64748b;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 1px;
             font-size: 13px;
         }
@@ -205,7 +180,7 @@
             text-align: center;
             color: #111827;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 900;
             padding-bottom: 6px;
         }
 
@@ -217,16 +192,16 @@
         text-decoration: none;
         color: #111827;
         position: relative;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 13px;
         border-radius: 10px;
-        transition: background 0.18s ease, transform 0.18s ease;
+        transition: background 0.2s ease, transform 0.2s ease;
     }
 
         .calendar-day:hover {
             background: #eef4ff;
-            color: #0b2a6f;
-            transform: translateY(-1px);
+            color: #0b4fb3;
+            transform: translateY(-2px);
         }
 
     .calendar-day-number {
@@ -239,14 +214,14 @@
     }
 
     .calendar-day.other-month {
-        opacity: 0.28;
+        opacity: 0.25;
     }
 
     .calendar-day.selected .calendar-day-number {
-        background: #0b2a6f;
+        background: #0b4fb3;
         color: white;
-        font-weight: 800;
-        box-shadow: 0 6px 14px rgba(11, 42, 111, 0.25);
+        font-weight: 900;
+        animation: selectedPulse 1.4s ease-in-out infinite;
     }
 
     .calendar-dot {
@@ -255,7 +230,7 @@
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background: #0b2a6f;
+        background: #0b4fb3;
     }
 
     .day-panel-body {
@@ -264,18 +239,19 @@
 
     .appointment-day-item {
         border: 1px solid #dbe4f0;
-        border-left: 4px solid #0b2a6f;
+        border-left: 4px solid #0b4fb3;
         padding: 14px;
         margin-bottom: 12px;
         background: #f8fbff;
-        border-radius: 8px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        animation: fadeUp 0.35s ease both;
+        border-radius: 10px;
+        transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
+        animation: cardEnter 0.35s ease both;
     }
 
         .appointment-day-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.09);
+            transform: translateX(6px);
+            background: #ffffff;
+            border-color: #9cc7ff;
         }
 
         .appointment-day-item:last-child {
@@ -283,15 +259,15 @@
         }
 
     .appointment-time {
-        color: #0b2a6f;
-        font-weight: 800;
+        color: #0b4fb3;
+        font-weight: 900;
         margin-bottom: 8px;
         font-size: 14px;
     }
 
     .appointment-patient {
         font-size: 16px;
-        font-weight: 800;
+        font-weight: 900;
         color: #111827;
         margin-bottom: 4px;
     }
@@ -306,10 +282,10 @@
         display: inline-block;
         background: #eef4ff;
         color: #0b2a6f;
-        border-left: 4px solid #0b2a6f;
+        border-left: 4px solid #0b4fb3;
         padding: 6px 10px;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 900;
         margin-bottom: 10px;
     }
 
@@ -322,20 +298,20 @@
 
     .appointment-details-btn {
         display: inline-block;
-        background: #0b2a6f;
+        background: #0b4fb3;
         color: white;
         text-decoration: none;
         padding: 8px 12px;
-        border-radius: 6px;
-        font-weight: 800;
+        border-radius: 7px;
+        font-weight: 900;
         font-size: 13px;
-        transition: background 0.18s ease, transform 0.18s ease;
+        transition: background 0.2s ease, transform 0.2s ease;
     }
 
         .appointment-details-btn:hover {
-            background: #123b93;
+            background: #0b2a6f;
             color: white;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
     .empty-day-message {
@@ -344,18 +320,28 @@
         background: #f8fbff;
         border: 1px solid #dbe4f0;
         padding: 14px;
-        border-radius: 8px;
+        border-radius: 10px;
     }
 
-    @@keyframes fadeUp {
+    @@keyframes cardEnter {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(12px);
         }
 
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+
+    @@keyframes selectedPulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(11, 79, 179, 0.28);
+        }
+
+        50% {
+            box-shadow: 0 0 0 6px rgba(11, 79, 179, 0.08);
         }
     }
 
@@ -370,10 +356,6 @@
     }
 
     @@media (max-width: 600px) {
-        .dashboard-header h2 {
-            font-size: 25px;
-        }
-
         .dashboard-stats {
             grid-template-columns: 1fr;
         }
@@ -386,13 +368,7 @@
 
 <div class="doctor-dashboard-page">
 
-    <div class="dashboard-header">
-        <small>Doctor Dashboard</small>
-        <h2>Welcome, Dr. @Model.DoctorFullName</h2>
-    </div>
-
     <div class="dashboard-stats">
-
         <div class="dashboard-stat">
             <span>Selected Day Appointments</span>
             <strong>@Model.TotalAppointmentsForSelectedDate</strong>
@@ -416,7 +392,6 @@
             <strong>@Model.TotalPatientsSeen</strong>
             <p>Unique completed patient visits</p>
         </div>
-
     </div>
 
     <div class="dashboard-main-grid">
