@@ -17,7 +17,6 @@
     <style>
         :root {
             --gc-blue: #0088FF;
-            --gc-dark: #0A2E72;
             --gc-bg: #EEF6FF;
             --gc-text: #111827;
         }
@@ -33,16 +32,16 @@
             color: var(--gc-text);
         }
 
-        .gc-navbar {
-            background: linear-gradient(90deg, #0088FF 0%, #0077DF 52%, #0A2E72 100%);
+        .main-navbar {
+            background: #0088FF;
             min-height: 76px;
+            box-shadow: 0 6px 18px rgba(0, 136, 255, 0.18);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 8px 24px rgba(10, 46, 114, 0.16);
         }
 
-        .gc-navbar-inner {
+        .main-navbar-inner {
             max-width: 1180px;
             margin: 0 auto;
             min-height: 76px;
@@ -50,67 +49,44 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 24px;
+            gap: 28px;
         }
 
-        .gc-brand {
+        .brand-logo {
             display: flex;
             align-items: center;
             text-decoration: none;
-            color: #ffffff;
             flex-shrink: 0;
         }
 
-            .gc-brand img {
+            .brand-logo img {
                 height: 58px;
                 width: auto;
-                max-width: 245px;
+                max-width: 250px;
                 object-fit: contain;
                 display: block;
             }
 
-        .gc-logo-fallback {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 25px;
-            letter-spacing: -0.5px;
-        }
-
-            .gc-logo-fallback span:first-child {
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-                background: #ffffff;
-                color: var(--gc-blue);
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-            }
-
-        .main-wrapper {
+        .layout-main {
             max-width: 1180px;
             margin: 30px auto 0;
-            padding: 0 22px 55px;
+            padding: 0 22px 56px;
         }
 
-        .app-footer {
+        .layout-footer {
             max-width: 1180px;
             margin: 0 auto;
-            padding: 18px 22px 26px;
+            padding: 18px 22px 28px;
             color: #475569;
             font-size: 13px;
         }
 
-        @@media (max-width: 950px) {
-            .gc-navbar {
+        @@media (max-width: 960px) {
+            .main-navbar {
                 position: relative;
             }
 
-            .gc-navbar-inner {
+            .main-navbar-inner {
                 flex-direction: column;
                 align-items: flex-start;
                 padding-top: 14px;
@@ -118,7 +94,7 @@
                 gap: 12px;
             }
 
-            .gc-brand img {
+            .brand-logo img {
                 height: 50px;
             }
         }
@@ -126,18 +102,11 @@
 </head>
 
 <body>
-    <header class="gc-navbar">
-        <div class="gc-navbar-inner">
+    <header class="main-navbar">
+        <div class="main-navbar-inner">
 
-            <a asp-controller="Dashboard" asp-action="Index" class="gc-brand">
-                <img src="@Url.Content("~/images/logo.png")"
-                     alt="GentleCare Logo"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-
-                <div class="gc-logo-fallback">
-                    <span>♡</span>
-                    <span>GentleCare</span>
-                </div>
+            <a asp-controller="Dashboard" asp-action="Index" class="brand-logo">
+                <img src="/images/logo.png" alt="GentleCare Logo" />
             </a>
 
             <partial name="_Navbar" />
@@ -145,14 +114,14 @@
         </div>
     </header>
 
-    <div class="main-wrapper">
+    <div class="layout-main">
         <main role="main">
             <partial name="_AlertMessages" />
             @RenderBody()
         </main>
     </div>
 
-    <footer class="app-footer">
+    <footer class="layout-footer">
         &copy; @DateTime.Now.Year - GentleCare MVC Application
     </footer>
 

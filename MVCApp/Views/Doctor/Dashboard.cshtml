@@ -5,8 +5,6 @@
 }
 
 <style>
-    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
     body {
         background: #eef6ff !important;
         font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
@@ -28,55 +26,15 @@
 
     .dashboard-stat {
         position: relative;
-        background: #ffffff;
-        border-radius: 14px;
-        border: 1px solid #d4e7fb;
-        padding: 19px;
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(10, 46, 114, 0.06);
-        animation: cardEnter 0.45s ease both;
+        background: #ffffff;
+        border: 1px solid #d9e8fb;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0, 136, 255, 0.08);
+        animation: cardFadeUp 0.45s ease both;
         transition: transform 0.24s ease, border-color 0.24s ease;
     }
-
-        .dashboard-stat::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(0,136,255,0.14), rgba(10,46,114,0.04));
-            opacity: 0;
-            transition: opacity 0.24s ease;
-        }
-
-        .dashboard-stat::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 5px;
-            height: 100%;
-            background: #0088FF;
-            transform: scaleY(0);
-            transform-origin: bottom;
-            transition: transform 0.24s ease;
-        }
-
-        .dashboard-stat:hover {
-            transform: translateY(-6px);
-            border-color: #0088FF;
-        }
-
-            .dashboard-stat:hover::before {
-                opacity: 1;
-            }
-
-            .dashboard-stat:hover::after {
-                transform: scaleY(1);
-            }
-
-        .dashboard-stat > * {
-            position: relative;
-            z-index: 1;
-        }
 
         .dashboard-stat:nth-child(1) {
             animation-delay: 0.03s;
@@ -94,21 +52,46 @@
             animation-delay: 0.18s;
         }
 
+        .dashboard-stat::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0,136,255,0.08), rgba(0,136,255,0.00));
+            transition: width 0.28s ease;
+        }
+
+        .dashboard-stat:hover {
+            transform: translateY(-5px);
+            border-color: #0088FF;
+        }
+
+            .dashboard-stat:hover::before {
+                width: 100%;
+            }
+
+        .dashboard-stat > * {
+            position: relative;
+            z-index: 1;
+        }
+
         .dashboard-stat span {
             display: block;
             color: #475569;
+            font-size: 13px;
             font-weight: 800;
             margin-bottom: 10px;
-            font-size: 13px;
         }
 
         .dashboard-stat strong {
             display: block;
-            color: #0A2E72;
+            color: #0088FF;
             font-size: 34px;
             font-weight: 900;
             line-height: 1;
-            margin-bottom: 9px;
+            margin-bottom: 8px;
         }
 
         .dashboard-stat p {
@@ -122,16 +105,15 @@
         display: grid;
         grid-template-columns: 420px 1fr;
         gap: 22px;
-        margin-bottom: 22px;
     }
 
     .dashboard-card {
         background: #ffffff;
+        border: 1px solid #d9e8fb;
         border-radius: 14px;
-        border: 1px solid #d4e7fb;
-        box-shadow: 0 8px 22px rgba(10, 46, 114, 0.06);
         overflow: hidden;
-        animation: cardEnter 0.55s ease both;
+        box-shadow: 0 8px 22px rgba(0, 136, 255, 0.08);
+        animation: cardFadeUp 0.55s ease both;
         transition: transform 0.24s ease, border-color 0.24s ease;
     }
 
@@ -141,17 +123,16 @@
         }
 
     .dashboard-card-header {
-        background: #f8fbff;
-        border-bottom: 1px solid #d4e7fb;
         padding: 16px 18px;
+        background: #f8fbff;
+        border-bottom: 1px solid #d9e8fb;
     }
 
         .dashboard-card-header h4 {
             margin: 0;
-            color: #0A2E72;
+            color: #111827;
             font-size: 19px;
             font-weight: 900;
-            line-height: 1.2;
         }
 
         .dashboard-card-header p {
@@ -173,13 +154,12 @@
         font-size: 24px;
         font-weight: 900;
         padding: 4px 9px;
-        border-radius: 9px;
-        transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        border-radius: 8px;
+        transition: background-color 0.22s ease, transform 0.22s ease;
     }
 
         .calendar-nav:hover {
             background: #eef6ff;
-            color: #0A2E72;
             transform: translateY(-2px);
         }
 
@@ -189,7 +169,7 @@
 
         .calendar-month h3 {
             margin: 0;
-            color: #0A2E72;
+            color: #111827;
             font-size: 31px;
             font-weight: 700;
             letter-spacing: 2px;
@@ -198,9 +178,9 @@
 
         .calendar-month small {
             color: #64748b;
+            font-size: 13px;
             font-weight: 800;
             letter-spacing: 1px;
-            font-size: 13px;
         }
 
     .calendar-weekdays,
@@ -213,7 +193,7 @@
 
         .calendar-weekdays div {
             text-align: center;
-            color: #0A2E72;
+            color: #111827;
             font-size: 12px;
             font-weight: 900;
             padding-bottom: 6px;
@@ -227,15 +207,14 @@
         text-decoration: none;
         color: #111827;
         position: relative;
-        font-weight: 800;
         font-size: 13px;
+        font-weight: 800;
         border-radius: 10px;
-        transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        transition: background-color 0.22s ease, transform 0.22s ease;
     }
 
         .calendar-day:hover {
             background: #eef6ff;
-            color: #0088FF;
             transform: translateY(-2px);
         }
 
@@ -255,8 +234,7 @@
     .calendar-day.selected .calendar-day-number {
         background: #0088FF;
         color: white;
-        font-weight: 900;
-        animation: selectedPulse 1.4s ease-in-out infinite;
+        animation: selectedPulse 1.5s ease-in-out infinite;
     }
 
     .calendar-dot {
@@ -273,20 +251,20 @@
     }
 
     .appointment-day-item {
-        border: 1px solid #d4e7fb;
+        background: #f8fbff;
+        border: 1px solid #d9e8fb;
         border-left: 4px solid #0088FF;
+        border-radius: 10px;
         padding: 14px;
         margin-bottom: 12px;
-        background: #f8fbff;
-        border-radius: 10px;
-        transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
-        animation: cardEnter 0.35s ease both;
+        animation: cardFadeUp 0.35s ease both;
+        transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
     }
 
         .appointment-day-item:hover {
             transform: translateX(6px);
-            background: #ffffff;
             border-color: #0088FF;
+            background: #ffffff;
         }
 
         .appointment-day-item:last-child {
@@ -295,15 +273,15 @@
 
     .appointment-time {
         color: #0088FF;
+        font-size: 14px;
         font-weight: 900;
         margin-bottom: 8px;
-        font-size: 14px;
     }
 
     .appointment-patient {
+        color: #111827;
         font-size: 16px;
         font-weight: 900;
-        color: #111827;
         margin-bottom: 4px;
     }
 
@@ -316,7 +294,7 @@
     .appointment-status {
         display: inline-block;
         background: #eef6ff;
-        color: #0A2E72;
+        color: #0088FF;
         border-left: 4px solid #0088FF;
         padding: 6px 10px;
         font-size: 12px;
@@ -327,38 +305,38 @@
     .appointment-notes {
         color: #475569;
         font-size: 13px;
-        margin-bottom: 12px;
         line-height: 1.45;
+        margin-bottom: 12px;
     }
 
     .appointment-details-btn {
         display: inline-block;
-        background: #0088FF;
-        color: white;
         text-decoration: none;
+        background: #0088FF;
+        color: #ffffff;
         padding: 8px 12px;
-        border-radius: 7px;
-        font-weight: 900;
+        border-radius: 8px;
         font-size: 13px;
-        transition: background 0.2s ease, transform 0.2s ease;
+        font-weight: 900;
+        transition: transform 0.22s ease, background-color 0.22s ease;
     }
 
         .appointment-details-btn:hover {
-            background: #0A2E72;
-            color: white;
+            background: #0077e0;
+            color: #ffffff;
             transform: translateY(-2px);
         }
 
     .empty-day-message {
-        color: #64748b;
-        font-size: 14px;
         background: #f8fbff;
-        border: 1px solid #d4e7fb;
-        padding: 14px;
+        border: 1px solid #d9e8fb;
+        color: #64748b;
         border-radius: 10px;
+        padding: 14px;
+        font-size: 14px;
     }
 
-    @@keyframes cardEnter {
+    @@keyframes cardFadeUp {
         from {
             opacity: 0;
             transform: translateY(12px);
@@ -372,11 +350,11 @@
 
     @@keyframes selectedPulse {
         0%, 100% {
-            box-shadow: 0 0 0 0 rgba(0, 136, 255, 0.30);
+            box-shadow: 0 0 0 0 rgba(0,136,255,0.28);
         }
 
         50% {
-            box-shadow: 0 0 0 6px rgba(0, 136, 255, 0.10);
+            box-shadow: 0 0 0 7px rgba(0,136,255,0.10);
         }
     }
 
@@ -436,9 +414,7 @@
                 <a asp-controller="Doctor"
                    asp-action="Dashboard"
                    asp-route-selectedDate="@Model.PreviousMonthDate.ToString("yyyy-MM-dd")"
-                   class="calendar-nav">
-                    ‹
-                </a>
+                   class="calendar-nav">‹</a>
 
                 <div class="calendar-month">
                     <h3>@Model.CalendarMonthLabel</h3>
@@ -448,9 +424,7 @@
                 <a asp-controller="Doctor"
                    asp-action="Dashboard"
                    asp-route-selectedDate="@Model.NextMonthDate.ToString("yyyy-MM-dd")"
-                   class="calendar-nav">
-                    ›
-                </a>
+                   class="calendar-nav">›</a>
             </div>
 
             <div class="calendar-weekdays">
