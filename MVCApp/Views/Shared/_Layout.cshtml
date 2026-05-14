@@ -16,8 +16,10 @@
 
     <style>
         :root {
-            --gc-blue: #0088FF;
-            --gc-bg: #EEF6FF;
+            --gc-blue: #04428c;
+            --gc-orange: #faa634;
+            --gc-yellow: #ffd200;
+            --gc-bg: #eef6ff;
             --gc-text: #111827;
         }
 
@@ -35,10 +37,10 @@
         }
 
         .main-navbar {
-            background: #0088FF !important;
+            background: #04428c !important;
             background-image: none !important;
             min-height: 76px;
-            box-shadow: 0 6px 18px rgba(0, 136, 255, 0.18);
+            box-shadow: 0 8px 22px rgba(4, 66, 140, 0.22);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -64,10 +66,10 @@
         }
 
         .text-logo-name {
-            font-family: "Inter", Arial, sans-serif;
-            font-size: 30px;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            font-size: 31px;
             font-weight: 900;
-            letter-spacing: -1px;
+            letter-spacing: -1.2px;
             color: #ffffff;
             line-height: 1;
         }
@@ -111,7 +113,7 @@
         <div class="main-navbar-inner">
 
             <a asp-controller="Doctor" asp-action="Dashboard" class="text-logo">
-                <span class="text-logo-name">LOGO</span>
+                <span class="text-logo-name">GentleCare</span>
             </a>
 
             <partial name="_Navbar" />
