@@ -4,227 +4,260 @@
     ViewData["Title"] = "Clinic Manager Dashboard";
 }
 
-<div class="page-header clean-header">
-    <div>
-        <h1>Clinic Manager Dashboard</h1>
-        <p>Quick overview of clinic activity today.</p>
-    </div>
-</div>
+<div class="cm-dashboard">
 
-<!-- Main Summary Cards -->
-<div class="clean-card-grid">
-    <div class="clean-stat-card">
-        <span>Total Doctors</span>
-        <strong>@Model.TotalDoctors</strong>
-    </div>
-
-    <div class="clean-stat-card">
-        <span>Active Doctors</span>
-        <strong>@Model.ActiveDoctors</strong>
-    </div>
-
-    <div class="clean-stat-card">
-        <span>Total Patients</span>
-        <strong>@Model.TotalPatients</strong>
-    </div>
-
-    <div class="clean-stat-card">
-        <span>Appointments Today</span>
-        <strong>@Model.AppointmentsToday</strong>
-    </div>
-
-    <div class="clean-stat-card warning-card">
-        <span>Doctors On Leave</span>
-        <strong>@Model.DoctorsOnLeaveToday</strong>
-    </div>
-
-    <div class="clean-stat-card danger-card">
-        <span>Impacted Appointments</span>
-        <strong>@Model.ImpactedAppointmentsToday</strong>
-    </div>
-</div>
-
-<!-- Appointment Status -->
-<div class="clean-section">
-    <div class="clean-section-header">
-        <h2>Today Appointment Status</h2>
+    <!-- Page Title -->
+    <div class="cm-page-title">
+        <div>
+            <h1>Clinic Manager Dashboard</h1>
+            <p>Overview of today’s clinic activity.</p>
+        </div>
 
         <a asp-controller="ClinicManager"
            asp-action="Appointments"
-           class="clean-link">
-            View All
+           class="cm-main-btn">
+            View Appointments
         </a>
     </div>
 
-    <div class="mini-status-grid">
-        <div>
-            <span>Requested</span>
-            <strong>@Model.RequestedAppointments</strong>
+    <!-- Small Top Cards -->
+    <div class="cm-stats-row">
+        <div class="cm-stat-card card-blue">
+            <div>
+                <span>Total Doctors</span>
+                <h2>@Model.TotalDoctors</h2>
+            </div>
         </div>
 
-        <div>
-            <span>Confirmed</span>
-            <strong>@Model.ConfirmedAppointments</strong>
+        <div class="cm-stat-card card-green">
+            <div>
+                <span>Total Patients</span>
+                <h2>@Model.TotalPatients</h2>
+            </div>
         </div>
 
-        <div>
-            <span>Checked In</span>
-            <strong>@Model.CheckedInAppointments</strong>
+        <div class="cm-stat-card card-purple">
+            <div>
+                <span>Appointments</span>
+                <h2>@Model.AppointmentsToday</h2>
+            </div>
         </div>
 
-        <div>
-            <span>In Progress</span>
-            <strong>@Model.InProgressAppointments</strong>
+        <div class="cm-stat-card card-orange">
+            <div>
+                <span>On Leave</span>
+                <h2>@Model.DoctorsOnLeaveToday</h2>
+            </div>
         </div>
 
-        <div>
-            <span>Completed</span>
-            <strong>@Model.CompletedAppointmentsToday</strong>
-        </div>
-
-        <div>
-            <span>Cancelled</span>
-            <strong>@Model.CancelledAppointmentsToday</strong>
-        </div>
-
-        <div>
-            <span>Missed</span>
-            <strong>@Model.MissedAppointmentsToday</strong>
+        <div class="cm-stat-card card-red">
+            <div>
+                <span>Impacted</span>
+                <h2>@Model.ImpactedAppointmentsToday</h2>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Today Appointments -->
-<div class="clean-section">
-    <div class="clean-section-header">
-        <h2>Today Appointments</h2>
+    <!-- Main Dashboard Grid -->
+    <div class="cm-dashboard-grid">
 
-        <a asp-controller="ClinicManager"
-           asp-action="Appointments"
-           asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
-           class="clean-link">
-            Open
-        </a>
-    </div>
+        <!-- Left Side -->
+        <div class="cm-left-area">
 
-    @if (Model.HasAppointmentsToday)
-    {
-    <div class="table-responsive">
-        <table class="clean-table">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Patient</th>
-                    <th>Doctor</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
+            <!-- Status Summary -->
+            <div class="cm-panel">
+                <div class="cm-panel-header">
+                    <h2>Today Status</h2>
+                    <a asp-controller="ClinicManager" asp-action="Appointments">View All</a>
+                </div>
 
-            <tbody>
-                @foreach (var appointment in Model.TodayAppointments)
-                    {
-                <tr>
-                    <td>@appointment.TimeText</td>
-                    <td>@appointment.PatientName</td>
-                    <td>Dr. @appointment.DoctorName</td>
-                    <td>
-                        <span class="clean-pill">@appointment.StatusName</span>
-                    </td>
-                    <td>
+                <div class="cm-status-grid">
+                    <div>
+                        <span>Requested</span>
+                        <strong>@Model.RequestedAppointments</strong>
+                    </div>
+
+                    <div>
+                        <span>Confirmed</span>
+                        <strong>@Model.ConfirmedAppointments</strong>
+                    </div>
+
+                    <div>
+                        <span>Checked In</span>
+                        <strong>@Model.CheckedInAppointments</strong>
+                    </div>
+
+                    <div>
+                        <span>In Progress</span>
+                        <strong>@Model.InProgressAppointments</strong>
+                    </div>
+
+                    <div>
+                        <span>Completed</span>
+                        <strong>@Model.CompletedAppointmentsToday</strong>
+                    </div>
+
+                    <div>
+                        <span>Cancelled</span>
+                        <strong>@Model.CancelledAppointmentsToday</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments -->
+            <div class="cm-panel">
+                <div class="cm-panel-header">
+                    <h2>Today Appointments</h2>
+                    <a asp-controller="ClinicManager"
+                       asp-action="Appointments"
+                       asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")">
+                        Open
+                    </a>
+                </div>
+
+                @if (Model.HasAppointmentsToday)
+                {
+                <div class="cm-table-wrap">
+                    <table class="cm-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var appointment in Model.TodayAppointments.Take(5))
+                                {
+                            <tr>
+                                <td>@appointment.TimeText</td>
+                                <td>@appointment.PatientName</td>
+                                <td>Dr. @appointment.DoctorName</td>
+                                <td>
+                                    <span class="cm-pill">@appointment.StatusName</span>
+                                </td>
+                                <td>
+                                    <a asp-controller="ClinicManager"
+                                       asp-action="AppointmentDetails"
+                                       asp-route-id="@appointment.AppointmentId">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
+                                }
+                        </tbody>
+                    </table>
+                </div>
+                }
+                else
+                {
+                <p class="cm-empty">No appointments scheduled today.</p>
+                }
+            </div>
+
+        </div>
+
+        <!-- Right Side -->
+        <div class="cm-right-area">
+
+            <!-- Mini Calendar Style -->
+            <div class="cm-panel cm-calendar-card">
+                <div class="cm-panel-header">
+                    <h2>@DateTime.Today.ToString("MMMM yyyy")</h2>
+                </div>
+
+                <div class="cm-calendar-date">
+                    <span>@DateTime.Today.ToString("dddd")</span>
+                    <strong>@DateTime.Today.Day</strong>
+                    <p>@DateTime.Today.ToString("dd MMM yyyy")</p>
+                </div>
+
+                <div class="cm-calendar-info">
+                    <div>
+                        <span>Appointments</span>
+                        <strong>@Model.AppointmentsToday</strong>
+                    </div>
+
+                    <div>
+                        <span>Completed</span>
+                        <strong>@Model.CompletedAppointmentsToday</strong>
+                    </div>
+
+                    <div>
+                        <span>Remaining</span>
+                        <strong>@(Model.AppointmentsToday - Model.CompletedAppointmentsToday - Model.CancelledAppointmentsToday - Model.MissedAppointmentsToday)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workload -->
+            <div class="cm-panel">
+                <div class="cm-panel-header">
+                    <h2>Doctor Workload</h2>
+                    <a asp-controller="ClinicManager" asp-action="Doctors">Manage</a>
+                </div>
+
+                @if (Model.HasDoctorWorkloads)
+                {
+                <div class="cm-workload-list">
+                    @foreach (var doctor in Model.DoctorWorkloads.Take(4))
+                        {
+                    <div class="cm-workload-item">
+                        <div>
+                            <h3>Dr. @doctor.DoctorName</h3>
+                            <p>@doctor.TotalAppointmentsToday appointments</p>
+                        </div>
+
                         <a asp-controller="ClinicManager"
-                           asp-action="AppointmentDetails"
-                           asp-route-id="@appointment.AppointmentId"
-                           class="clean-link">
-                            Details
+                           asp-action="DoctorDetails"
+                           asp-route-id="@doctor.DoctorId">
+                            View
                         </a>
-                    </td>
-                </tr>
-                    }
-            </tbody>
-        </table>
-    </div>
-    }
-    else
-    {
-    <p class="clean-empty">No appointments scheduled for today.</p>
-    }
-</div>
-
-<!-- Doctor Workload -->
-<div class="clean-section">
-    <div class="clean-section-header">
-        <h2>Doctor Workload</h2>
-
-        <a asp-controller="ClinicManager"
-           asp-action="Doctors"
-           class="clean-link">
-            Manage
-        </a>
-    </div>
-
-    @if (Model.HasDoctorWorkloads)
-    {
-    <div class="clean-list">
-        @foreach (var doctor in Model.DoctorWorkloads)
-            {
-        <div class="clean-list-item">
-            <div>
-                <h3>Dr. @doctor.DoctorName</h3>
-                <p>@doctor.TotalAppointmentsToday appointments today</p>
+                    </div>
+                        }
+                </div>
+                }
+                else
+                {
+                <p class="cm-empty">No workload data today.</p>
+                }
             </div>
 
-            <div class="clean-list-numbers">
-                <span>Completed: @doctor.CompletedAppointmentsToday</span>
-                <span>Remaining: @doctor.RemainingAppointmentsToday</span>
+            <!-- Leaves -->
+            <div class="cm-panel">
+                <div class="cm-panel-header">
+                    <h2>On Leave</h2>
+                </div>
+
+                @if (Model.HasDoctorsOnLeave)
+                {
+                <div class="cm-workload-list">
+                    @foreach (var leave in Model.DoctorsOnLeave.Take(3))
+                        {
+                    <div class="cm-workload-item">
+                        <div>
+                            <h3>Dr. @leave.DoctorName</h3>
+                            <p>@leave.LeaveReason</p>
+                        </div>
+
+                        <a asp-controller="ClinicManager"
+                           asp-action="AppointmentImpact"
+                           asp-route-doctorId="@leave.DoctorId">
+                            Impact
+                        </a>
+                    </div>
+                        }
+                </div>
+                }
+                else
+                {
+                <p class="cm-empty">No doctors on leave today.</p>
+                }
             </div>
 
-            <a asp-controller="ClinicManager"
-               asp-action="DoctorDetails"
-               asp-route-id="@doctor.DoctorId"
-               class="clean-link">
-                View
-            </a>
         </div>
-            }
     </div>
-    }
-    else
-    {
-    <p class="clean-empty">No doctor workload data available today.</p>
-    }
-</div>
-
-<!-- Doctors On Leave -->
-<div class="clean-section">
-    <div class="clean-section-header">
-        <h2>Doctors On Leave</h2>
-    </div>
-
-    @if (Model.HasDoctorsOnLeave)
-    {
-    <div class="clean-list">
-        @foreach (var leave in Model.DoctorsOnLeave)
-            {
-        <div class="clean-list-item">
-            <div>
-                <h3>Dr. @leave.DoctorName</h3>
-                <p>@leave.LeaveReason</p>
-                <small>@leave.LeaveDateText</small>
-            </div>
-
-            <a asp-controller="ClinicManager"
-               asp-action="AppointmentImpact"
-               asp-route-doctorId="@leave.DoctorId"
-               class="clean-link">
-                Review Impact
-            </a>
-        </div>
-            }
-    </div>
-    }
-    else
-    {
-    <p class="clean-empty">No doctors are on leave today.</p>
-    }
 </div>
