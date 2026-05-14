@@ -5,49 +5,46 @@
 }
 
 <style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
     body {
         background: #eef4ff !important;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
     }
 
     .doctor-dashboard-page {
         max-width: 1120px;
         margin: 35px auto;
-        padding: 0 20px 40px;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 0 20px 45px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
     .dashboard-header {
-        background: #0b2a6f;
+        background: linear-gradient(135deg, #0b2a6f, #123b93);
         color: white;
-        padding: 24px 28px;
-        border-radius: 8px;
-        box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
+        padding: 26px 30px;
+        border-radius: 12px;
+        box-shadow: 0 14px 30px rgba(11, 42, 111, 0.22);
         margin-bottom: 22px;
+        animation: fadeUp 0.45s ease both;
     }
 
         .dashboard-header small {
             display: block;
             color: #cfe0ff;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
+            font-weight: 800;
+            letter-spacing: 0.9px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .dashboard-header h2 {
             margin: 0;
-            font-size: 30px;
+            font-size: 31px;
             font-weight: 800;
             color: white;
             line-height: 1.2;
-        }
-
-        .dashboard-header p {
-            margin: 7px 0 0;
-            color: #e6efff;
-            font-size: 15px;
         }
 
     .dashboard-stats {
@@ -58,26 +55,49 @@
     }
 
     .dashboard-stat {
-        background: white;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 12px;
         border: 1px solid #d7e0ec;
         padding: 18px;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
         border-top: 4px solid #0b2a6f;
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+        animation: fadeUp 0.5s ease both;
     }
+
+        .dashboard-stat:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .dashboard-stat:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .dashboard-stat:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .dashboard-stat:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .dashboard-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.13);
+        }
 
         .dashboard-stat span {
             display: block;
             color: #475569;
             font-weight: 700;
             margin-bottom: 10px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .dashboard-stat strong {
             display: block;
             color: #111827;
-            font-size: 31px;
+            font-size: 32px;
             font-weight: 800;
             line-height: 1;
             margin-bottom: 8px;
@@ -86,8 +106,8 @@
         .dashboard-stat p {
             margin: 0;
             color: #64748b;
-            font-size: 14px;
-            line-height: 1.4;
+            font-size: 13px;
+            line-height: 1.45;
         }
 
     .dashboard-main-grid {
@@ -98,12 +118,17 @@
     }
 
     .dashboard-card {
-        background: white;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 12px;
         border: 1px solid #d7e0ec;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
         overflow: hidden;
+        animation: fadeUp 0.55s ease both;
     }
+
+        .dashboard-card:hover {
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+        }
 
     .dashboard-card-header {
         background: #f8fbff;
@@ -122,7 +147,7 @@
         .dashboard-card-header p {
             margin: 5px 0 0;
             color: #64748b;
-            font-size: 14px;
+            font-size: 13px;
         }
 
     .calendar-header {
@@ -135,13 +160,17 @@
     .calendar-nav {
         color: #0b2a6f;
         text-decoration: none;
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 800;
-        padding: 4px 8px;
+        padding: 4px 9px;
+        border-radius: 8px;
+        transition: background 0.18s ease, transform 0.18s ease;
     }
 
         .calendar-nav:hover {
+            background: #eef4ff;
             color: #123b93;
+            transform: translateY(-1px);
         }
 
     .calendar-month {
@@ -152,7 +181,7 @@
             margin: 0;
             color: #111827;
             font-size: 31px;
-            font-weight: 400;
+            font-weight: 500;
             letter-spacing: 2px;
             line-height: 1.1;
         }
@@ -175,7 +204,7 @@
         .calendar-weekdays div {
             text-align: center;
             color: #111827;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             padding-bottom: 6px;
         }
@@ -188,12 +217,16 @@
         text-decoration: none;
         color: #111827;
         position: relative;
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: 700;
+        font-size: 13px;
+        border-radius: 10px;
+        transition: background 0.18s ease, transform 0.18s ease;
     }
 
         .calendar-day:hover {
+            background: #eef4ff;
             color: #0b2a6f;
+            transform: translateY(-1px);
         }
 
     .calendar-day-number {
@@ -213,13 +246,14 @@
         background: #0b2a6f;
         color: white;
         font-weight: 800;
+        box-shadow: 0 6px 14px rgba(11, 42, 111, 0.25);
     }
 
     .calendar-dot {
         position: absolute;
-        bottom: 6px;
-        width: 6px;
-        height: 6px;
+        bottom: 5px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: #0b2a6f;
     }
@@ -229,12 +263,20 @@
     }
 
     .appointment-day-item {
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dbe4f0;
         border-left: 4px solid #0b2a6f;
         padding: 14px;
         margin-bottom: 12px;
         background: #f8fbff;
+        border-radius: 8px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: fadeUp 0.35s ease both;
     }
+
+        .appointment-day-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.09);
+        }
 
         .appointment-day-item:last-child {
             margin-bottom: 0;
@@ -257,7 +299,7 @@
     .appointment-ref {
         color: #64748b;
         font-size: 13px;
-        margin-bottom: 8px;
+        margin-bottom: 9px;
     }
 
     .appointment-status {
@@ -266,16 +308,16 @@
         color: #0b2a6f;
         border-left: 4px solid #0b2a6f;
         padding: 6px 10px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         margin-bottom: 10px;
     }
 
     .appointment-notes {
         color: #475569;
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 12px;
-        line-height: 1.4;
+        line-height: 1.45;
     }
 
     .appointment-details-btn {
@@ -285,18 +327,36 @@
         text-decoration: none;
         padding: 8px 12px;
         border-radius: 6px;
-        font-weight: 700;
-        font-size: 14px;
+        font-weight: 800;
+        font-size: 13px;
+        transition: background 0.18s ease, transform 0.18s ease;
     }
 
         .appointment-details-btn:hover {
             background: #123b93;
             color: white;
+            transform: translateY(-1px);
         }
 
     .empty-day-message {
         color: #64748b;
-        font-size: 15px;
+        font-size: 14px;
+        background: #f8fbff;
+        border: 1px solid #dbe4f0;
+        padding: 14px;
+        border-radius: 8px;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @@media (max-width: 950px) {
@@ -329,7 +389,6 @@
     <div class="dashboard-header">
         <small>Doctor Dashboard</small>
         <h2>Welcome, Dr. @Model.DoctorFullName</h2>
-        <p>Select a day from the calendar to view patients and appointment times.</p>
     </div>
 
     <div class="dashboard-stats">
