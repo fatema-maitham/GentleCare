@@ -20,9 +20,13 @@
             --gc-orange: #faa634;
             --gc-yellow: #ffd200;
             --gc-bg: #f4f8fc;
+            --gc-card: #ffffff;
             --gc-text: #152238;
             --gc-muted: #66758a;
             --gc-border: #dbe6f2;
+            --gc-soft: #f8fbff;
+            --gc-red: #ef4444;
+            --gc-green: #16a34a;
         }
 
         * {
@@ -37,6 +41,14 @@
             font-family: "Inter", "Segoe UI", Arial, sans-serif;
             color: var(--gc-text);
         }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* =========================
+           navbar
+           ========================= */
 
         .main-navbar {
             background: var(--gc-blue) !important;
@@ -67,13 +79,60 @@
         }
 
         .text-logo-name {
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
             font-size: 30px;
             font-weight: 900;
             letter-spacing: -1.1px;
             color: #ffffff;
             line-height: 1;
         }
+
+        .nav-links,
+        .navbar-links,
+        .custom-navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+            .nav-links a,
+            .navbar-links a,
+            .custom-navbar-links a,
+            .main-navbar a:not(.text-logo) {
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 800;
+                text-decoration: none;
+                position: relative;
+            }
+
+                .nav-links a:hover,
+                .navbar-links a:hover,
+                .custom-navbar-links a:hover,
+                .main-navbar a:not(.text-logo):hover {
+                    color: var(--gc-yellow);
+                }
+
+        .logout-btn,
+        .logout-link,
+        a[href*="Logout"] {
+            background: var(--gc-orange);
+            color: #ffffff !important;
+            padding: 9px 16px;
+            border-radius: 999px;
+            font-weight: 900 !important;
+        }
+
+            .logout-btn:hover,
+            .logout-link:hover,
+            a[href*="Logout"]:hover {
+                background: #e8901d;
+                color: #ffffff !important;
+            }
+
+        /* =========================
+           layout
+           ========================= */
 
         .layout-main {
             max-width: 1180px;
@@ -104,8 +163,9 @@
             .page-header h1 {
                 margin: 0;
                 font-size: 32px;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
+                letter-spacing: -0.4px;
             }
 
             .page-header p {
@@ -122,7 +182,72 @@
         }
 
         /* =========================
-           cards and sections
+           buttons and links
+           ========================= */
+
+        .primary-btn,
+        .secondary-btn {
+            display: inline-block;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            text-decoration: none;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .primary-btn {
+            background: var(--gc-orange);
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(250, 166, 52, 0.24);
+        }
+
+            .primary-btn:hover {
+                background: #e8901d;
+                color: #ffffff;
+                transform: translateY(-2px);
+            }
+
+        .secondary-btn {
+            background: #e8eef7;
+            color: var(--gc-blue);
+        }
+
+            .secondary-btn:hover {
+                background: #d9e4f3;
+                color: var(--gc-blue);
+                transform: translateY(-2px);
+            }
+
+        .btn-link,
+        .table-link,
+        .clean-link {
+            color: var(--gc-blue);
+            font-weight: 800;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+
+            .btn-link:hover,
+            .table-link:hover,
+            .clean-link:hover {
+                color: var(--gc-orange);
+                text-decoration: underline;
+            }
+
+        .danger-button {
+            border: none;
+            background: transparent;
+            color: #dc2626;
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            font-weight: 800;
+        }
+
+        /* =========================
+           general cards and sections
            ========================= */
 
         .dashboard-grid {
@@ -134,7 +259,7 @@
 
         .dashboard-card,
         .section-card {
-            background: #ffffff;
+            background: var(--gc-card);
             border: 1px solid var(--gc-border);
             border-radius: 18px;
             padding: 22px;
@@ -144,7 +269,7 @@
             .dashboard-card h2 {
                 margin: 6px 0;
                 font-size: 34px;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
             }
 
@@ -156,7 +281,7 @@
         .card-label {
             display: block;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--gc-muted);
         }
 
@@ -165,7 +290,7 @@
         }
 
         .danger-card {
-            border-left: 6px solid #ef4444;
+            border-left: 6px solid var(--gc-red);
         }
 
         .section-card {
@@ -183,7 +308,7 @@
             .section-header h2 {
                 margin: 0;
                 font-size: 24px;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
             }
 
@@ -197,7 +322,7 @@
 
         .status-box,
         .details-item {
-            background: #f8fbff;
+            background: var(--gc-soft);
             border: 1px solid var(--gc-border);
             border-radius: 14px;
             padding: 15px;
@@ -208,7 +333,7 @@
                 display: block;
                 color: var(--gc-muted);
                 font-size: 14px;
-                font-weight: 700;
+                font-weight: 800;
             }
 
             .status-box strong,
@@ -216,67 +341,190 @@
                 display: block;
                 margin-top: 5px;
                 font-size: 21px;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
             }
 
         /* =========================
-           buttons and links
+           clean dashboard style
            ========================= */
 
-        .primary-btn,
-        .secondary-btn {
-            display: inline-block;
-            border: none;
-            border-radius: 999px;
-            padding: 10px 18px;
-            text-decoration: none;
-            font-weight: 800;
-            cursor: pointer;
+        .clean-header {
+            margin-bottom: 22px;
         }
 
-        .primary-btn {
-            background: var(--gc-orange);
-            color: #ffffff;
+        .clean-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
-            .primary-btn:hover {
-                background: #e8901d;
-                color: #ffffff;
+        .clean-stat-card {
+            background: #ffffff;
+            border: 1px solid var(--gc-border);
+            border-radius: 20px;
+            padding: 24px 20px;
+            min-height: 130px;
+            box-shadow: 0 10px 24px rgba(4, 66, 140, 0.07);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .clean-stat-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 18px 34px rgba(4, 66, 140, 0.14);
+                border-color: var(--gc-orange);
             }
 
-        .secondary-btn {
-            background: #e8eef7;
-            color: var(--gc-blue);
-        }
-
-            .secondary-btn:hover {
-                background: #d9e4f3;
-                color: var(--gc-blue);
+            .clean-stat-card::after {
+                content: "";
+                position: absolute;
+                width: 70px;
+                height: 70px;
+                right: -22px;
+                bottom: -22px;
+                background: rgba(250, 166, 52, 0.15);
+                border-radius: 50%;
+                transition: transform 0.22s ease;
             }
 
-        .btn-link,
-        .table-link {
-            color: var(--gc-blue);
+            .clean-stat-card:hover::after {
+                transform: scale(1.5);
+            }
+
+            .clean-stat-card span {
+                display: block;
+                font-size: 14px;
+                font-weight: 900;
+                color: var(--gc-muted);
+                margin-bottom: 12px;
+            }
+
+            .clean-stat-card strong {
+                display: block;
+                font-size: 42px;
+                line-height: 1;
+                font-weight: 900;
+                color: var(--gc-text);
+            }
+
+            .clean-stat-card.warning-card {
+                border-left: 6px solid var(--gc-orange);
+            }
+
+            .clean-stat-card.danger-card {
+                border-left: 6px solid var(--gc-red);
+            }
+
+        .clean-section {
+            background: #ffffff;
+            border: 1px solid var(--gc-border);
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 24px rgba(4, 66, 140, 0.06);
+        }
+
+        .clean-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+            .clean-section-header h2 {
+                margin: 0;
+                font-size: 22px;
+                font-weight: 900;
+                color: var(--gc-text);
+            }
+
+        .mini-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+            gap: 12px;
+        }
+
+            .mini-status-grid div {
+                background: #f8fbff;
+                border: 1px solid var(--gc-border);
+                border-radius: 16px;
+                padding: 16px;
+                transition: transform 0.18s ease, border-color 0.18s ease;
+            }
+
+                .mini-status-grid div:hover {
+                    transform: translateY(-3px);
+                    border-color: var(--gc-orange);
+                }
+
+            .mini-status-grid span {
+                display: block;
+                font-size: 13px;
+                color: var(--gc-muted);
+                font-weight: 900;
+                margin-bottom: 7px;
+            }
+
+            .mini-status-grid strong {
+                display: block;
+                font-size: 26px;
+                font-weight: 900;
+                color: var(--gc-text);
+            }
+
+        .clean-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .clean-list-item {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto;
+            align-items: center;
+            gap: 18px;
+            background: #f8fbff;
+            border: 1px solid var(--gc-border);
+            border-radius: 18px;
+            padding: 18px;
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+
+            .clean-list-item:hover {
+                transform: translateY(-3px);
+                border-color: var(--gc-orange);
+            }
+
+            .clean-list-item h3 {
+                margin: 0;
+                font-size: 21px;
+                font-weight: 900;
+            }
+
+            .clean-list-item p {
+                margin: 5px 0 0;
+                color: var(--gc-muted);
+            }
+
+            .clean-list-item small {
+                color: var(--gc-muted);
+            }
+
+        .clean-list-numbers {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: var(--gc-text);
             font-weight: 700;
-            text-decoration: none;
-            margin-right: 8px;
         }
 
-            .btn-link:hover,
-            .table-link:hover {
-                color: var(--gc-orange);
-                text-decoration: underline;
-            }
-
-        .danger-button {
-            border: none;
-            background: transparent;
-            color: #dc2626;
-            cursor: pointer;
-            padding: 0;
-            font: inherit;
-            font-weight: 700;
+        .clean-empty {
+            margin: 0;
+            color: var(--gc-muted);
+            font-weight: 600;
         }
 
         /* =========================
@@ -288,33 +536,38 @@
             overflow-x: auto;
         }
 
-        .data-table {
+        .data-table,
+        .clean-table {
             width: 100%;
             border-collapse: collapse;
         }
 
             .data-table th,
-            .data-table td {
+            .data-table td,
+            .clean-table th,
+            .clean-table td {
                 padding: 13px 12px;
                 border-bottom: 1px solid var(--gc-border);
                 text-align: left;
                 vertical-align: middle;
             }
 
-            .data-table th {
+            .data-table th,
+            .clean-table th {
                 background: #f8fbff;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
             }
 
-        .status-pill {
+        .status-pill,
+        .clean-pill {
             display: inline-block;
             border-radius: 999px;
             padding: 6px 11px;
             background: #fff3d7;
             color: #9a5a00;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
         .status-active {
@@ -339,7 +592,7 @@
         }
 
             .form-group label {
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-text);
             }
 
@@ -351,6 +604,7 @@
                 border-radius: 12px;
                 border: 1px solid #cbd5e1;
                 outline: none;
+                background: #ffffff;
             }
 
                 .form-group input:focus,
@@ -406,7 +660,7 @@
             padding: 12px 14px;
             border-radius: 12px;
             margin-bottom: 16px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .alert-success {
@@ -422,7 +676,7 @@
         .text-danger {
             color: #dc2626 !important;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* =========================
@@ -446,7 +700,16 @@
             border-radius: 18px;
             padding: 20px;
             box-shadow: 0 8px 20px rgba(4, 66, 140, 0.06);
+            transition: transform 0.18s ease, border-color 0.18s ease;
         }
+
+            .doctor-card:hover,
+            .workload-item:hover,
+            .leave-item:hover,
+            .action-card:hover {
+                transform: translateY(-3px);
+                border-color: var(--gc-orange);
+            }
 
         .doctor-card-header,
         .workload-item,
@@ -460,7 +723,7 @@
             .workload-item h3,
             .leave-item h3 {
                 margin: 0;
-                font-weight: 800;
+                font-weight: 900;
             }
 
             .doctor-card-header p,
@@ -516,7 +779,7 @@
             border-radius: 999px;
             padding: 6px 11px;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
             .leave-badge.warning {
@@ -544,7 +807,7 @@
             color: #9a5a00;
             padding: 8px 13px;
             border-radius: 999px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
         .profile-note {
@@ -557,7 +820,7 @@
 
             .profile-note span {
                 display: block;
-                font-weight: 800;
+                font-weight: 900;
                 color: var(--gc-muted);
                 margin-bottom: 5px;
             }
@@ -572,6 +835,10 @@
             margin: 22px 0;
             opacity: 1;
         }
+
+        /* =========================
+           responsive
+           ========================= */
 
         @@media (max-width: 960px) {
             .main-navbar {
@@ -592,6 +859,7 @@
 
             .page-header,
             .section-header,
+            .clean-section-header,
             .doctor-card-header,
             .workload-item,
             .leave-item {
@@ -602,6 +870,11 @@
                 .page-header h1 {
                     font-size: 26px;
                 }
+
+            .clean-list-item {
+                grid-template-columns: 1fr;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>

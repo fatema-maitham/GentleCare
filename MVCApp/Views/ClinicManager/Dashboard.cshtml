@@ -4,145 +4,123 @@
     ViewData["Title"] = "Clinic Manager Dashboard";
 }
 
-<div class="page-header">
+<div class="page-header clean-header">
     <div>
         <h1>Clinic Manager Dashboard</h1>
-        <p>Monitor doctors, appointments, workload, leaves, and clinic activity.</p>
+        <p>Quick overview of clinic activity today.</p>
     </div>
 </div>
 
-@if (TempData["Success"] != null)
-{
-<div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-<div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<!-- Summary Cards -->
-<div class="dashboard-grid">
-    <div class="dashboard-card">
-        <span class="card-label">Total Doctors</span>
-        <h2>@Model.TotalDoctors</h2>
-        <p>@Model.ActiveDoctors active doctors</p>
+<!-- Main Summary Cards -->
+<div class="clean-card-grid">
+    <div class="clean-stat-card">
+        <span>Total Doctors</span>
+        <strong>@Model.TotalDoctors</strong>
     </div>
 
-    <div class="dashboard-card">
-        <span class="card-label">Total Patients</span>
-        <h2>@Model.TotalPatients</h2>
-        <p>Registered patients</p>
+    <div class="clean-stat-card">
+        <span>Active Doctors</span>
+        <strong>@Model.ActiveDoctors</strong>
     </div>
 
-    <div class="dashboard-card">
-        <span class="card-label">Appointments Today</span>
-        <h2>@Model.AppointmentsToday</h2>
-        <p>@Model.CompletedAppointmentsToday completed today</p>
+    <div class="clean-stat-card">
+        <span>Total Patients</span>
+        <strong>@Model.TotalPatients</strong>
     </div>
 
-    <div class="dashboard-card warning-card">
-        <span class="card-label">Doctors On Leave</span>
-        <h2>@Model.DoctorsOnLeaveToday</h2>
-        <p>Today</p>
+    <div class="clean-stat-card">
+        <span>Appointments Today</span>
+        <strong>@Model.AppointmentsToday</strong>
     </div>
 
-    <div class="dashboard-card danger-card">
-        <span class="card-label">Impacted Appointments</span>
-        <h2>@Model.ImpactedAppointmentsToday</h2>
-        <p>Need review today</p>
+    <div class="clean-stat-card warning-card">
+        <span>Doctors On Leave</span>
+        <strong>@Model.DoctorsOnLeaveToday</strong>
+    </div>
+
+    <div class="clean-stat-card danger-card">
+        <span>Impacted Appointments</span>
+        <strong>@Model.ImpactedAppointmentsToday</strong>
     </div>
 </div>
 
-<!-- Appointment Status Summary -->
-<div class="section-card">
-    <div class="section-header">
+<!-- Appointment Status -->
+<div class="clean-section">
+    <div class="clean-section-header">
         <h2>Today Appointment Status</h2>
-        <a asp-controller="ClinicManager" asp-action="Appointments" class="btn-link">View all appointments</a>
+
+        <a asp-controller="ClinicManager"
+           asp-action="Appointments"
+           class="clean-link">
+            View All
+        </a>
     </div>
 
-    <div class="status-grid">
-        <div class="status-box">
+    <div class="mini-status-grid">
+        <div>
             <span>Requested</span>
             <strong>@Model.RequestedAppointments</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>Confirmed</span>
             <strong>@Model.ConfirmedAppointments</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>Checked In</span>
             <strong>@Model.CheckedInAppointments</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>In Progress</span>
             <strong>@Model.InProgressAppointments</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>Completed</span>
             <strong>@Model.CompletedAppointmentsToday</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>Cancelled</span>
             <strong>@Model.CancelledAppointmentsToday</strong>
         </div>
 
-        <div class="status-box">
+        <div>
             <span>Missed</span>
             <strong>@Model.MissedAppointmentsToday</strong>
         </div>
     </div>
 </div>
 
-<!-- Quick Rates -->
-<div class="dashboard-grid small-grid">
-    <div class="dashboard-card">
-        <span class="card-label">Completion Rate</span>
-        <h2>@Model.CompletionRateToday%</h2>
-        <p>Completed appointments today</p>
-    </div>
-
-    <div class="dashboard-card">
-        <span class="card-label">Cancellation Rate</span>
-        <h2>@Model.CancellationRateToday%</h2>
-        <p>Cancelled appointments today</p>
-    </div>
-
-    <div class="dashboard-card">
-        <span class="card-label">Missed Rate</span>
-        <h2>@Model.MissedRateToday%</h2>
-        <p>Missed appointments today</p>
-    </div>
-</div>
-
 <!-- Today Appointments -->
-<div class="section-card">
-    <div class="section-header">
+<div class="clean-section">
+    <div class="clean-section-header">
         <h2>Today Appointments</h2>
-        <a asp-controller="ClinicManager" asp-action="Appointments" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")" class="btn-link">
-            Open appointments
+
+        <a asp-controller="ClinicManager"
+           asp-action="Appointments"
+           asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+           class="clean-link">
+            Open
         </a>
     </div>
 
     @if (Model.HasAppointmentsToday)
     {
     <div class="table-responsive">
-        <table class="data-table">
+        <table class="clean-table">
             <thead>
                 <tr>
                     <th>Time</th>
                     <th>Patient</th>
                     <th>Doctor</th>
                     <th>Status</th>
-                    <th>Notes</th>
                     <th></th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach (var appointment in Model.TodayAppointments)
                     {
@@ -151,14 +129,13 @@
                     <td>@appointment.PatientName</td>
                     <td>Dr. @appointment.DoctorName</td>
                     <td>
-                        <span class="status-pill">@appointment.StatusName</span>
+                        <span class="clean-pill">@appointment.StatusName</span>
                     </td>
-                    <td>@appointment.Notes</td>
                     <td>
                         <a asp-controller="ClinicManager"
                            asp-action="AppointmentDetails"
                            asp-route-id="@appointment.AppointmentId"
-                           class="table-link">
+                           class="clean-link">
                             Details
                         </a>
                     </td>
@@ -170,29 +147,34 @@
     }
     else
     {
-    <p class="empty-text">No appointments scheduled for today.</p>
+    <p class="clean-empty">No appointments scheduled for today.</p>
     }
 </div>
 
 <!-- Doctor Workload -->
-<div class="section-card">
-    <div class="section-header">
-        <h2>Doctor Workload Today</h2>
-        <a asp-controller="ClinicManager" asp-action="Doctors" class="btn-link">Manage doctors</a>
+<div class="clean-section">
+    <div class="clean-section-header">
+        <h2>Doctor Workload</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="Doctors"
+           class="clean-link">
+            Manage
+        </a>
     </div>
 
     @if (Model.HasDoctorWorkloads)
     {
-    <div class="workload-list">
+    <div class="clean-list">
         @foreach (var doctor in Model.DoctorWorkloads)
             {
-        <div class="workload-item">
+        <div class="clean-list-item">
             <div>
                 <h3>Dr. @doctor.DoctorName</h3>
                 <p>@doctor.TotalAppointmentsToday appointments today</p>
             </div>
 
-            <div class="workload-numbers">
+            <div class="clean-list-numbers">
                 <span>Completed: @doctor.CompletedAppointmentsToday</span>
                 <span>Remaining: @doctor.RemainingAppointmentsToday</span>
             </div>
@@ -200,7 +182,7 @@
             <a asp-controller="ClinicManager"
                asp-action="DoctorDetails"
                asp-route-id="@doctor.DoctorId"
-               class="table-link">
+               class="clean-link">
                 View
             </a>
         </div>
@@ -209,22 +191,22 @@
     }
     else
     {
-    <p class="empty-text">No doctor workload data available today.</p>
+    <p class="clean-empty">No doctor workload data available today.</p>
     }
 </div>
 
 <!-- Doctors On Leave -->
-<div class="section-card">
-    <div class="section-header">
-        <h2>Doctors On Leave Today</h2>
+<div class="clean-section">
+    <div class="clean-section-header">
+        <h2>Doctors On Leave</h2>
     </div>
 
     @if (Model.HasDoctorsOnLeave)
     {
-    <div class="leave-list">
+    <div class="clean-list">
         @foreach (var leave in Model.DoctorsOnLeave)
             {
-        <div class="leave-item">
+        <div class="clean-list-item">
             <div>
                 <h3>Dr. @leave.DoctorName</h3>
                 <p>@leave.LeaveReason</p>
@@ -234,8 +216,8 @@
             <a asp-controller="ClinicManager"
                asp-action="AppointmentImpact"
                asp-route-doctorId="@leave.DoctorId"
-               class="btn-warning-small">
-                Review impact
+               class="clean-link">
+                Review Impact
             </a>
         </div>
             }
@@ -243,6 +225,6 @@
     }
     else
     {
-    <p class="empty-text">No doctors are on leave today.</p>
+    <p class="clean-empty">No doctors are on leave today.</p>
     }
 </div>
