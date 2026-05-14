@@ -44,7 +44,11 @@ builder.Services.AddHttpClient("WebAPI", client =>
     client.BaseAddress = new Uri("https://localhost:7117/");
 });
 
+
+// Custom MVC services.
 builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 
 var app = builder.Build();
 
