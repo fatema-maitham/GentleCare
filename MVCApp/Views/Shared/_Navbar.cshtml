@@ -74,7 +74,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 22px;
+        gap: 20px;
         flex-wrap: wrap;
     }
 
@@ -98,24 +98,21 @@
                 bottom: 2px;
                 width: 100%;
                 height: 2px;
-                background: #ffd200;
+                background: #faa634;
                 transform: scaleX(0);
                 transform-origin: left;
                 transition: transform 0.2s ease;
             }
 
-            .site-nav-links a:hover {
-                color: #ffd200;
+            .site-nav-links a:hover,
+            .site-nav-links a.active {
+                color: #faa634;
             }
 
                 .site-nav-links a:hover::after,
                 .site-nav-links a.active::after {
                     transform: scaleX(1);
                 }
-
-            .site-nav-links a.active {
-                color: #ffd200;
-            }
 
     .logout-form {
         display: inline;
@@ -124,13 +121,13 @@
     }
 
     .logout-btn {
-        min-width: 92px;
-        height: 42px;
+        min-width: 90px;
+        height: 40px;
         padding: 0 18px;
         border-radius: 999px;
         border: none;
-        background: #ffd200;
-        color: #04428c;
+        background: #faa634;
+        color: #ffffff;
         font-size: 14px;
         font-weight: 900;
         font-family: inherit;
@@ -142,8 +139,8 @@
         .logout-btn:hover,
         .logout-btn:focus,
         .logout-btn:active {
-            background: #ffd200;
-            color: #04428c;
+            background: #faa634;
+            color: #ffffff;
             transform: none;
             box-shadow: none;
             outline: none;

@@ -6,30 +6,49 @@
 
 <style>
     body {
-        background: #eef4fb !important;
+        background: #f4f8fc !important;
         font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
     }
 
     .doctor-dashboard-page {
         max-width: 1140px;
         margin: 0 auto;
-        padding: 8px 0 40px;
+        padding: 4px 0 42px;
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
+
+    .dashboard-header {
+        margin-bottom: 20px;
+    }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 900;
+            color: #152238;
+            letter-spacing: -0.6px;
+        }
+
+        .dashboard-header p {
+            margin: 6px 0 0;
+            color: #66758a;
+            font-size: 14px;
+        }
 
     .dashboard-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        margin-bottom: 24px;
+        gap: 16px;
+        margin-bottom: 22px;
     }
 
     .dashboard-stat {
         background: #ffffff;
-        border: 1px solid #d7e3f2;
-        border-radius: 18px;
-        padding: 22px 24px;
-        box-shadow: 0 8px 24px rgba(4, 66, 140, 0.06);
+        border: 1px solid #dbe6f2;
+        border-radius: 16px;
+        padding: 22px;
+        min-height: 118px;
+        box-shadow: 0 8px 22px rgba(4, 66, 140, 0.06);
         position: relative;
         overflow: hidden;
     }
@@ -37,80 +56,73 @@
         .dashboard-stat::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
+            inset: 0 auto 0 0;
+            width: 5px;
             background: #faa634;
         }
 
     .dashboard-number {
         display: block;
-        font-size: 44px;
+        font-size: 40px;
         font-weight: 900;
         line-height: 1;
         color: #04428c;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         letter-spacing: -1px;
     }
 
     .dashboard-stat-title {
-        font-size: 16px;
-        font-weight: 800;
-        color: #12233d;
-        margin: 0 0 4px 0;
-    }
-
-    .dashboard-stat-text {
-        font-size: 13px;
-        color: #607089;
         margin: 0;
-        line-height: 1.4;
+        font-size: 15px;
+        font-weight: 900;
+        color: #152238;
+        line-height: 1.35;
     }
 
     .dashboard-main-grid {
         display: grid;
-        grid-template-columns: 420px 1fr;
+        grid-template-columns: 410px 1fr;
         gap: 22px;
     }
 
     .dashboard-card {
         background: #ffffff;
-        border: 1px solid #d7e3f2;
-        border-radius: 20px;
-        box-shadow: 0 8px 24px rgba(4, 66, 140, 0.06);
+        border: 1px solid #dbe6f2;
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(4, 66, 140, 0.06);
         overflow: hidden;
     }
 
     .dashboard-card-header {
         padding: 18px 22px;
-        border-bottom: 1px solid #e6eef8;
-        background: #fbfdff;
+        border-bottom: 1px solid #e8eef6;
+        background: #ffffff;
     }
 
         .dashboard-card-header h3,
         .dashboard-card-header h4 {
             margin: 0;
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 900;
             color: #04428c;
+            letter-spacing: -0.2px;
         }
 
         .dashboard-card-header p {
-            margin: 5px 0 0;
+            margin: 6px 0 0;
             font-size: 13px;
-            color: #6b7b92;
+            color: #66758a;
         }
 
     .calendar-wrap {
-        padding-bottom: 16px;
+        padding-bottom: 18px;
     }
 
     .calendar-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 22px 10px;
+        padding: 22px 22px 12px;
     }
 
     .calendar-nav {
@@ -118,8 +130,8 @@
         color: #04428c;
         font-size: 28px;
         font-weight: 900;
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -127,7 +139,7 @@
     }
 
         .calendar-nav:hover {
-            background: #f2f7fd;
+            background: #f1f6fc;
         }
 
     .calendar-month {
@@ -136,9 +148,9 @@
 
         .calendar-month h2 {
             margin: 0;
-            font-size: 34px;
+            font-size: 32px;
             font-weight: 900;
-            color: #12233d;
+            color: #152238;
             letter-spacing: 1px;
             line-height: 1;
         }
@@ -148,7 +160,7 @@
             margin-top: 6px;
             font-size: 14px;
             font-weight: 700;
-            color: #72839a;
+            color: #66758a;
         }
 
     .calendar-weekdays,
@@ -167,8 +179,8 @@
         .calendar-weekdays div {
             text-align: center;
             font-size: 12px;
-            font-weight: 800;
-            color: #12233d;
+            font-weight: 900;
+            color: #152238;
             padding: 6px 0;
         }
 
@@ -177,24 +189,24 @@
     }
 
     .calendar-day {
-        min-height: 46px;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: #12233d;
+        color: #152238;
         font-size: 14px;
         font-weight: 800;
-        border-radius: 12px;
+        border-radius: 10px;
         position: relative;
     }
 
         .calendar-day:hover {
-            background: #f3f8fe;
+            background: #f3f7fc;
         }
 
         .calendar-day.other-month {
-            opacity: 0.28;
+            opacity: 0.3;
         }
 
     .calendar-day-number {
@@ -227,7 +239,7 @@
 
     .appointment-row {
         display: grid;
-        grid-template-columns: 140px 1fr 130px;
+        grid-template-columns: 130px 1fr 120px;
         gap: 18px;
         align-items: center;
         padding: 18px 22px;
@@ -260,22 +272,22 @@
     .appointment-name {
         font-size: 16px;
         font-weight: 900;
-        color: #12233d;
+        color: #152238;
     }
 
     .appointment-status {
         display: inline-block;
         padding: 5px 10px;
         border-radius: 999px;
-        background: #fff3df;
-        color: #a56600;
+        background: #fff4e4;
+        color: #9b5c00;
         font-size: 12px;
         font-weight: 900;
     }
 
     .appointment-ref {
         font-size: 13px;
-        color: #6f8098;
+        color: #66758a;
         margin-bottom: 4px;
     }
 
@@ -295,7 +307,7 @@
         text-decoration: none;
         background: #04428c;
         color: #ffffff;
-        padding: 10px 16px;
+        padding: 10px 14px;
         border-radius: 10px;
         font-size: 13px;
         font-weight: 800;
@@ -313,7 +325,7 @@
         border-radius: 12px;
         background: #f7fbff;
         border: 1px solid #dce9f7;
-        color: #607089;
+        color: #66758a;
         font-size: 14px;
     }
 
@@ -355,29 +367,30 @@
 
 <div class="doctor-dashboard-page">
 
+    <div class="dashboard-header">
+        <h1>Doctor Dashboard</h1>
+        <p>Review appointments, workload, notifications, and selected day schedule.</p>
+    </div>
+
     <div class="dashboard-stats">
         <div class="dashboard-stat">
             <strong class="dashboard-number" data-target="@Model.TotalAppointmentsForSelectedDate">0</strong>
-            <div class="dashboard-stat-title">Selected Day Appointments</div>
-            <p class="dashboard-stat-text">Appointments on the selected date</p>
+            <p class="dashboard-stat-title">Selected Day Appointments</p>
         </div>
 
         <div class="dashboard-stat">
             <strong class="dashboard-number" data-target="10">0</strong>
-            <div class="dashboard-stat-title">Upcoming Appointments</div>
-            <p class="dashboard-stat-text">Future active appointments</p>
+            <p class="dashboard-stat-title">Upcoming Appointments</p>
         </div>
 
         <div class="dashboard-stat">
             <strong class="dashboard-number" data-target="@Model.UnreadNotificationsCount">0</strong>
-            <div class="dashboard-stat-title">Unread Notifications</div>
-            <p class="dashboard-stat-text">Notifications that need attention</p>
+            <p class="dashboard-stat-title">Unread Notifications</p>
         </div>
 
         <div class="dashboard-stat">
             <strong class="dashboard-number" data-target="300">0</strong>
-            <div class="dashboard-stat-title">Patients Seen</div>
-            <p class="dashboard-stat-text">Completed patient visits</p>
+            <p class="dashboard-stat-title">Patients Seen</p>
         </div>
     </div>
 
@@ -493,7 +506,7 @@
 
             counters.forEach(counter => {
                 const target = parseInt(counter.getAttribute("data-target")) || 0;
-                const duration = 1000;
+                const duration = 900;
                 const startTime = performance.now();
 
                 function updateCounter(currentTime) {
