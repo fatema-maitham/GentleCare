@@ -25,8 +25,10 @@
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            min-height: 100%;
             background: var(--gc-bg);
             font-family: "Inter", "Segoe UI", Arial, sans-serif;
             color: var(--gc-text);
@@ -106,7 +108,7 @@
         <div class="main-navbar-inner">
 
             <a asp-controller="Dashboard" asp-action="Index" class="brand-logo">
-                <img src="/images/logo.png" alt="GentleCare Logo" />
+                <img src="/images/logo.png?v=1" alt="GentleCare Logo" />
             </a>
 
             <partial name="_Navbar" />
