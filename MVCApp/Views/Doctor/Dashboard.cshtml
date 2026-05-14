@@ -17,24 +17,6 @@
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
-    .dashboard-header {
-        margin-bottom: 20px;
-    }
-
-        .dashboard-header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 900;
-            color: #152238;
-            letter-spacing: -0.6px;
-        }
-
-        .dashboard-header p {
-            margin: 6px 0 0;
-            color: #66758a;
-            font-size: 14px;
-        }
-
     .dashboard-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -51,6 +33,7 @@
         box-shadow: 0 8px 22px rgba(4, 66, 140, 0.06);
         position: relative;
         overflow: hidden;
+        transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     }
 
         .dashboard-stat::before {
@@ -59,6 +42,12 @@
             inset: 0 auto 0 0;
             width: 5px;
             background: #faa634;
+        }
+
+        .dashboard-stat:hover {
+            transform: translateY(-6px);
+            border-color: #faa634;
+            box-shadow: 0 16px 32px rgba(4, 66, 140, 0.13);
         }
 
     .dashboard-number {
@@ -99,7 +88,6 @@
         background: #ffffff;
     }
 
-        .dashboard-card-header h3,
         .dashboard-card-header h4 {
             margin: 0;
             font-size: 19px;
@@ -305,18 +293,18 @@
     .appointment-btn {
         display: inline-block;
         text-decoration: none;
-        background: #04428c;
-        color: #ffffff;
+        background: #ffd200;
+        color: #04428c;
         padding: 10px 14px;
         border-radius: 10px;
         font-size: 13px;
-        font-weight: 800;
+        font-weight: 900;
         border: none;
     }
 
         .appointment-btn:hover {
-            background: #03356f;
-            color: #ffffff;
+            background: #ffd200;
+            color: #04428c;
         }
 
     .empty-day-message {
@@ -366,11 +354,6 @@
 </style>
 
 <div class="doctor-dashboard-page">
-
-    <div class="dashboard-header">
-        <h1>Doctor Dashboard</h1>
-        <p>Review appointments, workload, notifications, and selected day schedule.</p>
-    </div>
 
     <div class="dashboard-stats">
         <div class="dashboard-stat">
