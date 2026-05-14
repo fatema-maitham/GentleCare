@@ -35,7 +35,7 @@
 
         .dashboard-stat:hover {
             border-color: #0088FF;
-            transform: translateY(-4px);
+            transform: translateY(-3px);
         }
 
         .dashboard-stat span {
@@ -197,58 +197,68 @@
     }
 
     .day-panel-body {
+        padding: 0;
+    }
+
+    .appointment-row {
+        display: grid;
+        grid-template-columns: 115px 1fr auto;
+        gap: 16px;
+        align-items: center;
         padding: 18px;
+        border-bottom: 1px solid #edf4ff;
     }
 
-    .appointment-day-item {
-        background: #f8fbff;
-        border: 1px solid #d9e8fb;
-        border-left: 4px solid #0088FF;
-        border-radius: 10px;
-        padding: 14px;
-        margin-bottom: 12px;
-    }
-
-        .appointment-day-item:last-child {
-            margin-bottom: 0;
+        .appointment-row:last-child {
+            border-bottom: none;
         }
 
     .appointment-time {
         color: #0088FF;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 900;
-        margin-bottom: 8px;
+        white-space: nowrap;
+    }
+
+    .appointment-main {
+        min-width: 0;
+    }
+
+    .appointment-patient-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 5px;
     }
 
     .appointment-patient {
         color: #111827;
         font-size: 16px;
         font-weight: 900;
-        margin-bottom: 4px;
-    }
-
-    .appointment-ref {
-        color: #64748b;
-        font-size: 13px;
-        margin-bottom: 9px;
     }
 
     .appointment-status {
         display: inline-block;
         background: #eef6ff;
         color: #0088FF;
-        border-left: 4px solid #0088FF;
-        padding: 6px 10px;
+        padding: 4px 9px;
+        border-radius: 999px;
         font-size: 12px;
         font-weight: 900;
-        margin-bottom: 10px;
+    }
+
+    .appointment-ref {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 4px;
     }
 
     .appointment-notes {
         color: #475569;
         font-size: 13px;
         line-height: 1.45;
-        margin-bottom: 12px;
+        margin: 0;
     }
 
     .appointment-details-btn {
@@ -260,6 +270,7 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 900;
+        white-space: nowrap;
         transition: background-color 0.18s ease;
     }
 
@@ -275,6 +286,7 @@
         border-radius: 10px;
         padding: 14px;
         font-size: 14px;
+        margin: 18px;
     }
 
     @@media (max-width: 950px) {
@@ -284,6 +296,17 @@
 
         .dashboard-main-grid {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .appointment-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .appointment-details-btn {
+            width: fit-content;
         }
     }
 
@@ -386,21 +409,26 @@
                 {
                     foreach (var appointment in Model.SelectedDayAppointments)
                     {
-                <div class="appointment-day-item">
-                    <div class="appointment-time">@appointment.TimeDisplay</div>
-
-                    <div class="appointment-patient">@appointment.PatientFullName</div>
-
-                    <div class="appointment-ref">
-                        Reference No.: @appointment.PatientReferenceNumber
+                <div class="appointment-row">
+                    <div class="appointment-time">
+                        @appointment.TimeDisplay
                     </div>
 
-                    <div class="appointment-status">@appointment.StatusName</div>
+                    <div class="appointment-main">
+                        <div class="appointment-patient-line">
+                            <span class="appointment-patient">@appointment.PatientFullName</span>
+                            <span class="appointment-status">@appointment.StatusName</span>
+                        </div>
 
-                    @if (!string.IsNullOrWhiteSpace(appointment.Notes))
-                            {
-                    <div class="appointment-notes">@appointment.Notes</div>
-                            }
+                        <div class="appointment-ref">
+                            Reference No.: @appointment.PatientReferenceNumber
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(appointment.Notes))
+                                {
+                        <p class="appointment-notes">@appointment.Notes</p>
+                                }
+                    </div>
 
                     <a asp-controller="Doctor"
                        asp-action="AppointmentDetails"
