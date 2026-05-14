@@ -39,13 +39,14 @@
         <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
             }
 
-            if (User.IsInRole("ClinicManager"))
-            {
-        <a asp-controller="ClinicManager" asp-action="Dashboard" class="@IsActive("ClinicManager", "Dashboard")">Home</a>
-        <a asp-controller="ClinicManager" asp-action="Doctors" class="@IsActive("ClinicManager", "Doctors")">Doctors</a>
-        <a asp-controller="ClinicManager" asp-action="Appointments" class="@IsActive("ClinicManager", "Appointments")">Appointments</a>
-        <a asp-controller="ClinicManager" asp-action="ManageSpecializations" class="@IsActive("ClinicManager", "ManageSpecializations")">Specializations</a>
-            }
+        if (User.IsInRole("ClinicManager"))
+{
+        <a asp-controller="ClinicManager" asp-action="Dashboard">Home</a>
+        <a asp-controller="ClinicManager" asp-action="Doctors">Doctors</a>
+        <a asp-controller="ClinicManager" asp-action="Appointments">Appointments</a>
+        <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
+        <a asp-controller="ClinicManager" asp-action="Notifications">Notifications</a>
+}
 
         <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
             @Html.AntiForgeryToken()
