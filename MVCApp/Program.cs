@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Models;
+using MVCApp.Services;
+using MVCApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,8 @@ builder.Services.AddHttpClient("WebAPI", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7117/");
 });
+
+builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowService>();
 
 var app = builder.Build();
 
