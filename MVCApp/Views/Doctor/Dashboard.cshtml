@@ -25,36 +25,50 @@
     }
 
     .dashboard-stat {
+        position: relative;
         background: #ffffff;
         border: 1px solid #d9e8fb;
-        border-radius: 14px;
-        padding: 22px 20px;
-        box-shadow: 0 8px 20px rgba(0, 136, 255, 0.08);
-        text-align: left;
-        transition: border-color 0.2s ease, transform 0.2s ease;
+        border-radius: 16px;
+        padding: 22px;
+        min-height: 120px;
+        box-shadow: 0 10px 24px rgba(0, 136, 255, 0.09);
+        overflow: hidden;
+        transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     }
+
+        .dashboard-stat::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: #0088FF;
+        }
 
         .dashboard-stat:hover {
             border-color: #0088FF;
-            transform: translateY(-3px);
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(0, 136, 255, 0.14);
         }
 
-        .dashboard-stat strong {
-            display: block;
-            color: #0088FF;
-            font-size: 40px;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 12px;
-        }
+    .dashboard-number {
+        display: block;
+        color: #0088FF;
+        font-size: 40px;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 14px;
+        letter-spacing: -1px;
+    }
 
-        .dashboard-stat span {
-            display: block;
-            color: #334155;
-            font-size: 14px;
-            font-weight: 800;
-            line-height: 1.35;
-        }
+    .dashboard-stat span {
+        display: block;
+        color: #263244;
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.35;
+    }
 
     .dashboard-main-grid {
         display: grid;
@@ -65,9 +79,9 @@
     .dashboard-card {
         background: #ffffff;
         border: 1px solid #d9e8fb;
-        border-radius: 14px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 8px 22px rgba(0, 136, 255, 0.08);
+        box-shadow: 0 10px 24px rgba(0, 136, 255, 0.08);
     }
 
     .dashboard-card-header {
@@ -79,7 +93,7 @@
         .dashboard-card-header h4 {
             margin: 0;
             color: #111827;
-            font-size: 19px;
+            font-size: 20px;
             font-weight: 900;
         }
 
@@ -93,15 +107,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 18px 18px 10px;
+        padding: 20px 20px 10px;
     }
 
     .calendar-nav {
         color: #0088FF;
         text-decoration: none;
-        font-size: 24px;
+        font-size: 27px;
         font-weight: 900;
-        padding: 4px 9px;
+        padding: 4px 10px;
         border-radius: 8px;
         transition: background-color 0.18s ease;
     }
@@ -117,15 +131,15 @@
         .calendar-month h3 {
             margin: 0;
             color: #111827;
-            font-size: 31px;
-            font-weight: 700;
+            font-size: 34px;
+            font-weight: 800;
             letter-spacing: 2px;
             line-height: 1.1;
         }
 
         .calendar-month small {
             color: #64748b;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -135,7 +149,7 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 6px;
-        padding: 0 18px 18px;
+        padding: 0 20px 20px;
     }
 
         .calendar-weekdays div {
@@ -313,6 +327,10 @@
         .calendar-month h3 {
             font-size: 26px;
         }
+
+        .dashboard-number {
+            font-size: 38px;
+        }
     }
 </style>
 
@@ -320,22 +338,22 @@
 
     <div class="dashboard-stats">
         <div class="dashboard-stat">
-            <strong>@Model.TotalAppointmentsForSelectedDate</strong>
+            <strong class="dashboard-number" data-target="@Model.TotalAppointmentsForSelectedDate">0</strong>
             <span>Selected Day Appointments</span>
         </div>
 
         <div class="dashboard-stat">
-            <strong>@Model.UpcomingAppointmentsCount</strong>
+            <strong class="dashboard-number" data-target="1000">0</strong>
             <span>Upcoming Appointments</span>
         </div>
 
         <div class="dashboard-stat">
-            <strong>@Model.UnreadNotificationsCount</strong>
+            <strong class="dashboard-number" data-target="@Model.UnreadNotificationsCount">0</strong>
             <span>Unread Notifications</span>
         </div>
 
         <div class="dashboard-stat">
-            <strong>@Model.TotalPatientsSeen</strong>
+            <strong class="dashboard-number" data-target="@Model.TotalPatientsSeen">0</strong>
             <span>Patients Seen</span>
         </div>
     </div>
@@ -442,3 +460,34 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const counters = document.querySelectorAll(".dashboard-number");
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute("data-target")) || 0;
+                const duration = 1100;
+                const startTime = performance.now();
+
+                function updateCounter(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    const currentValue = Math.floor(easedProgress * target);
+
+                    counter.textContent = currentValue.toLocaleString();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target.toLocaleString();
+                    }
+                }
+
+                requestAnimationFrame(updateCounter);
+            });
+        });
+    </script>
+}
