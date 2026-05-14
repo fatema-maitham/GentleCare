@@ -7,20 +7,6 @@
 
 <div class="container mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">My Appointments</h2>
-            <p class="text-muted mb-0">
-                View, search, and manage appointments assigned to Dr. @Model.DoctorFullName.
-            </p>
-        </div>
-
-        <a asp-controller="Doctor"
-           asp-action="Dashboard"
-           class="btn btn-outline-secondary">
-            Back to Dashboard
-        </a>
-    </div>
 
     @if (TempData["Success"] != null)
     {
