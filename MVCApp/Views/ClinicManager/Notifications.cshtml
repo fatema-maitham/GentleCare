@@ -1,0 +1,147 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerNotificationViewModel
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Notifications</h1>
+        <p>View system notifications related to appointments, doctors, and clinic activity.</p>
+    </div>
+
+    <a asp-controller="ClinicManager"
+       asp-action="Dashboard"
+       class="secondary-btn">
+        Back to Dashboard
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <span class="card-label">Total Notifications</span>
+        <h2>@Model.TotalNotifications</h2>
+        <p>All notifications</p>
+    </div>
+
+    <div class="dashboard-card warning-card">
+        <span class="card-label">Unread</span>
+        <h2>@Model.UnreadNotifications</h2>
+        <p>Need attention</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="card-label">Read</span>
+        <h2>@Model.ReadNotifications</h2>
+        <p>Already reviewed</p>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Notification List</h2>
+
+        @if (Model.HasUnreadNotifications)
+        {
+        <form asp-controller="ClinicManager"
+              asp-action="MarkAllNotificationsAsRead"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="primary-btn">
+                Mark All As Read
+            </button>
+        </form>
+        }
+    </div>
+
+    @if (Model.HasNotifications)
+    {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Title</th>
+                    <th>Message</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Related</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var notification in Model.Notifications)
+                    {
+                <tr>
+                    <td>
+                        <span class="status-pill">@notification.StatusText</span>
+                    </td>
+
+                    <td>@notification.Title</td>
+
+                    <td>@notification.Message</td>
+
+                    <td>@notification.NotificationTypeName</td>
+
+                    <td>@notification.CreatedAtText</td>
+
+                    <td>
+                        @if (notification.HasRelatedEntity)
+                                {
+                        <span>@notification.RelatedEntityType #@notification.RelatedEntityId</span>
+                                }
+                                else
+                                {
+                        <span>None</span>
+                                }
+                    </td>
+
+                    <td>
+                        @if (!notification.IsRead)
+                                {
+                        <form asp-controller="ClinicManager"
+                              asp-action="MarkNotificationAsRead"
+                              asp-route-id="@notification.NotificationId"
+                              method="post"
+                              style="display:inline;">
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="table-link">
+                                Mark Read
+                            </button>
+                        </form>
+                                }
+
+                        @if (notification.RelatedEntityType == "Appointment" && notification.RelatedEntityId.HasValue)
+                                {
+                        <a asp-controller="ClinicManager"
+                           asp-action="AppointmentDetails"
+                           asp-route-id="@notification.RelatedEntityId"
+                           class="table-link">
+                            View
+                        </a>
+                                }
+                    </td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    }
+    else
+    {
+    <p class="empty-text">@Model.EmptyMessage</p>
+    }
+</div>
