@@ -1,111 +1,231 @@
-﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerDoctorsViewModel
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerDoctorListViewModel
 
 @{
-    ViewData["Title"] = "Manage Doctors";
+    ViewData["Title"] = "Doctors";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h2 class="mb-1">Manage Doctors</h2>
-            <p class="text-muted mb-0">Doctor profiles, access, and quick actions</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-controller="ClinicManager" asp-action="Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
-            <a asp-controller="ClinicManager" asp-action="CreateDoctor" class="btn btn-primary">Create Doctor</a>
-        </div>
+<div class="page-header">
+    <div>
+        <h1>Doctors</h1>
+        <p>Manage doctor profiles, status, specializations, schedules, and leave periods.</p>
     </div>
 
-    @if (TempData["Success"] != null)
+    <a asp-controller="ClinicManager"
+       asp-action="CreateDoctor"
+       class="primary-btn">
+        + Add Doctor
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- Summary Cards -->
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <span class="card-label">Total Doctors</span>
+        <h2>@Model.TotalDoctors</h2>
+        <p>All doctor profiles</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="card-label">Active Doctors</span>
+        <h2>@Model.ActiveDoctors</h2>
+        <p>Currently active</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="card-label">Inactive Doctors</span>
+        <h2>@Model.InactiveDoctors</h2>
+        <p>Disabled accounts</p>
+    </div>
+
+    <div class="dashboard-card warning-card">
+        <span class="card-label">On Leave Today</span>
+        <h2>@Model.DoctorsOnLeaveToday</h2>
+        <p>Doctors unavailable today</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="card-label">With Appointments Today</span>
+        <h2>@Model.DoctorsWithAppointmentsToday</h2>
+        <p>Doctors scheduled today</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Find Doctors</h2>
+
+        @if (Model.HasSearch)
+        {
+        <a asp-controller="ClinicManager"
+           asp-action="Doctors"
+           class="btn-link">
+            Clear filters
+        </a>
+        }
+    </div>
+
+    <form asp-controller="ClinicManager" asp-action="Doctors" method="get" class="filter-form">
+        <div class="form-group">
+            <label for="searchTerm">Search</label>
+            <input type="text"
+                   id="searchTerm"
+                   name="searchTerm"
+                   value="@Model.SearchTerm"
+                   placeholder="Search by name, email, or license number" />
+        </div>
+
+        <div class="form-group">
+            <label for="isActive">Status</label>
+            <select id="isActive" name="isActive">
+                <option value="">All doctors</option>
+
+                @if (Model.IsActive == true)
+                {
+                <option value="true" selected>Active only</option>
+                }
+                else
+                {
+                <option value="true">Active only</option>
+                }
+
+                @if (Model.IsActive == false)
+                {
+                <option value="false" selected>Inactive only</option>
+                }
+                else
+                {
+                <option value="false">Inactive only</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="primary-btn">Search</button>
+    </form>
+</div>
+
+<!-- Doctors List -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Doctor List</h2>
+        <span class="muted-text">@Model.TotalDoctors doctors found</span>
+    </div>
+
+    @if (Model.HasDoctors)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="doctor-grid">
+        @foreach (var doctor in Model.Doctors)
+            {
+        <div class="doctor-card">
+            <div class="doctor-card-header">
+                <div>
+                    <h3>Dr. @doctor.FullName</h3>
+                    <p>@doctor.Email</p>
+                </div>
+
+                <span class="status-pill @(doctor.IsActive ? "status-active" : "status-inactive")">
+                    @doctor.StatusText
+                </span>
+            </div>
+
+            <div class="doctor-info">
+                <p><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(doctor.PhoneNumber) ? "Not provided" : doctor.PhoneNumber)</p>
+                <p><strong>License:</strong> @doctor.LicenseNumber</p>
+                <p><strong>Specializations:</strong> @doctor.SpecializationsText</p>
+
+                @if (!string.IsNullOrWhiteSpace(doctor.Bio))
+                        {
+                <p><strong>Bio:</strong> @doctor.Bio</p>
+                        }
+            </div>
+
+            <div class="doctor-stats">
+                <div>
+                    <strong>@doctor.TodayAppointmentsCount</strong>
+                    <span>Today</span>
+                </div>
+
+                <div>
+                    <strong>@doctor.UpcomingAppointmentsCount</strong>
+                    <span>Upcoming</span>
+                </div>
+
+                <div>
+                    <strong>@doctor.CompletedAppointmentsCount</strong>
+                    <span>Completed</span>
+                </div>
+            </div>
+
+            <div class="doctor-status-row">
+                @if (doctor.IsOnLeaveToday)
+                        {
+                <span class="leave-badge warning">On Leave Today</span>
+                        }
+                        else
+                        {
+                <span class="leave-badge available">Available</span>
+                        }
+            </div>
+
+            <div class="doctor-actions">
+                <a asp-controller="ClinicManager"
+                   asp-action="DoctorDetails"
+                   asp-route-id="@doctor.DoctorId"
+                   class="table-link">
+                    Details
+                </a>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="EditDoctor"
+                   asp-route-id="@doctor.DoctorId"
+                   class="table-link">
+                    Edit
+                </a>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="ManageDoctorSchedule"
+                   asp-route-doctorId="@doctor.DoctorId"
+                   class="table-link">
+                    Schedule
+                </a>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="ManageDoctorLeaves"
+                   asp-route-doctorId="@doctor.DoctorId"
+                   class="table-link">
+                    Leaves
+                </a>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="ManageDoctorSpecializations"
+                   asp-route-doctorId="@doctor.DoctorId"
+                   class="table-link">
+                    Specializations
+                </a>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="AppointmentImpact"
+                   asp-route-doctorId="@doctor.DoctorId"
+                   class="table-link warning-link">
+                    Impact
+                </a>
+            </div>
+        </div>
+            }
+    </div>
     }
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form asp-controller="ClinicManager" asp-action="Doctors" method="get" class="row g-3">
-                <div class="col-md-8">
-                    <label asp-for="Search" class="form-label">Search</label>
-                    <input asp-for="Search" class="form-control" placeholder="Search by name, email, or license number" />
-                </div>
-                <div class="col-md-4 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <a asp-controller="ClinicManager" asp-action="Doctors" class="btn btn-outline-secondary">Clear</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Doctors</h5>
-            <span class="badge bg-primary">@Model.Doctors.Count</span>
-        </div>
-
-        <div class="card-body p-0">
-            @if (Model.Doctors == null || !Model.Doctors.Any())
-            {
-                <div class="p-4 text-center text-muted">No doctors found.</div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Doctor</th>
-                                <th>License</th>
-                                <th>Specializations</th>
-                                <th>Status</th>
-                                <th>Upcoming Appointments</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var doctor in Model.Doctors)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="fw-semibold">@doctor.FullName</div>
-                                        <div class="small text-muted">@doctor.Email</div>
-                                    </td>
-                                    <td>@doctor.LicenseNumber</td>
-                                    <td>
-                                        @if (doctor.Specializations == null || !doctor.Specializations.Any())
-                                        {
-                                            <span class="text-muted">No specializations</span>
-                                        }
-                                        else
-                                        {
-                                            @string.Join(", ", doctor.Specializations)
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (doctor.IsActive)
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        }
-                                    </td>
-                                    <td>@doctor.UpcomingAppointmentsCount</td>
-                                    <td class="text-end">
-                                        <div class="d-flex flex-wrap justify-content-end gap-2">
-                                            <a asp-action="DoctorDetails" asp-route-id="@doctor.DoctorId" class="btn btn-sm btn-outline-primary">Details</a>
-                                            <a asp-action="EditDoctor" asp-route-id="@doctor.DoctorId" class="btn btn-sm btn-outline-warning">Edit</a>
-                                            <a asp-action="ManageSpecializations" asp-route-doctorId="@doctor.DoctorId" class="btn btn-sm btn-outline-info">Specializations</a>
-                                            <a asp-action="ManageSchedule" asp-route-doctorId="@doctor.DoctorId" class="btn btn-sm btn-outline-success">Schedule</a>
-                                            <a asp-action="ManageLeaves" asp-route-doctorId="@doctor.DoctorId" class="btn btn-sm btn-outline-danger">Leaves</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
-    </div>
+    else
+    {
+    <p class="empty-text">@Model.EmptyMessage</p>
+    }
 </div>

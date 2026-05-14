@@ -48,7 +48,7 @@ builder.Services.AddHttpClient("WebAPI", client =>
 // Custom MVC services.
 builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
+builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 
 var app = builder.Build();
 
