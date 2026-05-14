@@ -10,6 +10,7 @@
 
 <nav class="role-navbar">
     <div class="role-nav-links">
+
         @if (User?.Identity != null && User.Identity.IsAuthenticated)
         {
             if (User.IsInRole("Patient"))
@@ -57,60 +58,77 @@
         <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
         <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
         }
-    </div>
 
-    <div class="nav-user-chip">
-        @if (User?.Identity != null && User.Identity.IsAuthenticated)
-        {
-        <span>@User.Identity.Name</span>
-        }
-        else
-        {
-        <span>Guest</span>
-        }
     </div>
 </nav>
 
 <style>
     .role-navbar {
-        display: flex;
-        align-items: center;
-        gap: 14px;
         flex: 1;
+        display: flex;
         justify-content: flex-end;
+        align-items: center;
     }
 
     .role-nav-links {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 6px;
         flex-wrap: wrap;
-        justify-content: flex-end;
     }
 
         .role-nav-links a,
         .nav-logout-btn {
-            color: #e0f2fe;
+            position: relative;
+            color: #ffffff;
             text-decoration: none;
-            padding: 10px 13px;
-            border-radius: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 800;
-            transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease;
+            letter-spacing: 0.1px;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            cursor: pointer;
+            overflow: hidden;
+            transition: color 0.22s ease, transform 0.22s ease;
         }
+
+            .role-nav-links a::before,
+            .nav-logout-btn::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                bottom: 5px;
+                width: 0;
+                height: 3px;
+                background: #ffffff;
+                border-radius: 999px;
+                transform: translateX(-50%);
+                transition: width 0.24s ease;
+            }
 
             .role-nav-links a:hover,
             .nav-logout-btn:hover {
-                background: rgba(255, 255, 255, 0.18);
                 color: #ffffff;
                 transform: translateY(-2px);
             }
 
+                .role-nav-links a:hover::before,
+                .nav-logout-btn:hover::before {
+                    width: 55%;
+                }
+
             .role-nav-links a.active {
-                background: #ffffff;
-                color: #0b2a6f;
-                box-shadow: 0 6px 16px rgba(255, 255, 255, 0.18);
+                background: rgba(255, 255, 255, 0.18);
+                color: #ffffff;
             }
+
+                .role-nav-links a.active::before {
+                    width: 55%;
+                }
 
     .logout-form {
         display: inline;
@@ -119,36 +137,32 @@
     }
 
     .nav-logout-btn {
-        background: rgba(255, 255, 255, 0.10);
-        border: 1px solid rgba(255, 255, 255, 0.24);
-        cursor: pointer;
-        font-family: inherit;
-    }
-
-    .nav-user-chip {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        padding: 9px 12px;
+        background: #ffffff;
+        color: #0A2E72;
+        padding: 10px 18px;
         border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-        white-space: nowrap;
+        margin-left: 8px;
+        transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease;
     }
 
-    @@media (max-width: 900px) {
+        .nav-logout-btn::before {
+            display: none;
+        }
+
+        .nav-logout-btn:hover {
+            background: #0A2E72;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 950px) {
         .role-navbar {
             width: 100%;
-            flex-direction: column;
-            align-items: flex-start;
+            justify-content: flex-start;
         }
 
         .role-nav-links {
             justify-content: flex-start;
-        }
-
-        .nav-user-chip {
-            display: none;
         }
     }
 </style>

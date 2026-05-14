@@ -15,83 +15,85 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-        body {
-            margin: 0;
-            background: #eef4ff;
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
-            color: #111827;
+        :root {
+            --gc-blue: #0088FF;
+            --gc-dark: #0A2E72;
+            --gc-bg: #EEF6FF;
+            --gc-text: #111827;
         }
 
-        .gentlecare-navbar {
-            background: linear-gradient(90deg, #0b2a6f, #0b4fb3, #008cf0);
-            box-shadow: 0 8px 24px rgba(11, 42, 111, 0.20);
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--gc-bg);
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: var(--gc-text);
+        }
+
+        .gc-navbar {
+            background: linear-gradient(90deg, #0088FF 0%, #0077DF 52%, #0A2E72 100%);
+            min-height: 76px;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 8px 24px rgba(10, 46, 114, 0.16);
         }
 
-        .gentlecare-nav-inner {
+        .gc-navbar-inner {
             max-width: 1180px;
             margin: 0 auto;
-            min-height: 72px;
-            padding: 0 22px;
+            min-height: 76px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 18px;
+            gap: 24px;
         }
 
-        .gentlecare-brand {
+        .gc-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
             text-decoration: none;
             color: #ffffff;
             flex-shrink: 0;
         }
 
-        .gentlecare-logo-mark {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            background: #ffffff;
-            color: #0b4fb3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 25px;
-            font-weight: 900;
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-            transition: transform 0.25s ease;
-        }
-
-        .gentlecare-brand:hover .gentlecare-logo-mark {
-            transform: rotate(-6deg) scale(1.06);
-        }
-
-        .gentlecare-brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.05;
-        }
-
-            .gentlecare-brand-text strong {
-                color: #ffffff;
-                font-size: 25px;
-                font-weight: 900;
-                letter-spacing: -0.5px;
+            .gc-brand img {
+                height: 58px;
+                width: auto;
+                max-width: 245px;
+                object-fit: contain;
+                display: block;
             }
 
-            .gentlecare-brand-text span {
-                color: #dbeafe;
-                font-size: 12px;
-                font-weight: 600;
-                margin-top: 4px;
+        .gc-logo-fallback {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 25px;
+            letter-spacing: -0.5px;
+        }
+
+            .gc-logo-fallback span:first-child {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: #ffffff;
+                color: var(--gc-blue);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
             }
 
         .main-wrapper {
             max-width: 1180px;
-            margin: 28px auto 0;
+            margin: 30px auto 0;
             padding: 0 22px 55px;
         }
 
@@ -103,30 +105,43 @@
             font-size: 13px;
         }
 
-        @@media (max-width: 900px) {
-            .gentlecare-nav-inner {
+        @@media (max-width: 950px) {
+            .gc-navbar {
+                position: relative;
+            }
+
+            .gc-navbar-inner {
                 flex-direction: column;
                 align-items: flex-start;
                 padding-top: 14px;
                 padding-bottom: 14px;
+                gap: 12px;
+            }
+
+            .gc-brand img {
+                height: 50px;
             }
         }
     </style>
 </head>
 
 <body>
-    <header class="gentlecare-navbar">
-        <div class="gentlecare-nav-inner">
-            <a asp-controller="Dashboard" asp-action="Index" class="gentlecare-brand">
-                <div class="gentlecare-logo-mark">♡</div>
+    <header class="gc-navbar">
+        <div class="gc-navbar-inner">
 
-                <div class="gentlecare-brand-text">
-                    <strong>GentleCare</strong>
-                    <span>Clinic Appointment System</span>
+            <a asp-controller="Dashboard" asp-action="Index" class="gc-brand">
+                <img src="@Url.Content("~/images/logo.png")"
+                     alt="GentleCare Logo"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+
+                <div class="gc-logo-fallback">
+                    <span>♡</span>
+                    <span>GentleCare</span>
                 </div>
             </a>
 
             <partial name="_Navbar" />
+
         </div>
     </header>
 
