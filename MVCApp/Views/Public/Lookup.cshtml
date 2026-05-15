@@ -51,7 +51,6 @@
                 <div class="appointment-card">
                     <div class="appointment-top">
                         <div>
-                            <span class="small-label">Doctor</span>
                             <h3>Dr. @item.DoctorName</h3>
                         </div>
 
@@ -66,12 +65,7 @@
 
                         <div class="info-box">
                             <span class="info-label">Time</span>
-                            <strong>@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</strong>
-                        </div>
-
-                        <div class="info-box">
-                            <span class="info-label">Specialization</span>
-                            <strong>@item.SpecializationName</strong>
+                            <strong>@item.StartTime.ToString("HH:mm")</strong>
                         </div>
 
                         <div class="info-box">
