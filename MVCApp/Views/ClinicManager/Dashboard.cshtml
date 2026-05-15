@@ -22,27 +22,27 @@
 
 <style>
     :root {
-        --gc-blue: #0A4D8F;
-        --gc-blue-dark: #083B70;
-        --gc-green: #5FAF8F;
-        --gc-green-dark: #4C9A7C;
-        --gc-green-soft: #E8F5EF;
-        --gc-text: #10233F;
-        --gc-muted: #66758A;
-        --gc-border: #DCE6F2;
-        --gc-page: #F4F8FC;
-        --gc-white: #FFFFFF;
+        --primary: #0066CC;
+        --accent: #00A8A8;
+        --sidebar: #1A3A52;
+        --page: #F8FAFC;
+        --surface: #FFFFFF;
+        --soft: #EFF4F9;
+        --text: #1A1F2E;
+        --muted: #64748B;
+        --border: #D8E3ED;
     }
 
     body {
-        background: var(--gc-page) !important;
+        background: var(--page) !important;
         font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
+        color: var(--text);
     }
 
     .manager-dashboard-page {
-        max-width: 1140px;
+        max-width: 1160px;
         margin: 0 auto;
-        padding: 24px 0 42px;
+        padding: 24px 0 44px;
     }
 
     .dashboard-header {
@@ -53,12 +53,12 @@
             margin: 0;
             font-size: 30px;
             font-weight: 900;
-            color: var(--gc-text);
+            color: var(--text);
         }
 
         .dashboard-header p {
             margin: 8px 0 0;
-            color: var(--gc-muted);
+            color: var(--muted);
             font-size: 15px;
         }
 
@@ -70,12 +70,12 @@
     }
 
     .dashboard-stat {
-        background: var(--gc-white);
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
         padding: 22px;
-        min-height: 115px;
-        box-shadow: 0 10px 26px rgba(10, 77, 143, 0.07);
+        min-height: 116px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         position: relative;
         overflow: hidden;
     }
@@ -85,14 +85,14 @@
             position: absolute;
             inset: 0 auto 0 0;
             width: 5px;
-            background: var(--gc-green);
+            background: var(--accent);
         }
 
     .dashboard-number {
         display: block;
         font-size: 38px;
         font-weight: 900;
-        color: var(--gc-blue);
+        color: var(--primary);
         margin-bottom: 12px;
         line-height: 1;
     }
@@ -100,8 +100,8 @@
     .dashboard-stat-title {
         margin: 0;
         font-size: 15px;
-        font-weight: 900;
-        color: var(--gc-text);
+        font-weight: 800;
+        color: var(--text);
     }
 
     .dashboard-main-grid {
@@ -112,10 +112,10 @@
     }
 
     .dashboard-card {
-        background: var(--gc-white);
-        border: 1px solid var(--gc-border);
-        border-radius: 20px;
-        box-shadow: 0 10px 26px rgba(10, 77, 143, 0.07);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         overflow: hidden;
     }
 
@@ -127,7 +127,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 28px 22px 12px;
+        padding: 30px 22px 12px;
     }
 
     .calendar-month {
@@ -136,9 +136,9 @@
 
         .calendar-month h2 {
             margin: 0;
-            font-size: 34px;
+            font-size: 36px;
             font-weight: 900;
-            color: var(--gc-text);
+            color: var(--text);
             letter-spacing: 1px;
             text-transform: uppercase;
             line-height: 1;
@@ -146,10 +146,10 @@
 
         .calendar-month small {
             display: block;
-            margin-top: 7px;
+            margin-top: 8px;
             font-size: 15px;
             font-weight: 800;
-            color: var(--gc-muted);
+            color: var(--muted);
         }
 
     .calendar-weekdays,
@@ -169,12 +169,12 @@
             text-align: center;
             font-size: 13px;
             font-weight: 900;
-            color: var(--gc-text);
+            color: var(--text);
             padding: 6px 0;
         }
 
     .calendar-grid {
-        padding-bottom: 20px;
+        padding-bottom: 22px;
     }
 
     .calendar-day,
@@ -183,7 +183,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--gc-text);
+        color: var(--text);
         font-size: 15px;
         font-weight: 800;
         border-radius: 12px;
@@ -200,9 +200,9 @@
     }
 
     .calendar-day.today .calendar-day-number {
-        background: var(--gc-blue);
-        color: var(--gc-white);
-        box-shadow: 0 8px 18px rgba(10, 77, 143, 0.24);
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 6px 14px rgba(0,102,204,0.22);
     }
 
     .calendar-dot {
@@ -211,7 +211,7 @@
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background: var(--gc-green);
+        background: var(--accent);
     }
 
     .calendar-summary {
@@ -222,8 +222,8 @@
     }
 
         .calendar-summary div {
-            background: #F7FBFF;
-            border: 1px solid var(--gc-border);
+            background: var(--soft);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 14px 10px;
             text-align: center;
@@ -231,14 +231,14 @@
 
         .calendar-summary span {
             display: block;
-            color: var(--gc-muted);
+            color: var(--muted);
             font-size: 13px;
             margin-bottom: 8px;
             font-weight: 700;
         }
 
         .calendar-summary strong {
-            color: var(--gc-text);
+            color: var(--text);
             font-size: 22px;
             font-weight: 900;
         }
@@ -259,11 +259,11 @@
             margin: 0;
             font-size: 24px;
             font-weight: 900;
-            color: var(--gc-blue);
+            color: var(--text);
         }
 
         .appointments-header a {
-            color: #0B5ED7;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 900;
         }
@@ -276,17 +276,17 @@
         .manager-table th {
             text-align: left;
             padding: 13px 14px;
-            background: #F7FBFF;
-            border-bottom: 1px solid var(--gc-border);
-            color: var(--gc-muted);
+            background: var(--soft);
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
             font-size: 14px;
             font-weight: 900;
         }
 
         .manager-table td {
             padding: 16px 14px;
-            border-bottom: 1px solid #EDF2F8;
-            color: var(--gc-text);
+            border-bottom: 1px solid #EAF0F6;
+            color: var(--text);
             font-size: 15px;
         }
 
@@ -294,15 +294,15 @@
         display: inline-block;
         padding: 6px 12px;
         border-radius: 999px;
-        background: var(--gc-green-soft);
-        color: #2F6E58;
-        border: 1px solid #B7D9C8;
+        background: rgba(0,168,168,0.10);
+        color: #007D7D;
+        border: 1px solid rgba(0,168,168,0.25);
         font-size: 13px;
         font-weight: 900;
     }
 
     .details-link {
-        color: #0B5ED7;
+        color: var(--primary);
         text-decoration: none;
         font-weight: 900;
     }
@@ -310,9 +310,9 @@
     .empty-message {
         padding: 16px;
         border-radius: 14px;
-        background: #F7FBFF;
-        border: 1px solid var(--gc-border);
-        color: var(--gc-muted);
+        background: var(--soft);
+        border: 1px solid var(--border);
+        color: var(--muted);
         margin: 0;
     }
 
