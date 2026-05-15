@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Receptionist;
 using WebAPI.Data;
 using WebAPI.Models;
@@ -12,10 +13,14 @@ namespace MVCApp.Controllers
     public class ReceptionistController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IClinicNotificationService _notificationService;
 
-        public ReceptionistController(ApplicationDbContext context)
+        public ReceptionistController(
+            ApplicationDbContext context,
+            IClinicNotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -24,10 +29,8 @@ namespace MVCApp.Controllers
             var today = DateTime.Today;
 
             var todayAppointmentsQuery = _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Status)
                 .Where(a => a.AppointmentDate.Date == today);
 
@@ -79,10 +82,8 @@ namespace MVCApp.Controllers
                 .ToListAsync();
 
             var query = _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Status)
                 .AsQueryable();
 
@@ -282,6 +283,14 @@ namespace MVCApp.Controllers
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
+            await _notificationService.CreatePatientNotificationAsync(
+                patientId,
+                "Appointment Booked",
+                $"Your appointment has been booked with Dr. {await GetDoctorNameAsync(doctorId)} on {appointmentDate:dd MMM yyyy} at {selectedStartTime:HH:mm}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
             TempData["Success"] = "Appointment booked successfully.";
             return RedirectToAction(nameof(Appointments));
         }
@@ -290,10 +299,8 @@ namespace MVCApp.Controllers
         public async Task<IActionResult> UpdateStatus(int id)
         {
             var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Status)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -330,10 +337,8 @@ namespace MVCApp.Controllers
         public async Task<IActionResult> UpdateStatus(ReceptionistUpdateAppointmentStatusViewModel model)
         {
             var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Status)
                 .FirstOrDefaultAsync(a => a.Id == model.AppointmentId);
 
@@ -342,14 +347,15 @@ namespace MVCApp.Controllers
                 return NotFound("Appointment not found.");
             }
 
-            var allowedStatusNames = GetAllowedNextStatuses(appointment.Status.Name);
+            var oldStatus = appointment.Status.Name;
+            var allowedStatusNames = GetAllowedNextStatuses(oldStatus);
 
             model.PatientName = appointment.Patient.User.FullName;
             model.DoctorName = appointment.Doctor.User.FullName;
             model.AppointmentDate = appointment.AppointmentDate;
             model.StartTime = appointment.StartTime.ToString("HH:mm");
             model.EndTime = appointment.EndTime.ToString("HH:mm");
-            model.CurrentStatus = appointment.Status.Name;
+            model.CurrentStatus = oldStatus;
             model.AllowedStatuses = allowedStatusNames
                 .Select(s => new SelectListItem
                 {
@@ -398,6 +404,14 @@ namespace MVCApp.Controllers
 
             await _context.SaveChangesAsync();
 
+            await _notificationService.CreatePatientNotificationAsync(
+                appointment.PatientId,
+                "Appointment Status Updated",
+                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {oldStatus} to {model.NewStatus}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
             TempData["Success"] = "Appointment status updated successfully.";
             return RedirectToAction(nameof(Appointments));
         }
@@ -430,8 +444,7 @@ namespace MVCApp.Controllers
             {
                 var doctorRows = await _context.DoctorSpecializations
                     .Where(ds => ds.SpecializationId == model.SpecializationId.Value)
-                    .Include(ds => ds.Doctor)
-                        .ThenInclude(d => d.User)
+                    .Include(ds => ds.Doctor).ThenInclude(d => d.User)
                     .Select(ds => new
                     {
                         ds.DoctorId,
@@ -499,7 +512,7 @@ namespace MVCApp.Controllers
                         slots.Add(new SelectListItem
                         {
                             Value = slotStart.ToString("HH:mm"),
-                            Text = $"{slotStart.ToString("hh:mm tt")} - {slotEnd.ToString("hh:mm tt")}"
+                            Text = $"{slotStart:hh:mm tt} - {slotEnd:hh:mm tt}"
                         });
                     }
 
@@ -508,6 +521,15 @@ namespace MVCApp.Controllers
             }
 
             return slots;
+        }
+
+        private async Task<string> GetDoctorNameAsync(int doctorId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.Id == doctorId)
+                .Select(d => d.User.FullName)
+                .FirstOrDefaultAsync() ?? "your doctor";
         }
 
         private static List<string> GetAllowedNextStatuses(string currentStatus)
