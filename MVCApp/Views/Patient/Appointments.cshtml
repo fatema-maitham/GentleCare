@@ -4,88 +4,333 @@
     ViewData["Title"] = "My Appointments";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-11">
-        <div class="card border-0 shadow-sm" style="border-radius: 22px;">
-            <div class="card-body p-4 p-md-5">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-                    <div>
-                        <h2 class="fw-bold mb-1">My Appointments</h2>
-                        <p class="text-muted mb-0">Your upcoming and previous appointments.</p>
-                    </div>
-                    <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-secondary mt-3 mt-md-0">
-                        Back to Profile
-                    </a>
-                </div>
+<section class="patient-list-page">
+    <div class="page-card">
 
-                @if (Model == null || !Model.Any())
-                {
-                    <div class="alert alert-info mb-0">
-                        No appointments found.
-                    </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Appointment ID</th>
-                                    <th>Date</th>
-                                    <th>Start Time</th>
-                                    <th>End Time</th>
-                                    <th>Doctor</th>
-                                    <th>Status</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    var displayStatus = item.Status switch
-                                    {
-                                        "CheckedIn" => "Checked In",
-                                        "InProgress" => "In Progress",
-                                        _ => item.Status
-                                    };
-
-                                    var badgeClass = item.Status switch
-                                    {
-                                        "Requested" => "bg-secondary",
-                                        "Confirmed" => "bg-primary",
-                                        "CheckedIn" => "bg-info text-dark",
-                                        "InProgress" => "bg-warning text-dark",
-                                        "Completed" => "bg-success",
-                                        "Cancelled" => "bg-danger",
-                                        "Missed" => "bg-dark",
-                                        _ => "bg-secondary"
-                                    };
-
-                                    <tr>
-                                        <td>@item.AppointmentId</td>
-                                        <td>@item.AppointmentDate.ToString("dd MMM yyyy")</td>
-                                        <td>@item.StartTime</td>
-                                        <td>@item.EndTime</td>
-                                        <td>@item.DoctorName</td>
-                                        <td>
-                                            <span class="badge @badgeClass">@displayStatus</span>
-                                        </td>
-                                        <td>
-                                            @(string.IsNullOrWhiteSpace(item.Notes) ? "—" : item.Notes)
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                <div class="mt-4">
-                    <a asp-controller="Patient" asp-action="History" class="btn btn-outline-primary">
-                        View Medical History
-                    </a>
-                </div>
-            </div>
+        <div class="page-header-custom">
+            <h1>My Appointments</h1>
         </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="success-message">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="error-message">@TempData["ErrorMessage"]</div>
+        }
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-box">
+                <h3>No appointments found</h3>
+            </div>
+        }
+        else
+        {
+            <div class="appointment-grid">
+                @foreach (var item in Model)
+                {
+                    var displayStatus = item.Status switch
+                    {
+                        "CheckedIn" => "Checked In",
+                        "InProgress" => "In Progress",
+                        _ => item.Status
+                    };
+
+                    var statusClass = item.Status switch
+                    {
+                        "Requested" => "status-requested",
+                        "Confirmed" => "status-confirmed",
+                        "CheckedIn" => "status-checked",
+                        "InProgress" => "status-progress",
+                        "Completed" => "status-completed",
+                        "Cancelled" => "status-cancelled",
+                        "Missed" => "status-missed",
+                        _ => "status-default"
+                    };
+
+                    <div class="appointment-card">
+                        <div class="appointment-top">
+                            <div>
+                                <span class="date">@item.AppointmentDate.ToString("dd MMM yyyy")</span>
+                                <h2>Dr. @item.DoctorName</h2>
+                            </div>
+
+                            <span class="status-pill @statusClass">@displayStatus</span>
+                        </div>
+
+                        <div class="appointment-meta">
+                            <div>
+                                <span>Start Time</span>
+                                <strong>@item.StartTime</strong>
+                            </div>
+
+                            <div>
+                                <span>End Time</span>
+                                <strong>@item.EndTime</strong>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Notes) && item.Notes.Trim() != ".")
+                        {
+                            <div class="notes-box">
+                                <span>Notes</span>
+                                <p>@item.Notes</p>
+                            </div>
+                        }
+
+                        @if (item.CanCancel)
+                        {
+                            <div class="appointment-actions">
+                                <form asp-controller="Patient"
+                                      asp-action="CancelAppointment"
+                                      method="post">
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="appointmentId"
+                                           value="@item.AppointmentId" />
+
+                                    <button type="submit" class="gc-btn-cancel">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
     </div>
-</div>
+</section>
+
+<style>
+    .patient-list-page {
+        width: 100%;
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 45px 24px 60px;
+    }
+
+    .page-card {
+        width: 100%;
+        background: white;
+        border-radius: 32px;
+        padding: 42px 55px;
+        box-shadow: 0 18px 45px rgba(99,127,163,0.12);
+    }
+
+    .page-header-custom {
+        margin-bottom: 28px;
+    }
+
+    .page-header-custom h1 {
+        margin: 0;
+        font-size: 46px;
+        font-weight: 900;
+        color: #182333;
+        line-height: 1.1;
+    }
+
+    .appointment-grid {
+        display: grid;
+        gap: 20px;
+    }
+
+    .appointment-card {
+        background: #f5f8fa;
+        border-radius: 24px;
+        padding: 24px;
+        transition: 0.2s ease;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 26px rgba(99,127,163,0.10);
+    }
+
+    .appointment-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-start;
+    }
+
+    .date {
+        color: #637fa3;
+        font-weight: 900;
+    }
+
+    .appointment-card h2 {
+        margin: 8px 0 0;
+        font-size: 24px;
+        font-weight: 900;
+        color: #182333;
+    }
+
+    .appointment-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-top: 20px;
+    }
+
+    .appointment-meta div,
+    .notes-box {
+        background: white;
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .appointment-meta span,
+    .notes-box span {
+        display: block;
+        color: #6b7a87;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .appointment-meta strong {
+        color: #182333;
+    }
+
+    .notes-box {
+        margin-top: 14px;
+    }
+
+    .notes-box p {
+        margin: 0;
+        color: #182333;
+        line-height: 1.6;
+    }
+
+    .appointment-actions {
+        margin-top: 16px;
+    }
+
+    .status-pill {
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .status-requested {
+        background: #e9edf2;
+        color: #4b5563;
+    }
+
+    .status-confirmed {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-checked {
+        background: #cffafe;
+        color: #0e7490;
+    }
+
+    .status-progress {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-missed {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .status-default {
+        background: #e9edf2;
+        color: #4b5563;
+    }
+
+    .empty-box,
+    .success-message,
+    .error-message {
+        border-radius: 22px;
+        padding: 24px;
+    }
+
+    .empty-box {
+        background: #f5f8fa;
+    }
+
+    .success-message {
+        background: #e8f7ef;
+        color: #1d6b42;
+        font-weight: 900;
+        margin-bottom: 18px;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        font-weight: 900;
+        margin-bottom: 18px;
+    }
+
+    .gc-btn-cancel {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-weight: 900;
+        border: none;
+        cursor: pointer;
+        background: #fee2e2;
+        color: #b91c1c;
+        transition: 0.2s ease;
+    }
+
+    .gc-btn-cancel:hover {
+        transform: translateY(-3px);
+        background: #fecaca;
+        color: #991b1b;
+    }
+
+    @@media (max-width: 1000px) {
+        .appointment-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .patient-list-page {
+            padding: 30px 18px 50px;
+        }
+
+        .page-card {
+            padding: 30px 22px;
+        }
+
+        .page-header-custom h1 {
+            font-size: 36px;
+        }
+
+        .appointment-top {
+            display: block;
+        }
+
+        .status-pill {
+            display: inline-block;
+            margin-top: 14px;
+        }
+
+        .appointment-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
