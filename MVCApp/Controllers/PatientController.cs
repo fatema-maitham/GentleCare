@@ -1,144 +1,180 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Patient;
-using WebAPI.Data;
-using WebAPI.Models;
 
 namespace MVCApp.Controllers
 {
     [Authorize(Roles = "Patient")]
     public class PatientController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPatientService _patientService;
 
-        public PatientController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+        public PatientController(IPatientService patientService)
         {
-            _context = context;
-            _userManager = userManager;
+            _patientService = patientService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Dashboard()
+        {
+            var model = await _patientService.GetDashboardAsync(User);
+
+            if (model is null)
+            {
+                return NotFound("Patient profile not found.");
+            }
+
+            return View((object)model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var model = await _patientService.GetProfileAsync(User);
 
-            var patient = await _context.Patients
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
-            if (patient == null)
+            if (model is null)
             {
                 return NotFound("Patient profile not found.");
             }
 
-            var model = new PatientProfileViewModel
-            {
-                FullName = patient.User.FullName,
-                Email = patient.User.Email ?? string.Empty,
-                CPRNumber = patient.CPRNumber,
-                ReferenceNumber = patient.ReferenceNumber,
-                DateOfBirth = patient.DateOfBirth,
-                BloodType = patient.BloodType,
-                Address = patient.Address,
-                EmergencyContactName = patient.EmergencyContactName,
-                EmergencyContactPhone = patient.EmergencyContactPhone
-            };
+            return View((object)model);
+        }
 
-            return View(model);
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var model = await _patientService.GetEditProfileAsync(User);
+
+            if (model is null)
+            {
+                return NotFound("Patient profile not found.");
+            }
+
+            return View((object)model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(PatientEditProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View((object)model);
+            }
+
+            var result = await _patientService.UpdateProfileAsync(User, model);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View((object)model);
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction(nameof(Profile));
         }
 
         [HttpGet]
         public async Task<IActionResult> Appointments()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
-            if (patient == null)
-            {
-                return NotFound("Patient profile not found.");
-            }
-
-            var appointments = await _context.Appointments
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
-                .Include(a => a.Status)
-                .Where(a => a.PatientId == patient.Id)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ThenByDescending(a => a.StartTime)
-                .Select(a => new PatientAppointmentsViewModel
-                {
-                    AppointmentId = a.Id,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime.ToString(),
-                    EndTime = a.EndTime.ToString(),
-                    DoctorName = a.Doctor.User.FullName,
-                    Status = a.Status.Name,
-                    Notes = a.Notes
-                })
-                .ToListAsync();
-
-            return View(appointments);
+            var model = await _patientService.GetAppointmentsAsync(User);
+            return View((object)model);
         }
 
         [HttpGet]
         public async Task<IActionResult> History()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var model = await _patientService.GetHistoryAsync(User);
+            return View((object)model);
+        }
 
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+        [HttpGet]
+        public async Task<IActionResult> BookAppointment(
+            int? specializationId = null,
+            int? doctorId = null,
+            DateTime? appointmentDate = null)
+        {
+            var model = await _patientService.GetBookAppointmentModelAsync(
+                User,
+                specializationId,
+                doctorId,
+                appointmentDate);
 
-            if (patient == null)
+            if (model is null)
             {
                 return NotFound("Patient profile not found.");
             }
 
-            var history = await _context.VisitRecords
-                .Include(v => v.Appointment)
-                    .ThenInclude(a => a.Doctor)
-                        .ThenInclude(d => d.User)
-                .Include(v => v.Prescriptions)
-                .Where(v => v.Appointment.PatientId == patient.Id)
-                .OrderByDescending(v => v.Appointment.AppointmentDate)
-                .Select(v => new PatientHistoryViewModel
-                {
-                    AppointmentId = v.AppointmentId,
-                    AppointmentDate = v.Appointment.AppointmentDate,
-                    DoctorName = v.Appointment.Doctor.User.FullName,
-                    Diagnosis = v.Diagnosis,
-                    Treatment = v.Treatment,
-                    DoctorNotes = v.DoctorNotes,
-                    Prescriptions = v.Prescriptions.Select(p => new PrescriptionItemViewModel
-                    {
-                        MedicationName = p.MedicationName,
-                        Dosage = p.Dosage,
-                        Frequency = p.Frequency,
-                        DurationDays = p.DurationDays,
-                        Instructions = p.Instructions
-                    }).ToList()
-                })
-                .ToListAsync();
+            return View((object)model);
+        }
 
-            return View(history);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookAppointment(PatientBookAppointmentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var refreshedModel = await _patientService.GetBookAppointmentModelAsync(
+                    User,
+                    model.SpecializationId,
+                    model.DoctorId,
+                    model.AppointmentDate);
+
+                if (refreshedModel is null)
+                {
+                    return NotFound("Patient profile not found.");
+                }
+
+                refreshedModel.StartTime = model.StartTime;
+                refreshedModel.Notes = model.Notes;
+
+                return View((object)refreshedModel);
+            }
+
+            var result = await _patientService.BookAppointmentAsync(User, model);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+
+                var refreshedModel = await _patientService.GetBookAppointmentModelAsync(
+                    User,
+                    model.SpecializationId,
+                    model.DoctorId,
+                    model.AppointmentDate);
+
+                if (refreshedModel is null)
+                {
+                    return NotFound("Patient profile not found.");
+                }
+
+                refreshedModel.StartTime = model.StartTime;
+                refreshedModel.Notes = model.Notes;
+
+                return View((object)refreshedModel);
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction(nameof(Appointments));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAppointment(int appointmentId)
+        {
+            var result = await _patientService.CancelAppointmentAsync(User, appointmentId);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(Appointments));
         }
     }
 }
