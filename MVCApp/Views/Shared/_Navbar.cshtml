@@ -1,230 +1,178 @@
-@{
+﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    string IsActive(string controller, string action)
+    string Active(string controller, string action)
     {
         return currentController == controller && currentAction == action ? "active" : "";
     }
 }
 
-<nav class="site-nav">
-    <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation">
-        <span></span>
-        <span></span>
-        <span></span>
+<nav class="gc-navbar">
+    <button type="button" class="gc-menu-btn" id="gcMenuBtn">
+        ☰
     </button>
 
-    <div class="site-nav-links" id="siteNavLinks">
+    <div class="gc-nav-links" id="gcNavLinks">
 
         @if (User?.Identity != null && User.Identity.IsAuthenticated)
         {
-            if (User.IsInRole("Patient"))
-            {
-        <a asp-controller="Patient" asp-action="Dashboard" class="@IsActive("Patient", "Dashboard")">Home</a>
-        <a asp-controller="Appointment" asp-action="Book" class="@IsActive("Appointment", "Book")">Book Appointment</a>
-        <a asp-controller="Appointment" asp-action="List" class="@IsActive("Appointment", "List")">Appointments</a>
-        <a asp-controller="Patient" asp-action="History" class="@IsActive("Patient", "History")">History</a>
-        <a asp-controller="Patient" asp-action="Profile" class="@IsActive("Patient", "Profile")">Profile</a>
-            }
-
             if (User.IsInRole("Doctor"))
             {
-        <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
-        <a asp-controller="DoctorAppointment" asp-action="Appointments" class="@IsActive("DoctorAppointment", "Appointments")">Appointments</a>
-        <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
-        <a asp-controller="Prescription" asp-action="Prescriptions" class="@IsActive("Prescription", "Prescriptions")">Prescriptions</a>
-        <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
-        <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
+                <a asp-controller="Doctor" asp-action="Dashboard" class="@Active("Doctor", "Dashboard")">Dashboard</a>
+                <a asp-controller="DoctorAppointment" asp-action="Appointments" class="@Active("DoctorAppointment", "Appointments")">Appointments</a>
+                <a asp-controller="Doctor" asp-action="Schedule" class="@Active("Doctor", "Schedule")">Schedule</a>
+                <a asp-controller="Prescription" asp-action="Prescriptions" class="@Active("Prescription", "Prescriptions")">Prescriptions</a>
+                <a asp-controller="Doctor" asp-action="Notifications" class="@Active("Doctor", "Notifications")">Notifications</a>
+                <a asp-controller="Doctor" asp-action="Profile" class="@Active("Doctor", "Profile")">Profile</a>
             }
 
-            if (User.IsInRole("Receptionist"))
+            if (User.IsInRole("Patient"))
             {
-        <a asp-controller="Receptionist" asp-action="Index" class="@IsActive("Receptionist", "Index")">Home</a>
-        <a asp-controller="Receptionist" asp-action="BookAppointment" class="@IsActive("Receptionist", "BookAppointment")">Book Appointment</a>
-        <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
+                <a asp-controller="Patient" asp-action="Dashboard" class="@Active("Patient", "Dashboard")">Dashboard</a>
+                <a asp-controller="Appointment" asp-action="Book" class="@Active("Appointment", "Book")">Book</a>
+                <a asp-controller="Appointment" asp-action="List" class="@Active("Appointment", "List")">Appointments</a>
+                <a asp-controller="Patient" asp-action="History" class="@Active("Patient", "History")">History</a>
+                <a asp-controller="Patient" asp-action="Profile" class="@Active("Patient", "Profile")">Profile</a>
             }
 
             if (User.IsInRole("ClinicManager"))
             {
-        <a asp-controller="ClinicManager" asp-action="Dashboard" class="@IsActive("ClinicManager", "Dashboard")">Home</a>
-        <a asp-controller="ClinicManager" asp-action="Doctors" class="@IsActive("ClinicManager", "Doctors")">Doctors</a>
-        <a asp-controller="ClinicManager" asp-action="Appointments" class="@IsActive("ClinicManager", "Appointments")">Appointments</a>
-        <a asp-controller="ClinicManager" asp-action="Reports" class="@IsActive("ClinicManager", "Reports")">Reports</a>
-        <a asp-controller="ClinicManager" asp-action="Notifications" class="@IsActive("ClinicManager", "Notifications")">Notifications</a>
+                <a asp-controller="ClinicManager" asp-action="Dashboard" class="@Active("ClinicManager", "Dashboard")">Dashboard</a>
+                <a asp-controller="ClinicManager" asp-action="Doctors" class="@Active("ClinicManager", "Doctors")">Doctors</a>
+                <a asp-controller="ClinicManager" asp-action="Appointments" class="@Active("ClinicManager", "Appointments")">Appointments</a>
+                <a asp-controller="ClinicManager" asp-action="Reports" class="@Active("ClinicManager", "Reports")">Reports</a>
             }
 
-        <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="gc-logout-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="gc-logout-btn">Logout</button>
+            </form>
         }
         else
         {
-        <a asp-controller="Public" asp-action="Lookup" class="@IsActive("Public", "Lookup")">Public Lookup</a>
-        <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
-        <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
+            <a asp-controller="Account" asp-action="Login">Login</a>
+            <a asp-controller="Account" asp-action="Register">Register</a>
         }
 
     </div>
 </nav>
 
 <style>
-    .site-nav {
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        position: relative;
-    }
-
-    .site-nav-links {
+    .gc-navbar {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 22px;
-    }
-
-    .site-nav-links a {
-        position: relative;
-        color: #F8FAFC;
-        text-decoration: none;
-        padding: 8px 0;
-        font-size: 15px;
-        font-weight: 800;
-        transition: color 0.2s ease;
-    }
-
-    .site-nav-links a::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 2px;
         width: 100%;
-        height: 2px;
-        background: #00A8A8;
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.2s ease;
+        position: relative;
     }
 
-    .site-nav-links a:hover,
-    .site-nav-links a.active {
-        color: #DDFBFB;
+    .gc-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
     }
 
-    .site-nav-links a:hover::after,
-    .site-nav-links a.active::after {
-        transform: scaleX(1);
-    }
+        .gc-nav-links a {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+        }
 
-    .logout-form {
+            .gc-nav-links a:hover,
+            .gc-nav-links a.active {
+                border-bottom-color: #ffffff;
+            }
+
+    .gc-logout-form {
         margin: 0;
-        padding: 0;
     }
 
-    .logout-btn {
-        height: 40px;
-        padding: 0 20px;
-        border-radius: 999px;
+    .gc-logout-btn {
         border: none;
-        background: #00A8A8;
-        color: #FFFFFF;
-        font-size: 14px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #075168;
+        font-weight: 900;
+        padding: 9px 18px;
+        cursor: pointer;
+    }
+
+    .gc-menu-btn {
+        display: none;
+        border: none;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        font-size: 26px;
         font-weight: 900;
         cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-
-    .logout-btn:hover {
-        background: #008F8F;
-    }
-
-    .nav-toggle {
-        display: none;
-        width: 44px;
-        height: 44px;
-        border: none;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.12);
-        cursor: pointer;
-        padding: 10px;
-    }
-
-    .nav-toggle span {
-        display: block;
-        width: 22px;
-        height: 2px;
-        background: #FFFFFF;
-        margin: 5px auto;
-        border-radius: 99px;
-        transition: 0.2s ease;
     }
 
     @@media (max-width: 900px) {
-        .site-nav {
-            flex: 0;
+        .gc-navbar {
+            justify-content: flex-start;
+            margin-top: 15px;
         }
 
-        .nav-toggle {
-            display: block;
+        .gc-menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .site-nav-links {
+        .gc-nav-links {
             display: none;
             position: absolute;
             top: 58px;
-            right: 0;
-            width: 250px;
-            background: #1A3A52;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 14px;
+            left: 0;
+            right: auto;
+            width: 240px;
+            background: #075168;
             padding: 14px;
+            border-radius: 16px;
             flex-direction: column;
             align-items: stretch;
             gap: 6px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-            z-index: 999;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.20);
+            z-index: 9999;
         }
 
-        .site-nav-links.open {
-            display: flex;
-        }
+            .gc-nav-links.open {
+                display: flex;
+            }
 
-        .site-nav-links a {
-            padding: 11px 12px;
-            border-radius: 10px;
-        }
+            .gc-nav-links a {
+                padding: 12px;
+                border-radius: 10px;
+                border-bottom: none;
+            }
 
-        .site-nav-links a::after {
-            display: none;
-        }
+                .gc-nav-links a:hover,
+                .gc-nav-links a.active {
+                    background: rgba(255, 255, 255, 0.14);
+                }
 
-        .site-nav-links a:hover,
-        .site-nav-links a.active {
-            background: rgba(0, 168, 168, 0.18);
-            color: #FFFFFF;
-        }
-
-        .logout-form {
+        .gc-logout-btn {
             width: 100%;
-            margin-top: 6px;
-        }
-
-        .logout-btn {
-            width: 100%;
+            margin-top: 8px;
         }
     }
 </style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const navToggle = document.getElementById("navToggle");
-        const siteNavLinks = document.getElementById("siteNavLinks");
+        const button = document.getElementById("gcMenuBtn");
+        const links = document.getElementById("gcNavLinks");
 
-        if (navToggle && siteNavLinks) {
-            navToggle.addEventListener("click", function () {
-                siteNavLinks.classList.toggle("open");
+        if (button && links) {
+            button.addEventListener("click", function () {
+                links.classList.toggle("open");
             });
         }
     });
