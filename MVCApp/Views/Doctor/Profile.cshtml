@@ -4,8 +4,8 @@
     ViewData["Title"] = "Doctor Profile";
 
     var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
-         ? Url.Content("~/images/doctors/default-doctor.png")
-         : Url.Content("~/images/doctors/" + Model.ProfilePicture + "?v=" + DateTime.Now.Ticks);
+        ? Url.Content("~/images/doctors/default-doctor.png")
+        : Url.Content("~/images/doctors/" + System.IO.Path.GetFileName(Model.ProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
 <style>
@@ -169,11 +169,6 @@
 
 <div class="doctor-profile-page">
     <section class="doctor-profile-card">
-
-        <div class="doctor-profile-header">
-            <h1>Doctor Profile</h1>
-            <p>View your personal and medical profile information.</p>
-        </div>
 
         <div class="doctor-avatar-area">
             <img src="@profileImage"

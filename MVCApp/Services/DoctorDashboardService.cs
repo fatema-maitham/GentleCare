@@ -173,34 +173,35 @@ namespace MVCApp.Services
 
             if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                    return false;
+
                 var uploadsFolder = Path.Combine(webRootPath, "images", "doctors");
 
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 
-                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-
-                if (!allowedExtensions.Contains(extension))
-                    return false;
+                var oldImage = doctor.User.ProfilePicture;
 
                 var newFileName = $"doctor-{doctor.Id}-{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadsFolder, newFileName);
+                var newFilePath = Path.Combine(uploadsFolder, newFileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(newFilePath, FileMode.Create))
                 {
                     await model.ProfilePictureFile.CopyToAsync(stream);
                 }
 
-                var oldImage = doctor.User.ProfilePicture;
-
                 if (!string.IsNullOrWhiteSpace(oldImage) &&
                     oldImage != "default-doctor.png")
                 {
-                    var oldPath = Path.Combine(uploadsFolder, oldImage);
+                    var oldFileName = Path.GetFileName(oldImage);
+                    var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
 
-                    if (File.Exists(oldPath))
-                        File.Delete(oldPath);
+                    if (File.Exists(oldFilePath))
+                        File.Delete(oldFilePath);
                 }
 
                 doctor.User.ProfilePicture = newFileName;
