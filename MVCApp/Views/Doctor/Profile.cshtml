@@ -5,141 +5,193 @@
 }
 
 <style>
-    body {
-        background: #eef4ff !important;
-    }
-
     .profile-page {
-        max-width: 1050px;
-        margin: 35px auto;
-        padding: 0 20px 40px;
-        font-family: Arial, Helvetica, sans-serif;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 18px 0 50px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
     .profile-header {
-        background: #0b2a6f;
-        color: white;
-        padding: 26px 30px;
-        border-radius: 8px;
+        background: #075168;
+        color: #ffffff;
+        padding: 28px;
+        border-radius: 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
+        gap: 22px;
+        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.12);
+        margin-bottom: 24px;
+    }
+
+    .profile-user {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .profile-avatar {
+        width: 78px;
+        height: 78px;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #075168;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: 900;
+        flex-shrink: 0;
     }
 
     .profile-title small {
         display: block;
-        color: #cfe0ff;
-        font-weight: 700;
+        color: #DCE8EA;
+        font-weight: 900;
         letter-spacing: 0.8px;
         margin-bottom: 6px;
         text-transform: uppercase;
+        font-size: 12px;
     }
 
-    .profile-title h2 {
+    .profile-title h1 {
         margin: 0;
-        font-size: 30px;
-        font-weight: 800;
-        color: white;
+        font-size: 31px;
+        font-weight: 900;
+        color: #ffffff;
     }
 
     .profile-title p {
-        margin: 6px 0 0;
-        color: #e6efff;
+        margin: 7px 0 0;
+        color: #E7F1F3;
+        font-weight: 600;
     }
 
     .profile-back {
-        background: white;
-        color: #0b2a6f;
+        background: #ffffff;
+        color: #075168;
         text-decoration: none;
-        padding: 10px 16px;
-        border-radius: 6px;
-        font-weight: 700;
+        padding: 11px 18px;
+        border-radius: 14px;
+        font-weight: 900;
         white-space: nowrap;
+        transition: 0.2s ease;
     }
 
         .profile-back:hover {
-            background: #f3f7ff;
-            color: #0b2a6f;
+            background: #E7F1F3;
+            color: #075168;
+            transform: translateY(-2px);
         }
 
     .profile-content {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 20px;
-        margin-top: 22px;
+        gap: 24px;
     }
 
     .profile-card {
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #d7e0ec;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid #D6DDDE;
+        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.08);
         overflow: hidden;
     }
 
     .profile-card-header {
-        background: #f8fbff;
-        border-bottom: 1px solid #d7e0ec;
-        padding: 16px 18px;
+        background: #ffffff;
+        border-bottom: 1px solid #E9EEEE;
+        padding: 20px 24px;
     }
 
         .profile-card-header h4 {
             margin: 0;
-            color: #111827;
-            font-size: 19px;
-            font-weight: 800;
+            color: #075168;
+            font-size: 20px;
+            font-weight: 900;
         }
 
         .profile-card-header p {
-            margin: 4px 0 0;
-            color: #64748b;
+            margin: 5px 0 0;
+            color: #687A80;
             font-size: 14px;
+            font-weight: 600;
         }
 
     .profile-details {
-        padding: 18px;
+        padding: 24px;
     }
 
     .profile-row {
         display: grid;
-        grid-template-columns: 155px 1fr;
-        gap: 15px;
-        padding: 13px 0;
-        border-bottom: 1px solid #edf2f7;
+        grid-template-columns: 165px 1fr;
+        gap: 18px;
+        padding: 16px 0;
+        border-bottom: 1px solid #EDF1F2;
     }
+
+        .profile-row:first-child {
+            padding-top: 0;
+        }
 
         .profile-row:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
 
         .profile-row span {
-            color: #475569;
-            font-weight: 700;
+            color: #687A80;
+            font-weight: 850;
+            font-size: 14px;
         }
 
         .profile-row strong {
-            color: #111827;
-            font-weight: 700;
+            color: #12262F;
+            font-weight: 750;
+            word-break: break-word;
+            line-height: 1.5;
         }
 
     .specialization-box {
-        padding: 18px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 
     .specialization-item {
-        background: #eef4ff;
-        color: #0b2a6f;
-        border-left: 4px solid #0b2a6f;
-        padding: 10px 12px;
-        font-weight: 800;
-        margin-bottom: 10px;
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        padding: 13px 14px;
+        border-radius: 16px;
+        font-weight: 900;
+        transition: 0.2s ease;
     }
 
-    @@media (max-width: 768px) {
+        .specialization-item:hover {
+            transform: translateY(-2px);
+            background: #DCE8EA;
+        }
+
+    .empty-specialization {
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        border-radius: 16px;
+        padding: 15px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    @@media (max-width: 850px) {
         .profile-header {
             flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-user {
             align-items: flex-start;
         }
 
@@ -154,14 +206,42 @@
 
         .profile-row {
             grid-template-columns: 1fr;
-            gap: 5px;
+            gap: 6px;
+        }
+    }
+
+    @@media (max-width: 500px) {
+        .profile-user {
+            flex-direction: column;
+        }
+
+        .profile-title h1 {
+            font-size: 26px;
         }
     }
 </style>
 
 <div class="profile-page">
 
-  
+    <div class="profile-header">
+        <div class="profile-user">
+            <div class="profile-avatar">
+                @(string.IsNullOrWhiteSpace(Model.FullName) ? "D" : Model.FullName.Substring(0, 1).ToUpper())
+            </div>
+
+            <div class="profile-title">
+                <small>Doctor Profile</small>
+                <h1>@Model.FullName</h1>
+                <p>View your personal and medical profile information.</p>
+            </div>
+        </div>
+
+        <a asp-controller="Doctor"
+           asp-action="Dashboard"
+           class="profile-back">
+            Back to Dashboard
+        </a>
+    </div>
 
     <div class="profile-content">
 
@@ -192,11 +272,11 @@
                     <strong>
                         @if (!string.IsNullOrWhiteSpace(Model.Bio))
                         {
-                        @Model.Bio
+                            @Model.Bio
                         }
                         else
                         {
-                        <text>No bio recorded.</text>
+                            <text>No bio recorded.</text>
                         }
                     </strong>
                 </div>
@@ -214,14 +294,16 @@
                 {
                     foreach (var specialization in Model.Specializations)
                     {
-                <div class="specialization-item">
-                    @specialization
-                </div>
+                        <div class="specialization-item">
+                            @specialization
+                        </div>
                     }
                 }
                 else
                 {
-                <p>No specializations assigned.</p>
+                    <p class="empty-specialization">
+                        No specializations assigned.
+                    </p>
                 }
             </div>
         </div>
