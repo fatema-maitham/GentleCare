@@ -1,192 +1,333 @@
-﻿@model MVCApp.ViewModels.ClinicManager.DoctorDetailsViewModel
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerDoctorDetailsViewModel
 
 @{
     ViewData["Title"] = "Doctor Details";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h2 class="mb-1">Doctor Details</h2>
-            <p class="text-muted mb-0">@Model.FullName</p>
+<div class="page-header">
+    <div>
+        <h1>Dr. @Model.FullName</h1>
+        <p>Doctor profile, specializations, schedule, leave periods, and appointment summary.</p>
+    </div>
+
+    <div class="header-actions">
+        <a asp-controller="ClinicManager"
+           asp-action="Doctors"
+           class="secondary-btn">
+            Back to Doctors
+        </a>
+
+        <a asp-controller="ClinicManager"
+           asp-action="EditDoctor"
+           asp-route-id="@Model.DoctorId"
+           class="primary-btn">
+            Edit Doctor
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- Doctor Profile -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Doctor Profile</h2>
+
+        <span class="status-pill @(Model.IsActive ? "status-active" : "status-inactive")">
+            @Model.StatusText
+        </span>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Full Name</span>
+            <strong>Dr. @Model.FullName</strong>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-controller="ClinicManager" asp-action="Doctors" class="btn btn-outline-secondary">Back to Doctors</a>
-            <a asp-controller="ClinicManager" asp-action="EditDoctor" asp-route-id="@Model.DoctorId" class="btn btn-primary">Edit Doctor</a>
+
+        <div class="details-item">
+            <span>Email</span>
+            <strong>@Model.Email</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Phone Number</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</strong>
+        </div>
+
+        <div class="details-item">
+            <span>License Number</span>
+            <strong>@Model.LicenseNumber</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Leave Status</span>
+            <strong>@Model.LeaveStatusText</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Created At</span>
+            <strong>@Model.CreatedAt.ToString("dd MMM yyyy")</strong>
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
+    @if (!string.IsNullOrWhiteSpace(Model.Bio))
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="profile-note">
+        <span>Bio</span>
+        <p>@Model.Bio</p>
+    </div>
     }
+</div>
 
-    @if (TempData["Info"] != null)
+<!-- Quick Actions -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Quick Actions</h2>
+    </div>
+
+    <div class="quick-actions">
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorSchedule"
+           asp-route-doctorId="@Model.DoctorId"
+           class="action-card">
+            Manage Schedule
+        </a>
+
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorLeaves"
+           asp-route-doctorId="@Model.DoctorId"
+           class="action-card">
+            Manage Leaves
+        </a>
+
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorSpecializations"
+           asp-route-doctorId="@Model.DoctorId"
+           class="action-card">
+            Manage Specializations
+        </a>
+
+        <a asp-controller="ClinicManager"
+           asp-action="AppointmentImpact"
+           asp-route-doctorId="@Model.DoctorId"
+           class="action-card danger-action">
+            Review Impacted Appointments
+        </a>
+    </div>
+</div>
+
+<!-- Specializations -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Specializations</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorSpecializations"
+           asp-route-doctorId="@Model.DoctorId"
+           class="btn-link">
+            Edit specializations
+        </a>
+    </div>
+
+    @if (Model.HasSpecializations)
     {
-        <div class="alert alert-info">@TempData["Info"]</div>
+    <div class="tag-list">
+        @foreach (var specialization in Model.Specializations)
+            {
+        <span class="tag-pill">@specialization</span>
+            }
+    </div>
     }
+    else
+    {
+    <p class="empty-text">No specializations assigned.</p>
+    }
+</div>
 
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Profile</h5>
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Full Name</dt>
-                        <dd class="col-sm-8">@Model.FullName</dd>
+<!-- Appointment Summary -->
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <span class="card-label">Total Appointments</span>
+        <h2>@Model.TotalAppointments</h2>
+        <p>All time</p>
+    </div>
 
-                        <dt class="col-sm-4">Email</dt>
-                        <dd class="col-sm-8">@Model.Email</dd>
+    <div class="dashboard-card">
+        <span class="card-label">Today</span>
+        <h2>@Model.TodayAppointments</h2>
+        <p>Appointments today</p>
+    </div>
 
-                        <dt class="col-sm-4">License</dt>
-                        <dd class="col-sm-8">@Model.LicenseNumber</dd>
+    <div class="dashboard-card">
+        <span class="card-label">Upcoming</span>
+        <h2>@Model.UpcomingAppointments</h2>
+        <p>Future active appointments</p>
+    </div>
 
-                        <dt class="col-sm-4">Status</dt>
-                        <dd class="col-sm-8">
-                            @if (Model.IsActive)
-                            {
-                                <span class="badge bg-success">Active</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Inactive</span>
-                            }
-                        </dd>
+    <div class="dashboard-card">
+        <span class="card-label">Completed</span>
+        <h2>@Model.CompletedAppointments</h2>
+        <p>Completed visits</p>
+    </div>
 
-                        <dt class="col-sm-4">Upcoming</dt>
-                        <dd class="col-sm-8">@Model.UpcomingAppointmentsCount appointment(s)</dd>
+    <div class="dashboard-card warning-card">
+        <span class="card-label">Cancelled</span>
+        <h2>@Model.CancelledAppointments</h2>
+        <p>Cancelled appointments</p>
+    </div>
 
-                        <dt class="col-sm-4">Bio</dt>
-                        <dd class="col-sm-8">
-                            @if (string.IsNullOrWhiteSpace(Model.Bio))
-                            {
-                                <span class="text-muted">No bio available.</span>
-                            }
-                            else
-                            {
-                                @Model.Bio
-                            }
-                        </dd>
-                    </dl>
-                </div>
-            </div>
+    <div class="dashboard-card danger-card">
+        <span class="card-label">Missed</span>
+        <h2>@Model.MissedAppointments</h2>
+        <p>Missed appointments</p>
+    </div>
+</div>
+
+<!-- Appointment Status Summary -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Appointment Status Breakdown</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="Appointments"
+           asp-route-doctorId="@Model.DoctorId"
+           class="btn-link">
+            View doctor appointments
+        </a>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-box">
+            <span>Requested</span>
+            <strong>@Model.RequestedAppointments</strong>
         </div>
 
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Specializations</h5>
-                    <a asp-controller="ClinicManager" asp-action="ManageSpecializations" asp-route-doctorId="@Model.DoctorId" class="btn btn-sm btn-outline-primary">Manage</a>
-                </div>
-                <div class="card-body">
-                    @if (Model.Specializations == null || !Model.Specializations.Any())
-                    {
-                        <p class="text-muted mb-0">No specializations assigned.</p>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach (var item in Model.Specializations)
-                            {
-                                <span class="badge bg-primary">@item</span>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body d-flex flex-wrap gap-2">
-                    <a asp-controller="ClinicManager" asp-action="ManageSchedule" asp-route-doctorId="@Model.DoctorId" class="btn btn-outline-success">Manage Schedule</a>
-                    <a asp-controller="ClinicManager" asp-action="ManageLeaves" asp-route-doctorId="@Model.DoctorId" class="btn btn-outline-danger">Manage Leaves</a>
-                    <a asp-controller="ClinicManager" asp-action="AppointmentImpact" asp-route-doctorId="@Model.DoctorId" class="btn btn-outline-warning">Appointment Impact</a>
-                </div>
-            </div>
+        <div class="status-box">
+            <span>Confirmed</span>
+            <strong>@Model.ConfirmedAppointments</strong>
         </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Schedule</h5>
-                    <a asp-controller="ClinicManager" asp-action="ManageSchedule" asp-route-doctorId="@Model.DoctorId" class="btn btn-sm btn-outline-success">Manage</a>
-                </div>
-                <div class="card-body">
-                    @if (Model.Schedules == null || !Model.Schedules.Any())
-                    {
-                        <p class="text-muted mb-0">No schedules found.</p>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Day</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>Slot</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.Schedules)
-                                    {
-                                        <tr>
-                                            <td>@item.DayOfWeek</td>
-                                            <td>@item.StartTime.ToString(@"hh\:mm")</td>
-                                            <td>@item.EndTime.ToString(@"hh\:mm")</td>
-                                            <td>@item.SlotDurationMinutes min</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
+        <div class="status-box">
+            <span>Checked In</span>
+            <strong>@Model.CheckedInAppointments</strong>
         </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Leaves</h5>
-                    <a asp-controller="ClinicManager" asp-action="ManageLeaves" asp-route-doctorId="@Model.DoctorId" class="btn btn-sm btn-outline-danger">Manage</a>
-                </div>
-                <div class="card-body">
-                    @if (Model.Leaves == null || !Model.Leaves.Any())
-                    {
-                        <p class="text-muted mb-0">No leaves found.</p>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>Reason</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.Leaves)
-                                    {
-                                        <tr>
-                                            <td>@item.LeaveStartDate.ToString("dd MMM yyyy")</td>
-                                            <td>@item.LeaveEndDate.ToString("dd MMM yyyy")</td>
-                                            <td>@item.LeaveReason</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
+        <div class="status-box">
+            <span>In Progress</span>
+            <strong>@Model.InProgressAppointments</strong>
+        </div>
+
+        <div class="status-box">
+            <span>Completed</span>
+            <strong>@Model.CompletedAppointments</strong>
+        </div>
+
+        <div class="status-box">
+            <span>Cancelled</span>
+            <strong>@Model.CancelledAppointments</strong>
+        </div>
+
+        <div class="status-box">
+            <span>Missed</span>
+            <strong>@Model.MissedAppointments</strong>
         </div>
     </div>
+</div>
+
+<!-- Weekly Schedule -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Weekly Schedule</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorSchedule"
+           asp-route-doctorId="@Model.DoctorId"
+           class="btn-link">
+            Manage schedule
+        </a>
+    </div>
+
+    @if (Model.HasSchedules)
+    {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Slot Duration</th>
+                    <th>Working Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var schedule in Model.Schedules)
+                    {
+                <tr>
+                    <td>@schedule.DayName</td>
+                    <td>@schedule.TimeRangeText</td>
+                    <td>@schedule.SlotDurationMinutes minutes</td>
+                    <td>@schedule.WorkingHours.ToString("0.##") hours</td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    }
+    else
+    {
+    <p class="empty-text">No weekly schedule added for this doctor.</p>
+    }
+</div>
+
+<!-- Leave Periods -->
+<div class="section-card">
+    <div class="section-header">
+        <h2>Leave Periods</h2>
+
+        <a asp-controller="ClinicManager"
+           asp-action="ManageDoctorLeaves"
+           asp-route-doctorId="@Model.DoctorId"
+           class="btn-link">
+            Manage leaves
+        </a>
+    </div>
+
+    @if (Model.HasLeaves)
+    {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var leave in Model.Leaves)
+                    {
+                <tr>
+                    <td>@leave.LeaveDateText</td>
+                    <td>@leave.LeaveReason</td>
+                    <td>
+                        <span class="status-pill">@leave.LeaveStatusText</span>
+                    </td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    }
+    else
+    {
+    <p class="empty-text">No leave periods added for this doctor.</p>
+    }
 </div>

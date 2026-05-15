@@ -1,0 +1,114 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ManageDoctorSpecializationsViewModel
+
+@{
+    ViewData["Title"] = "Manage Doctor Specializations";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Manage Doctor Specializations</h1>
+        <p>Select specializations for Dr. @Model.DoctorName.</p>
+    </div>
+
+    <a asp-controller="ClinicManager"
+       asp-action="DoctorDetails"
+       asp-route-id="@Model.DoctorId"
+       class="secondary-btn">
+        Back to Doctor
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <div class="section-header">
+        <h2>Doctor Information</h2>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Doctor Name</span>
+            <strong>Dr. @Model.DoctorName</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Email</span>
+            <strong>@Model.DoctorEmail</strong>
+        </div>
+
+        <div class="details-item">
+            <span>License Number</span>
+            <strong>@Model.LicenseNumber</strong>
+        </div>
+
+        <div class="details-item">
+            <span>Selected Specializations</span>
+            <strong>@Model.SelectedCount</strong>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <form asp-controller="ClinicManager" asp-action="ManageDoctorSpecializations" method="post">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="DoctorId" type="hidden" />
+        <input asp-for="DoctorName" type="hidden" />
+        <input asp-for="DoctorEmail" type="hidden" />
+        <input asp-for="LicenseNumber" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="section-header">
+            <h2>Specializations</h2>
+            <span class="muted-text">@Model.TotalSpecializations available</span>
+        </div>
+
+        @if (Model.HasSpecializations)
+        {
+        <div class="checkbox-list">
+            @foreach (var specialization in Model.Specializations)
+                {
+            <label class="checkbox-item">
+                <input type="checkbox"
+                       name="SelectedSpecializationIds"
+                       value="@specialization.SpecializationId"
+                       checked="@specialization.IsSelected" />
+
+                <span>
+                    <strong>@specialization.SpecializationName</strong>
+
+                    @if (!string.IsNullOrWhiteSpace(specialization.Description))
+                            {
+                    <small>@specialization.Description</small>
+                            }
+                </span>
+            </label>
+                }
+        </div>
+        }
+        else
+        {
+        <p class="empty-text">@Model.EmptyMessage</p>
+        }
+
+        <div class="form-actions">
+            <button type="submit" class="primary-btn">Save Specializations</button>
+
+            <a asp-controller="ClinicManager"
+               asp-action="DoctorDetails"
+               asp-route-id="@Model.DoctorId"
+               class="secondary-btn">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>

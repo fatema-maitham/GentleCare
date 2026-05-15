@@ -1,0 +1,89 @@
+﻿@model MVCApp.ViewModels.ClinicManager.DoctorLeaveFormViewModel
+
+@{
+    ViewData["Title"] = "Create Doctor Leave";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Create Doctor Leave</h1>
+        <p>Add a leave period for Dr. @Model.DoctorName.</p>
+    </div>
+
+    <a asp-controller="ClinicManager"
+       asp-action="ManageDoctorLeaves"
+       asp-route-doctorId="@Model.DoctorId"
+       class="secondary-btn">
+        Back to Leaves
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="section-card">
+    <form asp-controller="ClinicManager" asp-action="CreateDoctorLeave" method="post">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="DoctorId" type="hidden" />
+        <input asp-for="DoctorName" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="details-grid">
+            <div class="details-item">
+                <span>Doctor</span>
+                <strong>Dr. @Model.DoctorName</strong>
+            </div>
+
+            <div class="details-item">
+                <span>Mode</span>
+                <strong>Create New Leave</strong>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="LeaveStartDate"></label>
+                <input asp-for="LeaveStartDate" type="date" />
+                <span asp-validation-for="LeaveStartDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LeaveEndDate"></label>
+                <input asp-for="LeaveEndDate" type="date" />
+                <span asp-validation-for="LeaveEndDate" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LeaveReason"></label>
+            <textarea asp-for="LeaveReason" rows="4"></textarea>
+            <span asp-validation-for="LeaveReason" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="primary-btn">Create Leave</button>
+
+            <a asp-controller="ClinicManager"
+               asp-action="ManageDoctorLeaves"
+               asp-route-doctorId="@Model.DoctorId"
+               class="secondary-btn">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

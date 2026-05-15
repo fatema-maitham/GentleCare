@@ -1,0 +1,114 @@
+﻿@model List<MVCApp.ViewModels.Doctor.DoctorPrescriptionViewModel>
+
+    @{
+    ViewData["Title"] = "My Prescriptions";
+    }
+
+    <div class="container mt-4">
+
+
+        @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+        @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+        <!-- Prescriptions list -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Prescription Records</h5>
+
+                <span class="badge bg-primary">
+                    @Model.Count prescription(s)
+                </span>
+            </div>
+
+            <div class="card-body">
+                @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Reference No.</th>
+                                <th>Appointment Date</th>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Duration</th>
+                                <th>Instructions</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var prescription in Model)
+                            {
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">
+                                        @prescription.PatientFullName
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="text-muted">
+                                        @prescription.PatientReferenceNumber
+                                    </span>
+                                </td>
+
+                                <td>@prescription.AppointmentDateDisplay</td>
+
+                                <td>@prescription.MedicationName</td>
+
+                                <td>@prescription.Dosage</td>
+
+                                <td>@prescription.Frequency</td>
+
+                                <td>@prescription.DurationDisplay</td>
+
+                                <td>
+                                    @if (prescription.HasInstructions)
+                                        {
+                                    <span>@prescription.Instructions</span>
+                                        }
+                                        else
+                                        {
+                                    <span class="text-muted">No instructions</span>
+                                        }
+                                </td>
+
+                                <td class="text-end">
+                                    <a asp-controller="Doctor"
+                                       asp-action="AppointmentDetails"
+                                       asp-route-id="@prescription.AppointmentId"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Appointment
+                                    </a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    No prescriptions have been recorded yet.
+                </div>
+            }
+            </div>
+        </div>
+    </div>

@@ -4,82 +4,228 @@
     ViewData["Title"] = "My Profile";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h2 class="mb-1">My Profile</h2>
-            <p class="text-muted mb-0">Doctor information</p>
-        </div>
-
-        <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-outline-secondary">
-            Back to Dashboard
-        </a>
-    </div>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
+<style>
+    body {
+        background: #eef4ff !important;
     }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
+    .profile-page {
+        max-width: 1050px;
+        margin: 35px auto;
+        padding: 0 20px 40px;
+        font-family: Arial, Helvetica, sans-serif;
     }
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">Profile Details</h5>
-        </div>
+    .profile-header {
+        background: #0b2a6f;
+        color: white;
+        padding: 26px 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 6px 18px rgba(11, 42, 111, 0.18);
+    }
 
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Doctor ID</dt>
-                        <dd class="col-sm-8">@Model.DoctorId</dd>
+    .profile-title small {
+        display: block;
+        color: #cfe0ff;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
 
-                        <dt class="col-sm-4">Full Name</dt>
-                        <dd class="col-sm-8">@Model.FullName</dd>
+    .profile-title h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 800;
+        color: white;
+    }
 
-                        <dt class="col-sm-4">Email</dt>
-                        <dd class="col-sm-8">@Model.Email</dd>
+    .profile-title p {
+        margin: 6px 0 0;
+        color: #e6efff;
+    }
 
-                        <dt class="col-sm-4">License No.</dt>
-                        <dd class="col-sm-8">@Model.LicenseNumber</dd>
-                    </dl>
+    .profile-back {
+        background: white;
+        color: #0b2a6f;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .profile-back:hover {
+            background: #f3f7ff;
+            color: #0b2a6f;
+        }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-top: 22px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #d7e0ec;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+
+    .profile-card-header {
+        background: #f8fbff;
+        border-bottom: 1px solid #d7e0ec;
+        padding: 16px 18px;
+    }
+
+        .profile-card-header h4 {
+            margin: 0;
+            color: #111827;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .profile-card-header p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+    .profile-details {
+        padding: 18px;
+    }
+
+    .profile-row {
+        display: grid;
+        grid-template-columns: 155px 1fr;
+        gap: 15px;
+        padding: 13px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-row span {
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .profile-row strong {
+            color: #111827;
+            font-weight: 700;
+        }
+
+    .specialization-box {
+        padding: 18px;
+    }
+
+    .specialization-item {
+        background: #eef4ff;
+        color: #0b2a6f;
+        border-left: 4px solid #0b2a6f;
+        padding: 10px 12px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    @@media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-back {
+            width: 100%;
+            text-align: center;
+        }
+
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-row {
+            grid-template-columns: 1fr;
+            gap: 5px;
+        }
+    }
+</style>
+
+<div class="profile-page">
+
+  
+
+    <div class="profile-content">
+
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <h4>Profile Information</h4>
+                <p>Basic doctor details</p>
+            </div>
+
+            <div class="profile-details">
+                <div class="profile-row">
+                    <span>Full Name</span>
+                    <strong>@Model.FullName</strong>
                 </div>
 
-                <div class="col-md-6">
-                    <h6>Bio</h6>
-                    @if (string.IsNullOrWhiteSpace(Model.Bio))
-                    {
-                        <p class="text-muted">No bio available.</p>
-                    }
-                    else
-                    {
-                        <p>@Model.Bio</p>
-                    }
+                <div class="profile-row">
+                    <span>Email</span>
+                    <strong>@Model.Email</strong>
+                </div>
 
-                    <h6 class="mt-4">Specializations</h6>
-                    @if (Model.Specializations == null || !Model.Specializations.Any())
-                    {
-                        <p class="text-muted mb-0">No specializations assigned.</p>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach (var specialization in Model.Specializations)
-                            {
-                                <span class="badge bg-primary">@specialization</span>
-                            }
-                        </div>
-                    }
+                <div class="profile-row">
+                    <span>License Number</span>
+                    <strong>@Model.LicenseNumber</strong>
+                </div>
+
+                <div class="profile-row">
+                    <span>Bio</span>
+                    <strong>
+                        @if (!string.IsNullOrWhiteSpace(Model.Bio))
+                        {
+                        @Model.Bio
+                        }
+                        else
+                        {
+                        <text>No bio recorded.</text>
+                        }
+                    </strong>
                 </div>
             </div>
         </div>
+
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <h4>Specializations</h4>
+                <p>Assigned medical fields</p>
+            </div>
+
+            <div class="specialization-box">
+                @if (Model.HasSpecializations)
+                {
+                    foreach (var specialization in Model.Specializations)
+                    {
+                <div class="specialization-item">
+                    @specialization
+                </div>
+                    }
+                }
+                else
+                {
+                <p>No specializations assigned.</p>
+                }
+            </div>
+        </div>
+
     </div>
+
 </div>

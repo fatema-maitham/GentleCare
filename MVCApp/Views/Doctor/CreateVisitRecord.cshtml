@@ -2,338 +2,201 @@
 
 @{
     ViewData["Title"] = "Create Visit Record";
-    var prescriptionCount = Model.Prescriptions != null && Model.Prescriptions.Any()
-        ? Model.Prescriptions.Count
-        : 1;
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<div class="container mt-4">
+
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Create Visit Record</h2>
-            <p class="text-muted mb-0">Appointment ID: @Model.AppointmentId</p>
+            <h2 class="fw-bold mb-1">Create Visit Record</h2>
+            <p class="text-muted mb-0">
+                Record the consultation notes, diagnosis, treatment, and prescriptions.
+            </p>
         </div>
 
         <a asp-controller="Doctor"
            asp-action="AppointmentDetails"
            asp-route-id="@Model.AppointmentId"
            class="btn btn-outline-secondary">
-            Back to Details
+            Back to Appointment
         </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     }
 
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Appointment Info</h5>
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5">Patient</dt>
-                        <dd class="col-sm-7">@Model.PatientFullName</dd>
-
-                        <dt class="col-sm-5">Date</dt>
-                        <dd class="col-sm-7">@Model.AppointmentDate.ToString("dd MMM yyyy")</dd>
-
-                        <dt class="col-sm-5">Start Time</dt>
-                        <dd class="col-sm-7">@Model.StartTime.ToString(@"hh\:mm")</dd>
-
-                        <dt class="col-sm-5">End Time</dt>
-                        <dd class="col-sm-7">@Model.EndTime.ToString(@"hh\:mm")</dd>
-                    </dl>
-                </div>
-            </div>
+    <!-- Appointment and patient summary -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0">Appointment Summary</h5>
         </div>
 
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Visit Record Form</h5>
-                </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Patient</dt>
+                <dd class="col-sm-9">@Model.PatientFullName</dd>
 
-                <div class="card-body">
-                    <form asp-controller="Doctor" asp-action="CreateVisitRecord" method="post">
-                        @Html.AntiForgeryToken()
+                <dt class="col-sm-3">Appointment Date</dt>
+                <dd class="col-sm-9">@Model.AppointmentDateDisplay</dd>
 
-                        <input asp-for="AppointmentId" type="hidden" />
-                        <input asp-for="PatientId" type="hidden" />
-                        <input asp-for="PatientFullName" type="hidden" />
-                        <input asp-for="AppointmentDate" type="hidden" />
-                        <input asp-for="StartTime" type="hidden" />
-                        <input asp-for="EndTime" type="hidden" />
-
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="DoctorNotes" class="form-label"></label>
-                            <textarea asp-for="DoctorNotes" class="form-control" rows="4"></textarea>
-                            <span asp-validation-for="DoctorNotes" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Diagnosis" class="form-label"></label>
-                            <textarea asp-for="Diagnosis" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Diagnosis" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Treatment" class="form-label"></label>
-                            <textarea asp-for="Treatment" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Treatment" class="text-danger"></span>
-                        </div>
-
-                        <hr class="my-4" />
-
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">Prescriptions</h5>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-prescription-btn">
-                                Add Prescription
-                            </button>
-                        </div>
-
-                        <div id="prescriptions-container">
-                            @if (Model.Prescriptions != null && Model.Prescriptions.Any())
-                            {
-                                for (int i = 0; i < Model.Prescriptions.Count; i++)
-                                {
-                                    <div class="border rounded p-3 mb-3 prescription-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="mb-0">Prescription @(i + 1)</h6>
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-prescription-btn">
-                                                Remove
-                                            </button>
-                                        </div>
-
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label asp-for="Prescriptions[i].MedicationName" class="form-label"></label>
-                                                <input asp-for="Prescriptions[i].MedicationName" class="form-control" />
-                                                <span asp-validation-for="Prescriptions[i].MedicationName" class="text-danger"></span>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label asp-for="Prescriptions[i].Dosage" class="form-label"></label>
-                                                <input asp-for="Prescriptions[i].Dosage" class="form-control" />
-                                                <span asp-validation-for="Prescriptions[i].Dosage" class="text-danger"></span>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label asp-for="Prescriptions[i].Frequency" class="form-label"></label>
-                                                <input asp-for="Prescriptions[i].Frequency" class="form-control" />
-                                                <span asp-validation-for="Prescriptions[i].Frequency" class="text-danger"></span>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label asp-for="Prescriptions[i].DurationDays" class="form-label"></label>
-                                                <input asp-for="Prescriptions[i].DurationDays" class="form-control" type="number" min="1" />
-                                                <span asp-validation-for="Prescriptions[i].DurationDays" class="text-danger"></span>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <label asp-for="Prescriptions[i].Instructions" class="form-label"></label>
-                                                <textarea asp-for="Prescriptions[i].Instructions" class="form-control" rows="2"></textarea>
-                                                <span asp-validation-for="Prescriptions[i].Instructions" class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="border rounded p-3 mb-3 prescription-item">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6 class="mb-0">Prescription 1</h6>
-                                        <button type="button" class="btn btn-outline-danger btn-sm remove-prescription-btn">
-                                            Remove
-                                        </button>
-                                    </div>
-
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="Prescriptions_0__MedicationName">Medication Name</label>
-                                            <input class="form-control" type="text" id="Prescriptions_0__MedicationName" name="Prescriptions[0].MedicationName" />
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="Prescriptions_0__Dosage">Dosage</label>
-                                            <input class="form-control" type="text" id="Prescriptions_0__Dosage" name="Prescriptions[0].Dosage" />
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="Prescriptions_0__Frequency">Frequency</label>
-                                            <input class="form-control" type="text" id="Prescriptions_0__Frequency" name="Prescriptions[0].Frequency" />
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="Prescriptions_0__DurationDays">Duration (Days)</label>
-                                            <input class="form-control" type="number" min="1" id="Prescriptions_0__DurationDays" name="Prescriptions[0].DurationDays" />
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label class="form-label" for="Prescriptions_0__Instructions">Instructions</label>
-                                            <textarea class="form-control" rows="2" id="Prescriptions_0__Instructions" name="Prescriptions[0].Instructions"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-success">
-                                Save Visit Record
-                            </button>
-
-                            <a asp-controller="Doctor"
-                               asp-action="AppointmentDetails"
-                               asp-route-id="@Model.AppointmentId"
-                               class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                <dt class="col-sm-3">Appointment Time</dt>
+                <dd class="col-sm-9">@Model.TimeDisplay</dd>
+            </dl>
         </div>
     </div>
-</div>
 
-<template id="prescription-template">
-    <div class="border rounded p-3 mb-3 prescription-item">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0 prescription-title">Prescription</h6>
-            <button type="button" class="btn btn-outline-danger btn-sm remove-prescription-btn">
-                Remove
+    <!-- Visit record form -->
+    <form asp-controller="Doctor"
+          asp-action="CreateVisitRecord"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="AppointmentId" type="hidden" />
+        <input asp-for="PatientId" type="hidden" />
+        <input asp-for="PatientFullName" type="hidden" />
+        <input asp-for="AppointmentDate" type="hidden" />
+        <input asp-for="StartTime" type="hidden" />
+        <input asp-for="EndTime" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white">
+                <h5 class="fw-bold mb-0">Medical Visit Details</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="DoctorNotes" class="form-label"></label>
+                    <textarea asp-for="DoctorNotes"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Write the consultation notes"></textarea>
+                    <span asp-validation-for="DoctorNotes" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Diagnosis" class="form-label"></label>
+                    <textarea asp-for="Diagnosis"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Write the diagnosis"></textarea>
+                    <span asp-validation-for="Diagnosis" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Treatment" class="form-label"></label>
+                    <textarea asp-for="Treatment"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Write the treatment plan if needed"></textarea>
+                    <span asp-validation-for="Treatment" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prescription section -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white">
+                <h5 class="fw-bold mb-0">Prescriptions</h5>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted">
+                    You can enter prescription details if medication is required. Leave the row empty if there is no prescription.
+                </p>
+
+                @for (var i = 0; i < Model.Prescriptions.Count; i++)
+                {
+                <div class="border rounded p-3 mb-3">
+                    <h6 class="fw-bold mb-3">Prescription @(i + 1)</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Prescriptions[i].MedicationName" class="form-label"></label>
+                            <input asp-for="Prescriptions[i].MedicationName"
+                                   class="form-control"
+                                   placeholder="Example: Paracetamol" />
+                            <span asp-validation-for="Prescriptions[i].MedicationName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Prescriptions[i].Dosage" class="form-label"></label>
+                            <input asp-for="Prescriptions[i].Dosage"
+                                   class="form-control"
+                                   placeholder="Example: 500mg" />
+                            <span asp-validation-for="Prescriptions[i].Dosage" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Prescriptions[i].Frequency" class="form-label"></label>
+                            <input asp-for="Prescriptions[i].Frequency"
+                                   class="form-control"
+                                   placeholder="Example: Twice daily" />
+                            <span asp-validation-for="Prescriptions[i].Frequency" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Prescriptions[i].DurationDays" class="form-label"></label>
+                            <input asp-for="Prescriptions[i].DurationDays"
+                                   class="form-control"
+                                   type="number"
+                                   min="0" />
+                            <span asp-validation-for="Prescriptions[i].DurationDays" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Prescriptions[i].Instructions" class="form-label"></label>
+                            <textarea asp-for="Prescriptions[i].Instructions"
+                                      class="form-control"
+                                      rows="2"
+                                      placeholder="Example: Take after food"></textarea>
+                            <span asp-validation-for="Prescriptions[i].Instructions" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                @if (!Model.Prescriptions.Any())
+                {
+                <div class="alert alert-info mb-0">
+                    No prescription row is available. You can still save the visit record without prescriptions.
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Form actions -->
+        <div class="d-flex justify-content-end gap-2 mb-4">
+            <a asp-controller="Doctor"
+               asp-action="AppointmentDetails"
+               asp-route-id="@Model.AppointmentId"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-success">
+                Save Visit Record
             </button>
         </div>
-
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label prescription-medication-label">Medication Name</label>
-                <input class="form-control prescription-medication-input" type="text" />
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label prescription-dosage-label">Dosage</label>
-                <input class="form-control prescription-dosage-input" type="text" />
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label prescription-frequency-label">Frequency</label>
-                <input class="form-control prescription-frequency-input" type="text" />
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label prescription-duration-label">Duration (Days)</label>
-                <input class="form-control prescription-duration-input" type="number" min="1" />
-            </div>
-
-            <div class="col-12">
-                <label class="form-label prescription-instructions-label">Instructions</label>
-                <textarea class="form-control prescription-instructions-input" rows="2"></textarea>
-            </div>
-        </div>
-    </div>
-</template>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        (function () {
-            const container = document.getElementById("prescriptions-container");
-            const addButton = document.getElementById("add-prescription-btn");
-            const template = document.getElementById("prescription-template");
-
-            function updatePrescriptionIndexes() {
-                const items = container.querySelectorAll(".prescription-item");
-
-                items.forEach((item, index) => {
-                    const title = item.querySelector(".prescription-title");
-                    if (title) {
-                        title.textContent = "Prescription " + (index + 1);
-                    }
-
-                    const medicationInput = item.querySelector(".prescription-medication-input") || item.querySelector('[name^="Prescriptions["][name$=".MedicationName"]');
-                    const dosageInput = item.querySelector(".prescription-dosage-input") || item.querySelector('[name^="Prescriptions["][name$=".Dosage"]');
-                    const frequencyInput = item.querySelector(".prescription-frequency-input") || item.querySelector('[name^="Prescriptions["][name$=".Frequency"]');
-                    const durationInput = item.querySelector(".prescription-duration-input") || item.querySelector('[name^="Prescriptions["][name$=".DurationDays"]');
-                    const instructionsInput = item.querySelector(".prescription-instructions-input") || item.querySelector('[name^="Prescriptions["][name$=".Instructions"]');
-
-                    const medicationLabel = item.querySelector(".prescription-medication-label") || item.querySelector('label[for$="MedicationName"]');
-                    const dosageLabel = item.querySelector(".prescription-dosage-label") || item.querySelector('label[for$="Dosage"]');
-                    const frequencyLabel = item.querySelector(".prescription-frequency-label") || item.querySelector('label[for$="Frequency"]');
-                    const durationLabel = item.querySelector(".prescription-duration-label") || item.querySelector('label[for$="DurationDays"]');
-                    const instructionsLabel = item.querySelector(".prescription-instructions-label") || item.querySelector('label[for$="Instructions"]');
-
-                    if (medicationInput) {
-                        medicationInput.name = `Prescriptions[${index}].MedicationName`;
-                        medicationInput.id = `Prescriptions_${index}__MedicationName`;
-                    }
-
-                    if (dosageInput) {
-                        dosageInput.name = `Prescriptions[${index}].Dosage`;
-                        dosageInput.id = `Prescriptions_${index}__Dosage`;
-                    }
-
-                    if (frequencyInput) {
-                        frequencyInput.name = `Prescriptions[${index}].Frequency`;
-                        frequencyInput.id = `Prescriptions_${index}__Frequency`;
-                    }
-
-                    if (durationInput) {
-                        durationInput.name = `Prescriptions[${index}].DurationDays`;
-                        durationInput.id = `Prescriptions_${index}__DurationDays`;
-                    }
-
-                    if (instructionsInput) {
-                        instructionsInput.name = `Prescriptions[${index}].Instructions`;
-                        instructionsInput.id = `Prescriptions_${index}__Instructions`;
-                    }
-
-                    if (medicationLabel) medicationLabel.setAttribute("for", `Prescriptions_${index}__MedicationName`);
-                    if (dosageLabel) dosageLabel.setAttribute("for", `Prescriptions_${index}__Dosage`);
-                    if (frequencyLabel) frequencyLabel.setAttribute("for", `Prescriptions_${index}__Frequency`);
-                    if (durationLabel) durationLabel.setAttribute("for", `Prescriptions_${index}__DurationDays`);
-                    if (instructionsLabel) instructionsLabel.setAttribute("for", `Prescriptions_${index}__Instructions`);
-                });
-            }
-
-            addButton.addEventListener("click", function () {
-                const clone = template.content.cloneNode(true);
-                container.appendChild(clone);
-                updatePrescriptionIndexes();
-            });
-
-            container.addEventListener("click", function (e) {
-                if (e.target.classList.contains("remove-prescription-btn")) {
-                    const items = container.querySelectorAll(".prescription-item");
-
-                    if (items.length === 1) {
-                        items[0].querySelectorAll("input, textarea").forEach(field => field.value = "");
-                        return;
-                    }
-
-                    e.target.closest(".prescription-item").remove();
-                    updatePrescriptionIndexes();
-                }
-            });
-
-            updatePrescriptionIndexes();
-        })();
-    </script>
 }

@@ -1,57 +1,161 @@
-﻿<nav class="custom-navbar">
-    <div class="container">
-        <div class="nav-links">
-            <a asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-            <a asp-controller="Public" asp-action="Lookup">Public Lookup</a>
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+    string IsActive(string controller, string action)
+    {
+        return currentController == controller && currentAction == action ? "active" : "";
+    }
+}
+
+<nav class="site-nav">
+    <div class="site-nav-links">
+
+        @if (User?.Identity != null && User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Patient"))
             {
-            @if (User.IsInRole("Patient"))
-                {
-            <a asp-controller="Appointment" asp-action="Book">Book Appointment</a>
-            <a asp-controller="Appointment" asp-action="List">My Appointments</a>
-            <a asp-controller="Patient" asp-action="History">History</a>
-                }
-
-            @if (User.IsInRole("Doctor"))
-                {
-            <a asp-controller="Doctor" asp-action="Profile">Doctor Profile</a>
-            <a asp-controller="Doctor" asp-action="Schedule">Schedule</a>
-            <a asp-controller="Doctor" asp-action="MyPatients">My Patients</a>
-                }
-
-            @if (User.IsInRole("Receptionist"))
-                {
-            <a asp-controller="Receptionist" asp-action="BookAppointment">Book Appointment</a>
-            <a asp-controller="Receptionist" asp-action="ManageAppointments">Appointments</a>
-            <a asp-controller="Receptionist" asp-action="CheckIn">Check-In</a>
-                }
-
-            @if (User.IsInRole("ClinicManager"))
-                {
-            <a asp-controller="ClinicManager" asp-action="Doctors">Manage Doctors</a>
-            <a asp-controller="ClinicManager" asp-action="ManageSchedules">Schedules</a>
-            <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
-                }
-
-            <a asp-controller="Account" asp-action="Logout">Logout</a>
+        <a asp-controller="Patient" asp-action="Dashboard" class="@IsActive("Patient", "Dashboard")">Home</a>
+        <a asp-controller="Appointment" asp-action="Book" class="@IsActive("Appointment", "Book")">Book Appointment</a>
+        <a asp-controller="Appointment" asp-action="List" class="@IsActive("Appointment", "List")">Appointments</a>
+        <a asp-controller="Patient" asp-action="History" class="@IsActive("Patient", "History")">History</a>
+        <a asp-controller="Patient" asp-action="Profile" class="@IsActive("Patient", "Profile")">Profile</a>
             }
-            else
+
+            if (User.IsInRole("Doctor"))
             {
-            <a asp-controller="Account" asp-action="Login">Login</a>
-            <a asp-controller="Account" asp-action="Register">Register</a>
+        <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
+        <a asp-controller="Doctor" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
+        <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
+        <a asp-controller="Doctor" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
+        <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
+        <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
             }
-        </div>
 
-        <div class="nav-user">
-            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+            if (User.IsInRole("Receptionist"))
             {
-            <span>Hello, @User.Identity.Name</span>
+        <a asp-controller="Receptionist" asp-action="Index" class="@IsActive("Receptionist", "Index")">Home</a>
+        <a asp-controller="Receptionist" asp-action="BookAppointment" class="@IsActive("Receptionist", "BookAppointment")">Book Appointment</a>
+        <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
             }
-            else
-            {
-            <span>Guest User</span>
-            }
-        </div>
+
+        if (User.IsInRole("ClinicManager"))
+{
+        <a asp-controller="ClinicManager" asp-action="Dashboard">Home</a>
+        <a asp-controller="ClinicManager" asp-action="Doctors">Doctors</a>
+        <a asp-controller="ClinicManager" asp-action="Appointments">Appointments</a>
+        <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
+        <a asp-controller="ClinicManager" asp-action="Notifications">Notifications</a>
+}
+
+        <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+        }
+        else
+        {
+        <a asp-controller="Public" asp-action="Lookup" class="@IsActive("Public", "Lookup")">Public Lookup</a>
+        <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
+        <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
+        }
+
     </div>
 </nav>
+
+<style>
+    .site-nav {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .site-nav-links {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+        .site-nav-links a {
+            position: relative;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 0;
+            font-size: 15px;
+            font-weight: 800;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            transition: color 0.18s ease;
+        }
+
+            .site-nav-links a::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 2px;
+                width: 100%;
+                height: 2px;
+                background: #faa634;
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.2s ease;
+            }
+
+            .site-nav-links a:hover,
+            .site-nav-links a.active {
+                color: #faa634;
+            }
+
+                .site-nav-links a:hover::after,
+                .site-nav-links a.active::after {
+                    transform: scaleX(1);
+                }
+
+    .logout-form {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    .logout-btn {
+        min-width: 90px;
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        border: none;
+        background: #faa634;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 900;
+        font-family: inherit;
+        cursor: pointer;
+        box-shadow: none;
+        outline: none;
+    }
+
+        .logout-btn:hover,
+        .logout-btn:focus,
+        .logout-btn:active {
+            background: #faa634;
+            color: #ffffff;
+            transform: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+    @@media (max-width: 960px) {
+        .site-nav {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .site-nav-links {
+            justify-content: flex-start;
+            gap: 16px;
+        }
+    }
+</style>
