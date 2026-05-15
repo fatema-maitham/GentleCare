@@ -14,22 +14,6 @@
         </a>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
     <div class="history-card">
         <div class="history-card-header">
             <h4>Patient Information</h4>
@@ -72,12 +56,9 @@
         </div>
     </div>
 
-    <div class="history-summary">
-        <div class="summary-card">
-            <span>Total Visits</span>
-            <strong>@Model.TotalVisits</strong>
-            <small>Completed visit records</small>
-        </div>
+    <div class="history-summary-card">
+        <span>Total Visits</span>
+        <strong>@Model.TotalVisits</strong>
     </div>
 
     <div class="history-card">
@@ -108,7 +89,10 @@
                                 <tr>
                                     <td>@visit.AppointmentDateDisplay</td>
                                     <td>@visit.TimeDisplay</td>
-                                    <td><span class="status-badge">@visit.StatusName</span></td>
+
+                                    <td>
+                                        <span class="status-badge">@visit.StatusName</span>
+                                    </td>
 
                                     <td>
                                         @(string.IsNullOrWhiteSpace(visit.Diagnosis) ? "No diagnosis" : visit.Diagnosis)
@@ -121,33 +105,39 @@
                                     <td>
                                         @if (visit.HasPrescriptions)
                                         {
-                                            <span class="status-badge">
+                                            <span class="prescription-badge">
                                                 @visit.PrescriptionCount prescription(s)
                                             </span>
                                         }
                                         else
                                         {
-                                            <span>None</span>
+                                            <span class="muted-text">None</span>
                                         }
-                                    </td>
+                                </td>
 
-                                    <td>
-                                        <a asp-controller="DoctorAppointment"
-                                           asp-action="AppointmentDetails"
-                                           asp-route-id="@visit.AppointmentId"
-                                           class="history-btn">
-                                            Details
-                                        </a>
-                                    </td>
-                                </tr>
+                                <td>
+                                    <a asp-controller="DoctorAppointment"
+                                       asp-action="AppointmentDetails"
+                                       asp-route-id="@visit.AppointmentId"
+                                       class="details-btn">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
 
-                                <tr>
-                                    <td colspan="7" class="notes-row">
+                            <tr>
+                                <td colspan="7" class="doctor-notes-row">
+                                    <div class="doctor-notes-box">
                                         <strong>Doctor Notes:</strong>
-                                        @(string.IsNullOrWhiteSpace(visit.DoctorNotes) ? "No notes recorded." : visit.DoctorNotes)
-                                    </td>
-                                </tr>
-                            }
+                                        <span>
+                                            @(string.IsNullOrWhiteSpace(visit.DoctorNotes)
+                                                                                    ? "No notes recorded."
+                                                                                    : visit.DoctorNotes)
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                                                }
                         </tbody>
                     </table>
                 </div>
@@ -178,7 +168,7 @@
 
     .history-card {
         background: #ffffff;
-        border: 1px solid #D6DDDE;
+        border: 1px solid #d6ddde;
         border-radius: 24px;
         overflow: hidden;
         margin-bottom: 24px;
@@ -186,12 +176,13 @@
 
     .history-card-header {
         padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
+        border-bottom: 1px solid #e9eeee;
     }
 
         .history-card-header h4 {
             margin: 0;
             color: #075168;
+            font-size: 24px;
             font-weight: 900;
         }
 
@@ -206,47 +197,44 @@
 
     .info-row {
         display: grid;
-        grid-template-columns: 180px 1fr;
-        gap: 16px;
+        grid-template-columns: 190px 1fr;
+        gap: 18px;
         padding-bottom: 14px;
-        border-bottom: 1px solid #EDF1F2;
+        border-bottom: 1px solid #edf1f2;
     }
 
     .info-label {
-        color: #687A80;
+        color: #687a80;
         font-weight: 850;
     }
 
     .info-value {
-        color: #12262F;
-        font-weight: 700;
+        color: #001d2a;
+        font-weight: 800;
     }
 
-    .history-summary {
-        display: grid;
-        grid-template-columns: 1fr;
+    .history-summary-card {
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 22px;
+        padding: 26px;
+        text-align: center;
         margin-bottom: 24px;
     }
 
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 22px;
-        padding: 24px;
-        text-align: center;
-    }
-
-        .summary-card span {
+        .history-summary-card span {
             display: block;
-            color: #687A80;
-            font-weight: 800;
+            color: #687a80;
+            font-weight: 900;
+            margin-bottom: 8px;
         }
 
-        .summary-card strong {
+        .history-summary-card strong {
             display: block;
             color: #075168;
-            font-size: 34px;
+            font-size: 36px;
             font-weight: 900;
+            line-height: 1;
         }
 
     .history-table-wrap {
@@ -256,58 +244,103 @@
     .history-table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
 
         .history-table th {
-            background: #F8FAFA;
-            padding: 15px 18px;
+            background: #f8fafa;
+            color: #001d2a;
+            padding: 16px 22px;
             font-weight: 900;
-            border-bottom: 1px solid #D6DDDE;
+            border-bottom: 1px solid #d6ddde;
+            text-align: left;
         }
 
         .history-table td {
-            padding: 17px 18px;
-            border-bottom: 1px solid #EDF1F2;
-            font-weight: 600;
+            padding: 18px 22px;
+            border-bottom: 1px solid #edf1f2;
+            color: #001d2a;
+            font-weight: 700;
+            vertical-align: middle;
         }
 
-    .status-badge {
-        padding: 6px 11px;
+    .status-badge,
+    .prescription-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        white-space: nowrap;
         border-radius: 999px;
-        background: #E7F1F3;
+        background: #e7f1f3;
         color: #075168;
-        border: 1px solid #C9DBDF;
-        font-size: 12px;
+        border: 1px solid #c9dbdf;
+        padding: 7px 13px;
+        font-size: 13px;
         font-weight: 900;
     }
 
+    .details-btn,
     .history-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 14px;
-        padding: 9px 14px;
-        border: 1px solid #C9DBDF;
-        background: #E7F1F3;
+        padding: 10px 18px;
+        border: 1px solid #c9dbdf;
+        background: #e7f1f3;
         color: #075168;
         font-weight: 900;
         text-decoration: none;
-        display: inline-flex;
+        white-space: nowrap;
     }
 
-    .notes-row {
-        background: #F8FAFA;
-        color: #12262F;
+        .details-btn:hover,
+        .history-btn:hover {
+            background: #075168;
+            color: #ffffff;
+        }
+
+    .doctor-notes-row {
+        padding: 0 !important;
+        background: #f8fafa;
+    }
+
+    .doctor-notes-box {
+        padding: 18px 22px;
+        color: #001d2a;
+        font-weight: 700;
+    }
+
+        .doctor-notes-box strong {
+            color: #001d2a;
+            font-weight: 900;
+            margin-right: 5px;
+        }
+
+    .muted-text {
+        color: #687a80;
+        font-weight: 700;
     }
 
     .empty-box {
-        padding: 16px;
+        padding: 18px;
         border-radius: 16px;
-        background: #E7F1F3;
+        background: #e7f1f3;
         color: #075168;
         font-weight: 800;
     }
 
-    @@media (max-width: 900px) {
-        .info-row {
-            grid-template-columns: 1fr;
-        }
+    @media (max-width: 900px) {
+        .info-row
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .history-table {
+        table-layout: auto;
+    }
+
     }
 </style>
