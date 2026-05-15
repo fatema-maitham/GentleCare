@@ -1,4 +1,4 @@
-﻿@model MVCApp.ViewModels.Doctor.DoctorAppointmentListViewModel
+@model MVCApp.ViewModels.Doctor.DoctorAppointmentListViewModel
 
 @{
     ViewData["Title"] = "My Appointments";
@@ -30,7 +30,7 @@
         </div>
 
         <div class="card-body">
-            <form asp-controller="Doctor"
+            <form asp-controller="DoctorAppointment"
                   asp-action="Appointments"
                   method="get"
                   class="row g-3 align-items-end">
@@ -83,7 +83,7 @@
                         Apply
                     </button>
 
-                    <a asp-controller="Doctor"
+                    <a asp-controller="DoctorAppointment"
                        asp-action="Appointments"
                        class="btn btn-outline-secondary flex-fill">
                         Clear
@@ -179,7 +179,7 @@
 
                             <td class="text-end">
                                 <div class="btn-group" role="group">
-                                    <a asp-controller="Doctor"
+                                    <a asp-controller="DoctorAppointment"
                                        asp-action="AppointmentDetails"
                                        asp-route-id="@appointment.AppointmentId"
                                        class="btn btn-sm btn-outline-dark">
@@ -188,7 +188,7 @@
 
                                     @if (appointment.CanUpdateStatus)
                                             {
-                                    <a asp-controller="Doctor"
+                                    <a asp-controller="DoctorAppointment"
                                        asp-action="UpdateStatus"
                                        asp-route-id="@appointment.AppointmentId"
                                        class="btn btn-sm btn-outline-primary">
@@ -196,7 +196,7 @@
                                     </a>
                                             }
 
-                                    <a asp-controller="Doctor"
+                                    <a asp-controller="DoctorAppointment"
                                        asp-action="PatientHistory"
                                        asp-route-patientId="@appointment.PatientId"
                                        class="btn btn-sm btn-outline-secondary">

@@ -50,6 +50,12 @@ builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowServi
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 
+builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
+builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>();
+builder.Services.AddScoped<IVisitRecordService, VisitRecordService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+
+
 var app = builder.Build();
 
 // Seed roles, users, and linked Doctor/Patient profile records.

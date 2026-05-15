@@ -1,4 +1,4 @@
-﻿@model MVCApp.ViewModels.Doctor.DoctorDashboardViewModel
+@model MVCApp.ViewModels.Doctor.DoctorDashboardViewModel
 
 @{
     ViewData["Title"] = "Doctor Dashboard";
@@ -459,7 +459,7 @@
                     </div>
 
                     <div class="appointment-action">
-                        <a asp-controller="Doctor"
+                        <a asp-controller="DoctorAppointment"
                            asp-action="AppointmentDetails"
                            asp-route-id="@appointment.AppointmentId"
                            class="appointment-btn">

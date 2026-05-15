@@ -25,9 +25,9 @@
             if (User.IsInRole("Doctor"))
             {
         <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
-        <a asp-controller="Doctor" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
+        <a asp-controller="DoctorAppointment" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
         <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
-        <a asp-controller="Doctor" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
+        <a asp-controller="Prescription" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
         <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
         <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
             }

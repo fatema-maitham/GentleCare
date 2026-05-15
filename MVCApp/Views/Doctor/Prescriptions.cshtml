@@ -1,4 +1,4 @@
-﻿@model List<MVCApp.ViewModels.Doctor.DoctorPrescriptionViewModel>
+@model List<MVCApp.ViewModels.Doctor.DoctorPrescriptionViewModel>
 
     @{
     ViewData["Title"] = "My Prescriptions";
@@ -90,7 +90,7 @@
                                 </td>
 
                                 <td class="text-end">
-                                    <a asp-controller="Doctor"
+                                    <a asp-controller="DoctorAppointment"
                                        asp-action="AppointmentDetails"
                                        asp-route-id="@prescription.AppointmentId"
                                        class="btn btn-sm btn-outline-dark">
