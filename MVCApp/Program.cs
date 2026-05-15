@@ -42,6 +42,7 @@ builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowServi
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IClinicNotificationService, ClinicNotificationService>();
 
 builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
 builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>();
