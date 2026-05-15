@@ -21,113 +21,128 @@
 }
 
 <style>
-    :root {
-        --primary: #0066CC;
-        --accent: #00A8A8;
-        --sidebar: #1A3A52;
-        --page: #F8FAFC;
-        --surface: #FFFFFF;
-        --soft: #EFF4F9;
-        --text: #1A1F2E;
-        --muted: #64748B;
-        --border: #D8E3ED;
-    }
-
-    body {
-        background: var(--page) !important;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
-        color: var(--text);
-    }
-
     .manager-dashboard-page {
-        max-width: 1160px;
+        max-width: 1180px;
         margin: 0 auto;
-        padding: 24px 0 44px;
+        padding: 18px 0 50px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
     .dashboard-header {
-        margin-bottom: 22px;
+        margin-bottom: 24px;
     }
 
         .dashboard-header h1 {
             margin: 0;
-            font-size: 30px;
+            font-size: 31px;
             font-weight: 900;
-            color: var(--text);
+            color: #12262F;
         }
 
         .dashboard-header p {
             margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 15px;
+            color: #687A80;
+            font-weight: 600;
         }
 
     .dashboard-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 22px;
+        margin-bottom: 28px;
     }
 
     .dashboard-stat {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 22px;
-        min-height: 116px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdfd 100%);
+        border: 1px solid #d8e1e3;
+        border-radius: 22px;
+        padding: 26px;
+        min-height: 150px;
+        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.08);
         position: relative;
         overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
 
         .dashboard-stat::before {
             content: "";
             position: absolute;
-            inset: 0 auto 0 0;
-            width: 5px;
-            background: var(--accent);
+            top: 18px;
+            right: 20px;
+            width: 52px;
+            height: 52px;
+            background: rgba(0, 119, 155, 0.10);
+            border-radius: 18px;
         }
+
+        .dashboard-stat::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #075168, #00779B);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .dashboard-stat:hover {
+            transform: translateY(-6px);
+            border-color: #b9cdd2;
+            box-shadow: 0 18px 36px rgba(7, 81, 104, 0.15);
+        }
+
+            .dashboard-stat:hover::after {
+                opacity: 1;
+            }
 
     .dashboard-number {
         display: block;
-        font-size: 38px;
+        font-size: 44px;
         font-weight: 900;
-        color: var(--primary);
-        margin-bottom: 12px;
         line-height: 1;
+        color: #075168;
+        margin-bottom: 16px;
+        letter-spacing: -1.5px;
+        position: relative;
+        z-index: 2;
     }
 
     .dashboard-stat-title {
         margin: 0;
         font-size: 15px;
-        font-weight: 800;
-        color: var(--text);
+        font-weight: 850;
+        color: #12262F;
+        line-height: 1.35;
+        position: relative;
+        z-index: 2;
     }
 
     .dashboard-main-grid {
         display: grid;
-        grid-template-columns: 410px 1fr;
-        gap: 22px;
+        grid-template-columns: 420px 1fr;
+        gap: 26px;
         align-items: start;
     }
 
     .dashboard-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        background: #ffffff;
+        border: 1px solid #D6DDDE;
+        border-radius: 24px;
+        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.08);
         overflow: hidden;
     }
 
     .calendar-wrap {
-        padding-bottom: 18px;
+        padding-bottom: 22px;
     }
 
     .calendar-header {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 30px 22px 12px;
+        padding: 28px 24px 14px;
     }
 
     .calendar-month {
@@ -136,9 +151,9 @@
 
         .calendar-month h2 {
             margin: 0;
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 900;
-            color: var(--text);
+            color: #12262F;
             letter-spacing: 1px;
             text-transform: uppercase;
             line-height: 1;
@@ -149,7 +164,7 @@
             margin-top: 8px;
             font-size: 15px;
             font-weight: 800;
-            color: var(--muted);
+            color: #687A80;
         }
 
     .calendar-weekdays,
@@ -169,7 +184,7 @@
             text-align: center;
             font-size: 13px;
             font-weight: 900;
-            color: var(--text);
+            color: #12262F;
             padding: 6px 0;
         }
 
@@ -179,20 +194,20 @@
 
     .calendar-day,
     .calendar-empty {
-        min-height: 44px;
+        min-height: 46px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--text);
+        color: #12262F;
         font-size: 15px;
-        font-weight: 800;
-        border-radius: 12px;
+        font-weight: 850;
+        border-radius: 14px;
         position: relative;
     }
 
     .calendar-day-number {
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -200,18 +215,18 @@
     }
 
     .calendar-day.today .calendar-day-number {
-        background: var(--primary);
-        color: white;
-        box-shadow: 0 6px 14px rgba(0,102,204,0.22);
+        background: #075168;
+        color: #ffffff;
+        box-shadow: 0 8px 18px rgba(7, 81, 104, 0.24);
     }
 
     .calendar-dot {
         position: absolute;
         bottom: 4px;
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: var(--accent);
+        background: #00779B;
     }
 
     .calendar-summary {
@@ -222,29 +237,29 @@
     }
 
         .calendar-summary div {
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            background: #E7F1F3;
+            border: 1px solid #C9DBDF;
+            border-radius: 16px;
             padding: 14px 10px;
             text-align: center;
         }
 
         .calendar-summary span {
             display: block;
-            color: var(--muted);
+            color: #687A80;
             font-size: 13px;
             margin-bottom: 8px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .calendar-summary strong {
-            color: var(--text);
+            color: #12262F;
             font-size: 22px;
             font-weight: 900;
         }
 
     .appointments-card {
-        padding: 26px 28px;
+        padding: 0;
     }
 
     .appointments-header {
@@ -252,21 +267,31 @@
         justify-content: space-between;
         align-items: center;
         gap: 14px;
-        margin-bottom: 22px;
+        padding: 22px 26px;
+        border-bottom: 1px solid #E9EEEE;
     }
 
         .appointments-header h2 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
-            color: var(--text);
+            color: #075168;
         }
 
         .appointments-header a {
-            color: var(--primary);
+            color: #075168;
             text-decoration: none;
             font-weight: 900;
         }
+
+            .appointments-header a:hover {
+                color: #00779B;
+                text-decoration: underline;
+            }
+
+    .manager-table-wrap {
+        overflow-x: auto;
+    }
 
     .manager-table {
         width: 100%;
@@ -275,45 +300,59 @@
 
         .manager-table th {
             text-align: left;
-            padding: 13px 14px;
-            background: var(--soft);
-            border-bottom: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 14px;
+            padding: 15px 18px;
+            background: #F8FAFA;
+            border-bottom: 1px solid #D6DDDE;
+            color: #12262F;
+            font-size: 13px;
             font-weight: 900;
+            white-space: nowrap;
         }
 
         .manager-table td {
-            padding: 16px 14px;
-            border-bottom: 1px solid #EAF0F6;
-            color: var(--text);
-            font-size: 15px;
+            padding: 17px 18px;
+            border-bottom: 1px solid #EDF1F2;
+            color: #12262F;
+            font-size: 14px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .manager-table tbody tr:hover {
+            background: #FAFCFC;
         }
 
     .status-pill {
         display: inline-block;
-        padding: 6px 12px;
+        padding: 6px 11px;
         border-radius: 999px;
-        background: rgba(0,168,168,0.10);
-        color: #007D7D;
-        border: 1px solid rgba(0,168,168,0.25);
-        font-size: 13px;
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        font-size: 12px;
         font-weight: 900;
+        white-space: nowrap;
     }
 
     .details-link {
-        color: var(--primary);
+        color: #075168;
         text-decoration: none;
         font-weight: 900;
     }
 
+        .details-link:hover {
+            color: #00779B;
+            text-decoration: underline;
+        }
+
     .empty-message {
+        margin: 24px;
         padding: 16px;
-        border-radius: 14px;
-        background: var(--soft);
-        border: 1px solid var(--border);
-        color: var(--muted);
-        margin: 0;
+        border-radius: 16px;
+        background: #E7F1F3;
+        border: 1px solid #C9DBDF;
+        color: #075168;
+        font-weight: 800;
     }
 
     @@media (max-width: 980px) {
@@ -329,14 +368,20 @@
     @@media (max-width: 600px) {
         .dashboard-stats {
             grid-template-columns: 1fr;
+            gap: 16px;
         }
 
-        .appointments-card {
-            padding: 20px;
+        .dashboard-stat {
+            min-height: 130px;
         }
 
         .calendar-summary {
             grid-template-columns: 1fr;
+        }
+
+        .appointments-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
 </style>
@@ -393,21 +438,21 @@
             <div class="calendar-grid">
                 @for (var i = 0; i < startOffset; i++)
                 {
-                <span class="calendar-empty"></span>
+                    <span class="calendar-empty"></span>
                 }
 
                 @for (var day = 1; day <= daysInMonth; day++)
                 {
                     var isToday = day == today.Day;
 
-                <span class="calendar-day @(isToday ? "today" : "")">
-                    <span class="calendar-day-number">@day</span>
+                    <span class="calendar-day @(isToday ? "today" : "")">
+                        <span class="calendar-day-number">@day</span>
 
-                    @if (isToday && Model.AppointmentsToday > 0)
+                        @if (isToday && Model.AppointmentsToday > 0)
                         {
-                    <span class="calendar-dot"></span>
+                            <span class="calendar-dot"></span>
                         }
-                </span>
+                    </span>
                 }
             </div>
 
@@ -442,43 +487,45 @@
 
             @if (Model.HasAppointmentsToday)
             {
-            <table class="manager-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Patient</th>
-                        <th>Doctor</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
+                <div class="manager-table-wrap">
+                    <table class="manager-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
 
-                <tbody>
-                    @foreach (var appointment in Model.TodayAppointments.Take(5))
-                        {
-                    <tr>
-                        <td>@appointment.TimeText</td>
-                        <td>@appointment.PatientName</td>
-                        <td>Dr. @appointment.DoctorName</td>
-                        <td>
-                            <span class="status-pill">@appointment.StatusName</span>
-                        </td>
-                        <td>
-                            <a asp-controller="ClinicManager"
-                               asp-action="AppointmentDetails"
-                               asp-route-id="@appointment.AppointmentId"
-                               class="details-link">
-                                Details
-                            </a>
-                        </td>
-                    </tr>
-                        }
-                </tbody>
-            </table>
+                        <tbody>
+                            @foreach (var appointment in Model.TodayAppointments.Take(5))
+                            {
+                                <tr>
+                                    <td>@appointment.TimeText</td>
+                                    <td>@appointment.PatientName</td>
+                                    <td>Dr. @appointment.DoctorName</td>
+                                    <td>
+                                        <span class="status-pill">@appointment.StatusName</span>
+                                    </td>
+                                    <td>
+                                        <a asp-controller="ClinicManager"
+                                           asp-action="AppointmentDetails"
+                                           asp-route-id="@appointment.AppointmentId"
+                                           class="details-link">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {
-            <p class="empty-message">No appointments scheduled for today.</p>
+                <p class="empty-message">No appointments scheduled for today.</p>
             }
         </div>
 

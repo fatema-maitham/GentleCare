@@ -4,50 +4,195 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <div class="card border-0 shadow-sm" style="border-radius: 22px;">
-            <div class="card-body p-4 p-md-5">
-                <div class="mb-4 text-center">
-                    <h2 class="fw-bold mb-2">Welcome Back</h2>
-                    <p class="text-muted mb-0">Login to access your clinic account.</p>
-                </div>
+<style>
+    .auth-page-clean {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 55px 0 70px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
 
-                <form asp-action="Login" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+    .auth-top {
+        margin-bottom: 28px;
+    }
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        .auth-top h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 900;
+            color: #12262F;
+        }
 
-                    <div class="mb-3">
-                        <label asp-for="UsernameOrEmail" class="form-label fw-semibold"></label>
-                        <input asp-for="UsernameOrEmail" class="form-control form-control-lg" placeholder="Enter username or email" />
-                        <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
-                    </div>
+        .auth-top p {
+            margin: 7px 0 0;
+            color: #687A80;
+            font-weight: 600;
+        }
 
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label fw-semibold"></label>
-                        <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
+    .auth-form {
+        display: grid;
+        gap: 24px;
+    }
 
-                    <div class="form-check mb-4">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
-                    </div>
+    .auth-field {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 18px;
+        align-items: start;
+    }
 
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
-                    </div>
+        .auth-field label {
+            padding-top: 13px;
+            color: #12262F;
+            font-weight: 900;
+        }
 
-                    <div class="text-center">
-                        <a asp-controller="Account" asp-action="Register" class="d-block mb-2">Create Patient Account</a>
-                        <a asp-controller="Public" asp-action="Lookup">Back to Public Lookup</a>
-                    </div>
-                </form>
+    .auth-input-wrap input {
+        width: 100%;
+        height: 50px;
+        border: 1px solid #D6DDDE;
+        border-radius: 14px;
+        padding: 0 15px;
+        outline: none;
+        background: #ffffff;
+        color: #12262F;
+        font-weight: 650;
+    }
+
+        .auth-input-wrap input:focus {
+            border-color: #00779B;
+            box-shadow: 0 0 0 3px rgba(0, 119, 155, 0.14);
+        }
+
+    .auth-check-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .auth-check-inner {
+        width: 414px;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #12262F;
+        font-weight: 750;
+    }
+
+    .auth-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 4px;
+    }
+
+    .auth-btn {
+        width: 414px;
+        max-width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 14px;
+        background: #075168;
+        color: #ffffff;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .auth-btn:hover {
+            background: #00779B;
+            transform: translateY(-2px);
+        }
+
+    .auth-links {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+        padding-left: 0;
+    }
+
+        .auth-links a {
+            color: #075168;
+            font-weight: 850;
+            text-decoration: none;
+        }
+
+            .auth-links a:hover {
+                text-decoration: underline;
+            }
+
+    @@media (max-width: 700px) {
+        .auth-page-clean {
+            padding: 35px 0 55px;
+        }
+
+        .auth-field {
+            grid-template-columns: 1fr;
+            gap: 7px;
+        }
+
+            .auth-field label {
+                padding-top: 0;
+            }
+
+        .auth-btn,
+        .auth-check-inner {
+            width: 100%;
+        }
+
+        .auth-links {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<div class="auth-page-clean">
+    <div class="auth-top">
+        <h1>Welcome Back</h1>
+        <p>Login to access your clinic account.</p>
+    </div>
+
+    <form asp-action="Login" method="post" class="auth-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="auth-field">
+            <label asp-for="UsernameOrEmail"></label>
+            <div class="auth-input-wrap">
+                <input asp-for="UsernameOrEmail" placeholder="Enter username or email" />
+                <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
             </div>
         </div>
-    </div>
+
+        <div class="auth-field">
+            <label asp-for="Password"></label>
+            <div class="auth-input-wrap">
+                <input asp-for="Password" placeholder="Enter password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="auth-check-row">
+            <div class="auth-check-inner">
+                <input asp-for="RememberMe" />
+                <label asp-for="RememberMe"></label>
+            </div>
+        </div>
+
+        <div class="auth-actions">
+            <button type="submit" class="auth-btn">Login</button>
+        </div>
+
+        <div class="auth-links">
+            <a asp-controller="Account" asp-action="Register">Create Patient Account</a>
+            <a asp-controller="Public" asp-action="Lookup">Back to Public Lookup</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

@@ -1,0 +1,284 @@
+﻿@model MVCApp.ViewModels.Doctor.EditDoctorProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    var profileImage = string.IsNullOrWhiteSpace(Model.CurrentProfilePicture)
+        ? "/images/doctors/default-doctor.png"
+        : Model.CurrentProfilePicture;
+}
+
+<style>
+    .doctor-edit-page {
+        max-width: 760px;
+        margin: 28px auto 55px;
+        padding: 0 18px;
+    }
+
+    .doctor-edit-card {
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 24px;
+        padding: 34px;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    .doctor-edit-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+        .doctor-edit-header h1 {
+            margin: 0;
+            color: #075168;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .doctor-edit-header p {
+            margin: 8px 0 0;
+            color: #687a80;
+            font-weight: 600;
+        }
+
+    .doctor-avatar-area {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 28px;
+    }
+
+    .doctor-avatar-wrap {
+        position: relative;
+        width: 130px;
+        height: 130px;
+    }
+
+    .doctor-avatar-img {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ffffff;
+        border: 5px solid #e7f1f3;
+    }
+
+    .doctor-camera-btn {
+        position: absolute;
+        right: 4px;
+        bottom: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #075168;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .doctor-camera-btn:hover {
+            background: #00779b;
+            transform: translateY(-2px);
+        }
+
+    .doctor-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .doctor-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .doctor-form-group label {
+        color: #12262f;
+        font-weight: 850;
+        margin-bottom: 7px;
+    }
+
+    .doctor-form-control {
+        width: 100%;
+        border: 1px solid #c9dbdf;
+        border-radius: 14px;
+        padding: 13px 15px;
+        color: #12262f;
+        background: #ffffff;
+        font-weight: 600;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+        .doctor-form-control:focus {
+            border-color: #075168;
+            box-shadow: 0 0 0 4px rgba(7, 81, 104, 0.10);
+        }
+
+    textarea.doctor-form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .doctor-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .doctor-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 20px;
+        font-weight: 900;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .doctor-btn-primary {
+        background: #075168;
+        color: #ffffff;
+    }
+
+        .doctor-btn-primary:hover {
+            background: #00779b;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+    .doctor-btn-secondary {
+        background: #e7f1f3;
+        color: #075168;
+    }
+
+        .doctor-btn-secondary:hover {
+            background: #dce8ea;
+            color: #075168;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 700px) {
+        .doctor-edit-card {
+            padding: 24px;
+        }
+
+        .doctor-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .doctor-edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .doctor-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="doctor-edit-page">
+    <section class="doctor-edit-card">
+
+        <div class="doctor-edit-header">
+            <h1>Edit Profile</h1>
+            <p>Update your doctor information and profile picture.</p>
+        </div>
+
+        <form asp-controller="Doctor"
+              asp-action="EditProfile"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="DoctorId" type="hidden" />
+            <input asp-for="CurrentProfilePicture" type="hidden" />
+
+            <div class="doctor-avatar-area">
+                <div class="doctor-avatar-wrap">
+                    <img src="@profileImage"
+                         id="doctorImagePreview"
+                         class="doctor-avatar-img"
+                         alt="Doctor profile picture" />
+
+                    <label for="ProfilePictureFile" class="doctor-camera-btn" title="Change picture">
+                        <i class="bi bi-camera-fill"></i>
+                    </label>
+                </div>
+
+                <input asp-for="ProfilePictureFile"
+                       id="ProfilePictureFile"
+                       type="file"
+                       class="d-none"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+            </div>
+
+            <span asp-validation-for="ProfilePictureFile" class="text-danger small d-block text-center mb-3"></span>
+
+            <div class="doctor-form-grid">
+                <div class="doctor-form-group">
+                    <label asp-for="FullName"></label>
+                    <input asp-for="FullName" class="doctor-form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="doctor-form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="doctor-form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="doctor-form-group full">
+                    <label asp-for="LicenseNumber"></label>
+                    <input asp-for="LicenseNumber" class="doctor-form-control" />
+                    <span asp-validation-for="LicenseNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="doctor-form-group full">
+                    <label asp-for="Bio"></label>
+                    <textarea asp-for="Bio" class="doctor-form-control" rows="4"></textarea>
+                    <span asp-validation-for="Bio" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="doctor-edit-actions">
+                <a asp-controller="Doctor" asp-action="Profile" class="doctor-btn doctor-btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="doctor-btn doctor-btn-primary">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const input = document.getElementById("ProfilePictureFile");
+        const preview = document.getElementById("doctorImagePreview");
+
+        if (input && preview) {
+            input.addEventListener("change", function () {
+                const file = this.files && this.files[0];
+
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}
