@@ -267,5 +267,73 @@ namespace MVCApp.Services
 
             return days;
         }
+
+        public async Task<EditDoctorProfileViewModel?> GetEditProfileAsync(string userId)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
+
+            if (doctor == null)
+                return null;
+
+            return new EditDoctorProfileViewModel
+            {
+                DoctorId = doctor.Id,
+                FullName = doctor.User.FullName,
+                Email = doctor.User.Email ?? string.Empty,
+                LicenseNumber = doctor.LicenseNumber,
+                Bio = doctor.Bio,
+                CurrentProfilePicture = doctor.User.ProfilePicture
+            };
+        }
+
+        public async Task<bool> UpdateProfileAsync(
+            string userId,
+            EditDoctorProfileViewModel model,
+            string webRootPath)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
+
+            if (doctor == null)
+                return false;
+
+            doctor.User.FullName = model.FullName.Trim();
+            doctor.User.Email = model.Email.Trim();
+            doctor.User.UserName = model.Email.Trim();
+            doctor.User.NormalizedEmail = model.Email.Trim().ToUpper();
+            doctor.User.NormalizedUserName = model.Email.Trim().ToUpper();
+
+            doctor.LicenseNumber = model.LicenseNumber.Trim();
+            doctor.Bio = model.Bio?.Trim();
+            doctor.UpdatedAt = DateTime.UtcNow;
+
+            if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                    return false;
+
+                var folderPath = Path.Combine(webRootPath, "images", "doctors");
+
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var fileName = $"doctor-{doctor.Id}-{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await model.ProfilePictureFile.CopyToAsync(stream);
+
+                doctor.User.ProfilePicture = $"/images/doctors/{fileName}";
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
