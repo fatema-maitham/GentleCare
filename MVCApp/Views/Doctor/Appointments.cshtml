@@ -7,49 +7,45 @@
 
 <div class="appointments-page">
 
-    <div class="appointments-title-row">
-        <span class="result-pill">
-            @Model.TotalAppointments result(s)
-        </span>
-    </div>
-
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="page-alert success">@TempData["Success"]</div>
     }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="page-alert error">@TempData["Error"]</div>
     }
 
-    <div class="filter-card">
-        <div class="card-clean-header">
+    <div class="doctor-stats-grid one-card">
+        <div class="doctor-stat-card">
+            <strong>@Model.TotalAppointments</strong>
+            <span>Total Appointments</span>
+        </div>
+    </div>
+
+    <div class="clean-card">
+        <div class="clean-card-header">
             <h4>Search and Filter</h4>
         </div>
 
-        <div class="filter-body">
+        <div class="clean-card-body">
             <form asp-controller="DoctorAppointment"
                   asp-action="Appointments"
                   method="get"
                   class="filter-grid">
 
-                <div class="filter-field">
-                    <label>Search</label>
-                    <input name="searchTerm"
+                <div class="filter-field search-field">
+                    <label for="searchTerm">Search</label>
+                    <input id="searchTerm"
+                           name="searchTerm"
                            value="@Model.SearchTerm"
                            placeholder="Patient name, CPR, reference, or notes" />
                 </div>
 
                 <div class="filter-field">
-                    <label>Status</label>
-                    <select name="status">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
                         <option value="">All statuses</option>
 
                         @foreach (var statusOption in Model.StatusOptions)
@@ -67,32 +63,59 @@
                 </div>
 
                 <div class="filter-field">
-                    <label>Date</label>
-                    <input name="date" type="date" value="@selectedDateValue" />
+                    <label for="date">Date</label>
+                    <input id="date"
+                           name="date"
+                           type="date"
+                           value="@selectedDateValue" />
                 </div>
 
                 <div class="filter-actions">
-                    <button type="submit" class="gc-btn gc-btn-primary">Apply</button>
+                    <button type="submit" class="primary-btn">Apply</button>
 
                     <a asp-controller="DoctorAppointment"
                        asp-action="Appointments"
-                       class="gc-btn gc-btn-light">
+                       class="outline-btn">
                         Clear
                     </a>
                 </div>
             </form>
+
+            @if (Model.HasActiveFilters)
+            {
+                <div class="active-filters">
+                    <span>Active filters:</span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                    {
+                        <span class="filter-badge">Search: @Model.SearchTerm</span>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.SelectedStatus))
+                    {
+                        <span class="filter-badge">Status: @Model.SelectedStatus</span>
+                    }
+
+                    @if (Model.SelectedDate.HasValue)
+                    {
+                        <span class="filter-badge">
+                            Date: @Model.SelectedDate.Value.ToString("dd MMM yyyy")
+                        </span>
+                    }
+                </div>
+            }
         </div>
     </div>
 
-    <div class="appointments-card">
-        <div class="card-clean-header">
+    <div class="clean-card">
+        <div class="clean-card-header">
             <h4>Appointments</h4>
         </div>
 
         @if (Model.HasAppointments)
         {
-            <div class="appointments-table-wrap">
-                <table class="appointments-table">
+            <div class="table-wrap">
+                <table class="clean-table appointments-table">
                     <thead>
                         <tr>
                             <th>Patient</th>
@@ -101,7 +124,7 @@
                             <th>Time</th>
                             <th>Status</th>
                             <th>Notes</th>
-                            <th style="text-align:right;">Actions</th>
+                            <th class="action-col">Actions</th>
                         </tr>
                     </thead>
 
@@ -109,11 +132,17 @@
                         @foreach (var appointment in Model.Appointments)
                         {
                             <tr>
-                                <td class="patient-name">@appointment.PatientFullName</td>
+                                <td class="strong-text">@appointment.PatientFullName</td>
+
                                 <td>@appointment.PatientReferenceNumber</td>
+
                                 <td>@appointment.AppointmentDateDisplay</td>
+
                                 <td>@appointment.TimeDisplay</td>
-                                <td><span class="status-badge">@appointment.StatusName</span></td>
+
+                                <td>
+                                    <span class="status-badge">@appointment.StatusName</span>
+                                </td>
 
                                 <td>
                                     @if (!string.IsNullOrWhiteSpace(appointment.Notes))
@@ -122,11 +151,11 @@
                                     }
                                     else
                                     {
-                                        <span class="notes-muted">No notes</span>
+                                        <span class="muted-text">No notes</span>
                                     }
                                 </td>
 
-                                <td>
+                                <td class="action-col">
                                     <div class="table-actions">
                                         <a asp-controller="DoctorAppointment"
                                            asp-action="AppointmentDetails"
@@ -161,62 +190,100 @@
         }
         else
         {
-            <div class="empty-box">No appointments found.</div>
+            <div class="empty-box">No appointments found for the selected search or filters.</div>
         }
     </div>
+
 </div>
 
 <style>
+    :root {
+        --gc-main: #075168;
+        --gc-accent: #00779B;
+        --gc-soft: #E7F1F3;
+        --gc-bg: #F4F1EE;
+        --gc-card: #FFFFFF;
+        --gc-text: #12262F;
+        --gc-muted: #687A80;
+        --gc-border: #D6DDDE;
+        --gc-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    body { background: var(--gc-bg); }
+
     .appointments-page {
         max-width: 1180px;
         margin: 0 auto;
         padding: 30px 20px 50px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
-    .appointments-title-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 22px;
-    }
-
-    .result-pill {
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-        border-radius: 999px;
-        padding: 9px 15px;
-        font-size: 13px;
-        font-weight: 900;
-    }
-
-    .filter-card,
-    .appointments-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 24px;
+    .doctor-stats-grid.one-card {
+        display: grid;
+        grid-template-columns: 1fr;
         margin-bottom: 24px;
+    }
+
+    .doctor-stat-card {
+        background: var(--gc-card);
+        border: 1px solid var(--gc-border);
+        border-radius: 18px;
+        padding: 22px;
+        min-height: 116px;
+        box-shadow: var(--gc-shadow);
+        position: relative;
         overflow: hidden;
     }
 
-    .card-clean-header {
+    .doctor-stat-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: var(--gc-main);
+    }
+
+    .doctor-stat-card strong {
+        display: block;
+        color: var(--gc-main);
+        font-size: 40px;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 12px;
+    }
+
+    .doctor-stat-card span {
+        color: var(--gc-text);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .clean-card {
+        background: var(--gc-card);
+        border: 1px solid var(--gc-border);
+        border-radius: 24px;
+        box-shadow: var(--gc-shadow);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .clean-card-header {
         padding: 20px 24px;
         border-bottom: 1px solid #E9EEEE;
     }
 
-        .card-clean-header h4 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 900;
-            color: #075168;
-        }
-
-    .filter-body {
-        padding: 24px;
+    .clean-card-header h4 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--gc-main);
     }
+
+    .clean-card-body { padding: 24px; }
 
     .filter-grid {
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr auto;
+        grid-template-columns: 1.7fr 1fr 1fr auto;
         gap: 16px;
         align-items: end;
     }
@@ -224,17 +291,27 @@
     .filter-field label {
         display: block;
         margin-bottom: 8px;
-        font-weight: 850;
-        color: #12262F;
+        color: var(--gc-text);
+        font-weight: 900;
     }
 
     .filter-field input,
     .filter-field select {
         width: 100%;
-        height: 46px;
-        border: 1px solid #D6DDDE;
-        border-radius: 14px;
-        padding: 0 14px;
+        height: 52px;
+        border: 1px solid var(--gc-border);
+        border-radius: 16px;
+        padding: 0 16px;
+        color: var(--gc-text);
+        font-weight: 700;
+        background: #fff;
+        outline: none;
+    }
+
+    .filter-field input:focus,
+    .filter-field select:focus {
+        border-color: var(--gc-accent);
+        box-shadow: 0 0 0 3px rgba(0,119,155,.13);
     }
 
     .filter-actions {
@@ -242,110 +319,182 @@
         gap: 10px;
     }
 
-    .gc-btn {
-        height: 46px;
-        border-radius: 14px;
-        padding: 0 18px;
+    .primary-btn,
+    .outline-btn {
+        height: 52px;
+        border-radius: 16px;
+        padding: 0 22px;
         font-weight: 900;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: none;
+        white-space: nowrap;
+        border: 1px solid var(--gc-main);
     }
 
-    .gc-btn-primary {
-        background: #075168;
-        color: #ffffff;
+    .primary-btn {
+        background: var(--gc-main);
+        color: #fff;
     }
 
-    .gc-btn-light {
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
+    .outline-btn {
+        background: var(--gc-soft);
+        color: var(--gc-main);
+        border-color: #C9DBDF;
     }
 
-    .appointments-table-wrap {
-        overflow-x: auto;
+    .primary-btn:hover,
+    .outline-btn:hover {
+        background: var(--gc-accent);
+        color: #fff;
+        border-color: var(--gc-accent);
     }
 
-    .appointments-table {
-        width: 100%;
-        border-collapse: collapse;
+    .active-filters {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: var(--gc-muted);
+        font-size: 13px;
+        font-weight: 700;
     }
 
-        .appointments-table th {
-            background: #F8FAFA;
-            color: #12262F;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 15px 18px;
-            border-bottom: 1px solid #D6DDDE;
-            text-align: left;
-        }
-
-        .appointments-table td {
-            padding: 17px 18px;
-            border-bottom: 1px solid #EDF1F2;
-            color: #12262F;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-    .patient-name {
-        font-weight: 900;
-    }
-
-    .status-badge {
-        padding: 6px 11px;
+    .filter-badge {
+        background: #F8FAFA;
+        color: var(--gc-main);
+        border: 1px solid var(--gc-border);
         border-radius: 999px;
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
+        padding: 6px 10px;
         font-size: 12px;
         font-weight: 900;
     }
 
-    .notes-muted {
-        color: #687A80;
+    .table-wrap { overflow-x: auto; }
+
+    .clean-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .clean-table th {
+        background: #F8FAFA;
+        color: var(--gc-text);
+        font-size: 14px;
+        font-weight: 900;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--gc-border);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .clean-table td {
+        padding: 18px;
+        border-bottom: 1px solid #EDF1F2;
+        color: var(--gc-text);
+        font-size: 14px;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+
+    .appointments-table th:last-child,
+    .appointments-table td:last-child {
+        width: 310px;
+    }
+
+    .strong-text { font-weight: 900; }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gc-soft);
+        color: var(--gc-main);
+        border: 1px solid #C9DBDF;
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: 900;
+        white-space: nowrap;
     }
 
     .table-actions {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
 
     .table-btn {
-        padding: 8px 12px;
-        border-radius: 12px;
-        border: 1px solid #D6DDDE;
-        background: #ffffff;
-        color: #075168;
-        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 9px 13px;
+        border-radius: 14px;
+        border: 1px solid var(--gc-border);
+        background: #fff;
+        color: var(--gc-main);
+        font-size: 13px;
         font-weight: 900;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .table-btn-main {
-        background: #075168;
-        color: #ffffff;
-        border-color: #075168;
+        background: var(--gc-main);
+        color: #fff;
+        border-color: var(--gc-main);
+    }
+
+    .table-btn:hover {
+        background: var(--gc-soft);
+        color: var(--gc-main);
+    }
+
+    .table-btn-main:hover {
+        background: var(--gc-accent);
+        color: #fff;
+        border-color: var(--gc-accent);
+    }
+
+    .action-col { text-align: right; }
+
+    .muted-text { color: var(--gc-muted); }
+
+    .page-alert,
+    .empty-box {
+        padding: 16px 18px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+        font-weight: 800;
+    }
+
+    .page-alert.success {
+        background: #E8F7EF;
+        color: #1F7A45;
+        border: 1px solid #BCE3CC;
+    }
+
+    .page-alert.error {
+        background: #FDECEC;
+        color: #B42318;
+        border: 1px solid #FAC5C5;
     }
 
     .empty-box {
         margin: 24px;
-        padding: 18px;
-        border-radius: 16px;
-        background: #E7F1F3;
-        color: #075168;
-        font-weight: 800;
+        background: var(--gc-soft);
+        color: var(--gc-main);
+        border: 1px solid #C9DBDF;
     }
 
-    @@media (max-width: 900px) {
-        .filter-grid {
-            grid-template-columns: 1fr;
-        }
+    @@media (max-width: 1000px) {
+        .filter-grid { grid-template-columns: 1fr; }
+        .filter-actions { width: 100%; }
+        .primary-btn, .outline-btn { flex: 1; }
+        .table-actions { flex-wrap: wrap; justify-content: flex-start; }
     }
 </style>
