@@ -1,5 +1,285 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model MVCApp.ViewModels.Patient.PatientDashboardViewModel
+
 @{
+    ViewData["Title"] = "Patient Dashboard";
 }
+
+<section class="patient-page">
+    <div class="patient-hero">
+        <div>
+            <p class="eyebrow">Welcome back</p>
+            <h1>@Model.FullName</h1>
+            <p>Here is a quick overview of your appointments and visit history.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span>Total Appointments</span>
+            <strong>@Model.TotalAppointmentsCount</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Upcoming</span>
+            <strong>@Model.UpcomingAppointmentsCount</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Completed Visits</span>
+            <strong>@Model.CompletedVisitsCount</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Notifications</span>
+            <strong>@Model.UnreadNotificationsCount</strong>
+        </div>
+    </div>
+
+    <div class="panel-grid">
+        <div class="panel-card">
+            <div class="panel-header">
+                <h2>Next Appointment</h2>
+                <a asp-controller="Patient" asp-action="Appointments">View all</a>
+            </div>
+
+            @if (Model.NextAppointment == null)
+            {
+                <div class="empty-box">
+                    <h3>No upcoming appointment</h3>
+                    <p>You do not have an upcoming appointment yet.</p>
+                    <a asp-controller="Patient" asp-action="BookAppointment" class="gc-btn-primary small">Book Now</a>
+                </div>
+            }
+            else
+            {
+                <div class="info-box">
+                    <span class="date">@Model.NextAppointment.AppointmentDate.ToString("dd MMM yyyy")</span>
+                    <h3>Dr. @Model.NextAppointment.DoctorName</h3>
+                    <p>@Model.NextAppointment.StartTime - @Model.NextAppointment.EndTime</p>
+                    <span class="status-pill">@Model.NextAppointment.Status</span>
+                </div>
+            }
+        </div>
+
+        <div class="panel-card">
+            <div class="panel-header">
+                <h2>Latest Visit</h2>
+                <a asp-controller="Patient" asp-action="History">View all</a>
+            </div>
+
+            @if (Model.LatestVisit == null)
+            {
+                <div class="empty-box">
+                    <h3>No completed visits yet</h3>
+                    <p>Your completed visit records will appear here.</p>
+                </div>
+            }
+            else
+            {
+                <div class="info-box">
+                    <span class="date">@Model.LatestVisit.AppointmentDate.ToString("dd MMM yyyy")</span>
+                    <h3>Dr. @Model.LatestVisit.DoctorName</h3>
+                    <p><strong>Diagnosis:</strong> @Model.LatestVisit.Diagnosis</p>
+                    <p><strong>Treatment:</strong> @(string.IsNullOrWhiteSpace(Model.LatestVisit.Treatment) ? "Not provided" : Model.LatestVisit.Treatment)</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .patient-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 26px 10px 60px;
+    }
+
+    .patient-hero {
+        background: linear-gradient(135deg, #637fa3, #71999f);
+        color: white;
+        border-radius: 28px;
+        padding: 34px 42px;
+        box-shadow: 0 14px 34px rgba(99, 127, 163, 0.18);
+    }
+
+    .eyebrow {
+        margin: 0 0 8px;
+        color: #ffe0a3;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .patient-hero h1 {
+        margin: 0;
+        font-size: 40px;
+        font-weight: 900;
+    }
+
+    .patient-hero p {
+        margin: 12px 0 0;
+        max-width: 620px;
+        color: rgba(255,255,255,0.92);
+        line-height: 1.6;
+    }
+
+    .stats-grid {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 22px;
+        padding: 22px 24px;
+        box-shadow: 0 10px 26px rgba(99, 127, 163, 0.09);
+        transition: 0.2s ease;
+        min-height: 128px;
+    }
+
+        .stat-card:hover,
+        .panel-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card span {
+            color: #6b7a87;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 38px;
+            line-height: 1;
+            color: #182333;
+        }
+
+    .panel-grid {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .panel-card {
+        background: white;
+        border-radius: 24px;
+        padding: 26px;
+        box-shadow: 0 10px 26px rgba(99, 127, 163, 0.09);
+        transition: 0.2s ease;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .panel-header a {
+            color: #637fa3;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+            .panel-header a:hover {
+                color: #71999f;
+                text-decoration: underline;
+            }
+
+    .empty-box,
+    .info-box {
+        background: #f5f8fa;
+        border-radius: 20px;
+        padding: 24px;
+        min-height: 165px;
+    }
+
+        .empty-box h3,
+        .info-box h3 {
+            margin: 0 0 8px;
+            font-weight: 900;
+        }
+
+        .empty-box p,
+        .info-box p {
+            color: #6b7a87;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+    .date {
+        display: block;
+        margin-bottom: 8px;
+        color: #637fa3;
+        font-weight: 900;
+    }
+
+    .status-pill {
+        display: inline-block;
+        background: #ffe0a3;
+        color: #74500f;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .gc-btn-primary {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 900;
+        text-decoration: none;
+        border: 0;
+        transition: 0.2s ease;
+        background: #637fa3;
+        color: white;
+    }
+
+        .gc-btn-primary:hover {
+            transform: translateY(-2px);
+            color: white;
+            background: #71999f;
+        }
+
+        .gc-btn-primary.small {
+            padding: 9px 15px;
+            font-size: 14px;
+        }
+
+    @@media (max-width: 900px) {
+        .stats-grid,
+        .panel-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .stats-grid,
+        .panel-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .patient-hero {
+            padding: 28px;
+        }
+
+            .patient-hero h1 {
+                font-size: 32px;
+            }
+    }
+</style>
