@@ -4,17 +4,9 @@
     ViewData["Title"] = "Create Visit Record";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 visit-form-page">
 
-    <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Create Visit Record</h2>
-            <p class="text-muted mb-0">
-                Record the consultation notes, diagnosis, treatment, and prescriptions.
-            </p>
-        </div>
-
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <a asp-controller="DoctorAppointment"
            asp-action="AppointmentDetails"
            asp-route-id="@Model.AppointmentId"
@@ -196,6 +188,69 @@
         </div>
     </form>
 </div>
+
+<style>
+    body { background: #F4F1EE; }
+
+    .visit-form-page {
+        max-width: 980px;
+        padding-bottom: 50px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
+
+    .card {
+        border: 1px solid #D6DDDE !important;
+        border-radius: 22px !important;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08) !important;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #E9EEEE !important;
+    }
+
+    .card-header h5 {
+        color: #075168;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .form-label,
+    dt {
+        color: #12262F;
+        font-weight: 850;
+    }
+
+    .form-control {
+        border-radius: 14px;
+        border: 1px solid #D6DDDE;
+        font-weight: 650;
+    }
+
+    .form-control:focus {
+        border-color: #00779B;
+        box-shadow: 0 0 0 3px rgba(0,119,155,.13);
+    }
+
+    .btn-success,
+    .btn-primary {
+        background: #075168 !important;
+        border-color: #075168 !important;
+        border-radius: 14px;
+        font-weight: 900;
+        padding: 10px 18px;
+    }
+
+    .btn-outline-secondary {
+        color: #075168 !important;
+        border-color: #C9DBDF !important;
+        background: #E7F1F3 !important;
+        border-radius: 14px;
+        font-weight: 900;
+        padding: 10px 18px;
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
