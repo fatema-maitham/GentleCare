@@ -9,16 +9,16 @@ using MVCApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSignalR();
-builder.Services.AddScoped<NotificationHubService>();
-
+// MVC views/controllers
 builder.Services.AddControllersWithViews();
 
+// Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -29,6 +29,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Cookie routes
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -36,15 +37,23 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Account/Logout";
 });
 
+// Session
 builder.Services.AddSession();
 
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddScoped<NotificationHubService>();
+
+// API connection for Public Lookup only
 builder.Services.AddHttpClient("WebAPI", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7117/");
 });
 
+// App services
 builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
@@ -53,9 +62,9 @@ builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>(
 builder.Services.AddScoped<IVisitRecordService, VisitRecordService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 
-
 var app = builder.Build();
 
+// Apply migrations and seed users
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -72,8 +81,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.MapHub<AppointmentHub>("/hubs/appointment");
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -84,6 +91,10 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// SignalR live appointment updates
+app.MapHub<AppointmentHub>("/hubs/appointment");
+
+// Default page is Public Lookup
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Public}/{action=Lookup}/{id?}");
