@@ -6,114 +6,73 @@
 
 <section class="doctor-notifications-page">
 
-    <div class="notification-summary">
+    <div class="doctor-stats-grid">
 
-        <div class="summary-card">
-            <span>Total Notifications</span>
+        <div class="doctor-stat-card">
             <strong>@Model.TotalNotifications</strong>
-            <small>All received notifications</small>
+            <span>Total Notifications</span>
         </div>
 
-        <div class="summary-card">
-            <span>Unread</span>
+        <div class="doctor-stat-card">
             <strong>@Model.UnreadCount</strong>
-            <small>Notifications not read yet</small>
-        </div>
-
-        <div class="summary-card action-card">
-
-            @if (Model.HasUnreadNotifications)
-            {
-                <form asp-controller="Doctor"
-                      asp-action="MarkAllNotificationsAsRead"
-                      method="post"
-                      class="w-100">
-
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit" class="main-btn">
-                        Mark All as Read
-                    </button>
-                </form>
-            }
-            else
-            {
-                <div class="no-unread">
-                    No unread notifications
-                </div>
-            }
-
+            <span>Unread Notifications</span>
         </div>
 
     </div>
 
-    <div class="notification-panel">
+    @if (Model.HasUnreadNotifications)
+    {
+        <div class="mark-all-row">
+            <form asp-controller="Doctor"
+                  asp-action="MarkAllNotificationsAsRead"
+                  method="post">
+                @Html.AntiForgeryToken()
 
-        <h2>Notification List</h2>
+                <button type="submit" class="primary-btn">
+                    Mark All as Read
+                </button>
+            </form>
+        </div>
+    }
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="notification-alert success">
-                @TempData["Success"]
-            </div>
-        }
+    <div class="clean-panel">
+        <div class="clean-panel-header">
+            <h2>Notification List</h2>
+        </div>
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="notification-alert error">
-                @TempData["Error"]
-            </div>
-        }
+        <div class="clean-panel-body">
 
-        @if (Model.HasNotifications)
-        {
-            <div class="notification-list">
+            @if (Model.HasNotifications)
+            {
+                <div class="notification-list">
+                    @foreach (var notification in Model.Notifications)
+                    {
+                        <div class="notification-item">
+                            <div class="notification-main">
+                                <div class="notification-title-row">
+                                    <h3>@notification.Title</h3>
 
-                @foreach (var notification in Model.Notifications)
-                {
-                    <div class="notification-card">
+                                    @if (notification.IsRead)
+                                    {
+                                        <span class="pill muted">Read</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="pill">Unread</span>
+                                    }
+                                </div>
 
-                        <div class="notification-content">
+                                <p>@notification.Message</p>
 
-                            <div class="notification-top">
+                                <div class="meta-row">
+                                    <span>@notification.CreatedAtDisplay</span>
 
-                                <h3>@notification.Title</h3>
-
-                                @if (notification.IsRead)
-                                {
-                                    <span class="status-badge read">
-                                        Read
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="status-badge unread">
-                                        Unread
-                                    </span>
-                                }
-
+                                    @if (notification.HasRelatedEntity)
+                                    {
+                                        <span>Related to: @notification.RelatedEntityType</span>
+                                    }
+                                </div>
                             </div>
-
-                            <p class="notification-message">
-                                @notification.Message
-                            </p>
-
-                            <div class="notification-meta">
-                                <span>
-                                    @notification.CreatedAtDisplay
-                                </span>
-
-                                @if (notification.HasRelatedEntity)
-                                {
-                                    <span>
-                                        Related to: @notification.RelatedEntityType
-                                    </span>
-                                }
-                            </div>
-
-                        </div>
-
-                        <div class="notification-action">
 
                             @if (!notification.IsRead)
                             {
@@ -121,237 +80,248 @@
                                       asp-action="MarkNotificationAsRead"
                                       asp-route-id="@notification.NotificationId"
                                       method="post">
-
                                     @Html.AntiForgeryToken()
 
-                                    <button type="submit" class="secondary-btn">
+                                    <button type="submit" class="outline-btn">
                                         Mark Read
                                     </button>
                                 </form>
                             }
-
                         </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    You do not have any notifications yet.
+                </div>
+            }
 
-                    </div>
-                }
-
-            </div>
-        }
-        else
-        {
-            <div class="empty-box">
-                You do not have any notifications yet.
-            </div>
-        }
-
+        </div>
     </div>
 
 </section>
 
 <style>
+    :root {
+        --gc-main: #075168;
+        --gc-accent: #00779B;
+        --gc-soft: #E7F1F3;
+        --gc-bg: #F4F1EE;
+        --gc-card: #FFFFFF;
+        --gc-text: #12262F;
+        --gc-muted: #687A80;
+        --gc-border: #D6DDDE;
+        --gc-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    body {
+        background: var(--gc-bg);
+    }
 
     .doctor-notifications-page {
-        min-height: calc(100vh - 90px);
-        padding: 38px 22px;
-        background: #f1efed;
-    }
-
-    .notification-summary {
-        max-width: 1120px;
-        margin: 0 auto 24px auto;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-    }
-
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 22px;
-        padding: 24px 18px;
-        text-align: center;
-    }
-
-        .summary-card span {
-            display: block;
-            color: #6d7d82;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .summary-card strong {
-            display: block;
-            color: #06485F;
-            font-size: 34px;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .summary-card small {
-            color: #7f8e93;
-            font-weight: 600;
-        }
-
-    .action-card {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .main-btn {
-        width: 100%;
-        border: none;
-        background: #06485F;
-        color: white;
-        border-radius: 14px;
-        padding: 13px;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-        .main-btn:hover {
-            background: #04384b;
-        }
-
-    .no-unread {
-        color: #7f8e93;
-        font-weight: 700;
-    }
-
-    .notification-panel {
-        max-width: 1120px;
+        max-width: 1180px;
         margin: 0 auto;
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 22px;
-        padding: 24px;
+        padding: 30px 20px 50px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
-        .notification-panel h2 {
-            color: #06485F;
-            font-size: 22px;
-            font-weight: 900;
-            margin-bottom: 20px;
-        }
-
-    .notification-list {
+    .doctor-stats-grid {
         display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
+        margin-bottom: 20px;
     }
 
-    .notification-card {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        border: 1px solid #d9e2e4;
+    .doctor-stat-card {
+        background: var(--gc-card);
+        border: 1px solid var(--gc-border);
         border-radius: 18px;
-        padding: 20px;
-        background: #ffffff;
+        padding: 22px;
+        min-height: 116px;
+        box-shadow: var(--gc-shadow);
+        position: relative;
+        overflow: hidden;
     }
 
-    .notification-top {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
+    .doctor-stat-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: var(--gc-main);
     }
 
-        .notification-top h3 {
-            margin: 0;
-            color: #102a36;
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-    .notification-message {
-        color: #42555d;
+    .doctor-stat-card strong {
+        display: block;
+        color: var(--gc-main);
+        font-size: 40px;
+        font-weight: 900;
+        line-height: 1;
         margin-bottom: 12px;
-        font-weight: 600;
     }
 
-    .notification-meta {
+    .doctor-stat-card span {
+        display: block;
+        color: var(--gc-text);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .mark-all-row {
         display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        color: #7f8e93;
-        font-size: 13px;
-        font-weight: 700;
+        justify-content: flex-end;
+        margin-bottom: 22px;
     }
 
-    .status-badge {
-        border-radius: 999px;
-        padding: 5px 10px;
-        font-size: 12px;
-        font-weight: 800;
+    .mark-all-row form {
+        width: auto;
     }
 
-        .status-badge.read {
-            background: #eef1f3;
-            color: #5f6d73;
-        }
-
-        .status-badge.unread {
-            background: #dff2f7;
-            color: #06485F;
-        }
-
-    .secondary-btn {
-        border: 1px solid #06485F;
-        background: white;
-        color: #06485F;
-        border-radius: 12px;
-        padding: 9px 14px;
-        font-size: 13px;
-        font-weight: 800;
+    .primary-btn {
+        border-radius: 16px;
+        padding: 14px 24px;
+        min-width: 220px;
+        font-weight: 900;
+        border: 1px solid var(--gc-main);
+        background: var(--gc-main);
+        color: #fff;
         white-space: nowrap;
     }
 
-        .secondary-btn:hover {
-            background: #06485F;
-            color: white;
-        }
+    .primary-btn:hover {
+        background: var(--gc-accent);
+        border-color: var(--gc-accent);
+        color: #fff;
+    }
 
-    .notification-alert {
-        margin-bottom: 16px;
-        padding: 14px 18px;
-        border-radius: 14px;
+    .clean-panel {
+        background: var(--gc-card);
+        border: 1px solid var(--gc-border);
+        border-radius: 24px;
+        box-shadow: var(--gc-shadow);
+        overflow: hidden;
+    }
+
+    .clean-panel-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #E9EEEE;
+    }
+
+    .clean-panel-header h2 {
+        margin: 0;
+        color: var(--gc-main);
+        font-size: 24px;
+        font-weight: 900;
+    }
+
+    .clean-panel-body {
+        padding: 24px;
+    }
+
+    .notification-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .notification-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        border: 1px solid var(--gc-border);
+        border-radius: 18px;
+        padding: 18px;
+        background: #fff;
+    }
+
+    .notification-title-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+
+    .notification-title-row h3 {
+        margin: 0;
+        color: var(--gc-text);
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .notification-main p {
+        margin: 0 0 10px;
+        color: var(--gc-text);
+        font-weight: 650;
+    }
+
+    .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: var(--gc-muted);
+        font-size: 13px;
         font-weight: 700;
     }
 
-        .notification-alert.success {
-            background: #e8f7ef;
-            color: #1f7a45;
-            border: 1px solid #bce3cc;
-        }
+    .pill {
+        background: var(--gc-soft);
+        color: var(--gc-main);
+        border: 1px solid #C9DBDF;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
 
-        .notification-alert.error {
-            background: #fdecec;
-            color: #b42318;
-            border: 1px solid #fac5c5;
-        }
+    .pill.muted {
+        background: #EEF1F3;
+        color: var(--gc-muted);
+    }
+
+    .outline-btn {
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-weight: 900;
+        border: 1px solid var(--gc-main);
+        background: #fff;
+        color: var(--gc-main);
+        white-space: nowrap;
+    }
+
+    .outline-btn:hover {
+        background: var(--gc-accent);
+        color: #fff;
+        border-color: var(--gc-accent);
+    }
 
     .empty-box {
-        background: #f8fafb;
-        border: 1px dashed #93acb4;
-        color: #06485F;
-        border-radius: 16px;
         padding: 18px;
-        text-align: center;
+        border-radius: 16px;
+        background: var(--gc-soft);
+        border: 1px solid #C9DBDF;
+        color: var(--gc-main);
         font-weight: 800;
     }
 
     @@media (max-width: 900px) {
-        .notification-summary
+        .doctor-stats-grid {
+            grid-template-columns: 1fr;
+        }
 
-    {
-        grid-template-columns: 1fr;
-    }
+        .notification-item {
+            flex-direction: column;
+        }
 
-    .notification-card {
-        flex-direction: column;
-    }
+        .mark-all-row {
+            justify-content: stretch;
+        }
 
+        .mark-all-row form,
+        .primary-btn {
+            width: 100%;
+        }
     }
 </style>
