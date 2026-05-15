@@ -1,4 +1,4 @@
-﻿@{
+@{
     var pageTitle = ViewData["Title"] as string ?? "GentleCare";
 
     var homeController = "Public";
@@ -35,23 +35,26 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@pageTitle - GentleCare</title>
+    <title>@pageTitle</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
     <style>
         :root {
-            --main: #637fa3;
-            --accent: #71999f;
-            --bg: #f5f8fa;
-            --card: #ffffff;
-            --text: #182333;
-            --muted: #6b7a87;
-            --border: #dce5e8;
-            --soft: #f8fbfc;
-            --shadow: 0 8px 20px rgba(99, 127, 163, 0.10);
+            --main: #075168;
+            --main-dark: #043C4D;
+            --accent: #00779B;
+            --bg: #F4F1EE;
+            --card: #FFFFFF;
+            --soft: #F8FAFA;
+            --text: #12262F;
+            --muted: #687A80;
+            --border: #D6DDDE;
+            --shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
         }
 
         * {
@@ -74,7 +77,7 @@
         .main-navbar {
             background: var(--main);
             min-height: 72px;
-            box-shadow: 0 6px 18px rgba(99, 127, 163, 0.18);
+            box-shadow: 0 6px 18px rgba(7, 81, 104, 0.18);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -104,44 +107,6 @@
             letter-spacing: -1px;
         }
 
-        .nav-links,
-        .navbar-links,
-        .custom-navbar-links {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-            .nav-links a,
-            .navbar-links a,
-            .custom-navbar-links a,
-            .main-navbar a:not(.text-logo) {
-                color: #ffffff;
-                font-size: 14px;
-                font-weight: 800;
-                opacity: 0.9;
-            }
-
-                .nav-links a:hover,
-                .navbar-links a:hover,
-                .custom-navbar-links a:hover,
-                .main-navbar a:not(.text-logo):hover {
-                    color: #ffffff;
-                    opacity: 1;
-                }
-
-        .logout-btn,
-        .logout-link,
-        a[href*="Logout"] {
-            background: #ffffff;
-            color: var(--main) !important;
-            padding: 9px 16px;
-            border-radius: 999px;
-            font-weight: 900 !important;
-            opacity: 1 !important;
-        }
-
         .layout-main {
             max-width: 1180px;
             margin: 28px auto 0;
@@ -157,6 +122,213 @@
             text-align: center;
         }
 
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 31px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .page-header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+        }
+
+        .primary-btn,
+        .secondary-btn,
+        .cm-main-btn {
+            display: inline-block;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .primary-btn,
+        .cm-main-btn {
+            background: var(--main);
+            color: #ffffff;
+        }
+
+        .primary-btn:hover,
+        .cm-main-btn:hover {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .secondary-btn {
+            background: #E7EEF0;
+            color: var(--main);
+        }
+
+        .secondary-btn:hover {
+            background: #DDE8EA;
+            color: var(--main);
+        }
+
+        .section-card,
+        .dashboard-card,
+        .doctor-card,
+        .workload-item,
+        .leave-item,
+        .action-card,
+        .cm-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .details-grid,
+        .form-grid,
+        .status-grid,
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .details-item,
+        .status-box {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
+        }
+
+        .details-item span,
+        .status-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .details-item strong,
+        .status-box strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 21px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .btn-link,
+        .table-link {
+            color: var(--main);
+            font-weight: 800;
+            margin-right: 8px;
+        }
+
+        .btn-link:hover,
+        .table-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .danger-button {
+            border: none;
+            background: transparent;
+            color: var(--main);
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            font-weight: 800;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            outline: none;
+            background: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 119, 155, 0.14);
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            align-items: end;
+        }
+
+        .cm-table-wrap {
+            overflow-x: auto;
+        }
+
+        .cm-table,
+        .data-table,
+        .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cm-table th,
+        .cm-table td,
+        .data-table th,
+        .data-table td,
+        .clean-table th,
+        .clean-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .cm-table th,
+        .data-table th,
+        .clean-table th {
+            background: var(--soft);
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .cm-pill,
+        .status-pill,
+        .clean-pill,
+        .tag-pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 6px 11px;
+            background: rgba(0, 119, 155, 0.12);
+            color: var(--main);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
         .alert {
             padding: 12px 14px;
             border-radius: 12px;
@@ -165,18 +337,29 @@
         }
 
         .alert-success {
-            background: rgba(113, 153, 159, 0.16);
+            background: rgba(0, 119, 155, 0.12);
             color: var(--main);
         }
 
         .alert-danger {
-            background: rgba(99, 127, 163, 0.14);
-            color: var(--main);
+            background: rgba(180, 50, 50, 0.10);
+            color: #A33A3A;
         }
 
         .text-danger {
-            color: #b42318 !important;
+            color: #A33A3A !important;
             font-size: 13px;
+            font-weight: 700;
+        }
+
+        .gc-footer {
+            width: 100%;
+            margin-top: auto;
+            padding: 18px 20px;
+            background: #075168;
+            color: #ffffff;
+            text-align: center;
+            font-size: 14px;
             font-weight: 700;
         }
 
@@ -196,6 +379,15 @@
             .text-logo-name {
                 font-size: 26px;
             }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
         }
     </style>
 </head>
@@ -203,13 +395,11 @@
 <body>
     <header class="main-navbar">
         <div class="main-navbar-inner">
-
             <a asp-controller="@homeController" asp-action="@homeAction" class="text-logo">
                 <span class="text-logo-name">GentleCare</span>
             </a>
 
             <partial name="_Navbar" />
-
         </div>
     </header>
 
@@ -221,7 +411,7 @@
     </div>
 
     <footer class="layout-footer">
-        &copy; @DateTime.Now.Year - GentleCare MVC Application
+        &copy; @DateTime.Now.Year - GentleCare
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

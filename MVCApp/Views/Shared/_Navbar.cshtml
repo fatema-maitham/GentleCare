@@ -2,160 +2,182 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    string IsActive(string controller, string action)
+    string Active(string controller, string action)
     {
         return currentController == controller && currentAction == action ? "active" : "";
     }
 }
 
-<nav class="site-nav">
-    <div class="site-nav-links">
+<nav class="gc-navbar">
+    <button type="button" class="gc-menu-btn" id="gcMenuBtn">☰</button>
 
+    <div class="gc-nav-links" id="gcNavLinks">
         @if (User?.Identity != null && User.Identity.IsAuthenticated)
         {
             if (User.IsInRole("Patient"))
             {
-                <a asp-controller="Patient" asp-action="Dashboard" class="@IsActive("Patient", "Dashboard")">Home</a>
-                <a asp-controller="Patient" asp-action="BookAppointment" class="@IsActive("Patient", "BookAppointment")">Book Appointment</a>
-                <a asp-controller="Patient" asp-action="Appointments" class="@IsActive("Patient", "Appointments")">Appointments</a>
-                <a asp-controller="Patient" asp-action="History" class="@IsActive("Patient", "History")">History</a>
-                <a asp-controller="Patient" asp-action="Profile" class="@IsActive("Patient", "Profile")">Profile</a>
+                <a asp-controller="Patient" asp-action="Dashboard" class="@Active("Patient", "Dashboard")">Dashboard</a>
+                <a asp-controller="Patient" asp-action="BookAppointment" class="@Active("Patient", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Patient" asp-action="Appointments" class="@Active("Patient", "Appointments")">Appointments</a>
+                <a asp-controller="Patient" asp-action="History" class="@Active("Patient", "History")">History</a>
+                <a asp-controller="Patient" asp-action="Profile" class="@Active("Patient", "Profile")">Profile</a>
             }
 
             if (User.IsInRole("Doctor"))
             {
-                <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
-                <a asp-controller="Doctor" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
-                <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
-                <a asp-controller="Doctor" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
-                <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
-                <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
+                <a asp-controller="Doctor" asp-action="Dashboard" class="@Active("Doctor", "Dashboard")">Dashboard</a>
+                <a asp-controller="DoctorAppointment" asp-action="Appointments" class="@Active("DoctorAppointment", "Appointments")">Appointments</a>
+                <a asp-controller="Doctor" asp-action="Schedule" class="@Active("Doctor", "Schedule")">Schedule</a>
+                <a asp-controller="Prescription" asp-action="Prescriptions" class="@Active("Prescription", "Prescriptions")">Prescriptions</a>
+                <a asp-controller="Doctor" asp-action="Notifications" class="@Active("Doctor", "Notifications")">Notifications</a>
+                <a asp-controller="Doctor" asp-action="Profile" class="@Active("Doctor", "Profile")">Profile</a>
             }
 
             if (User.IsInRole("Receptionist"))
             {
-                <a asp-controller="Receptionist" asp-action="Index" class="@IsActive("Receptionist", "Index")">Home</a>
-                <a asp-controller="Receptionist" asp-action="BookAppointment" class="@IsActive("Receptionist", "BookAppointment")">Book Appointment</a>
-                <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
+                <a asp-controller="Receptionist" asp-action="Index" class="@Active("Receptionist", "Index")">Dashboard</a>
+                <a asp-controller="Receptionist" asp-action="BookAppointment" class="@Active("Receptionist", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Receptionist" asp-action="Appointments" class="@Active("Receptionist", "Appointments")">Appointments</a>
             }
 
             if (User.IsInRole("ClinicManager"))
             {
-                <a asp-controller="ClinicManager" asp-action="Dashboard" class="@IsActive("ClinicManager", "Dashboard")">Home</a>
-                <a asp-controller="ClinicManager" asp-action="Doctors" class="@IsActive("ClinicManager", "Doctors")">Doctors</a>
-                <a asp-controller="ClinicManager" asp-action="Appointments" class="@IsActive("ClinicManager", "Appointments")">Appointments</a>
-                <a asp-controller="ClinicManager" asp-action="Reports" class="@IsActive("ClinicManager", "Reports")">Reports</a>
-                <a asp-controller="ClinicManager" asp-action="Notifications" class="@IsActive("ClinicManager", "Notifications")">Notifications</a>
+                <a asp-controller="ClinicManager" asp-action="Dashboard" class="@Active("ClinicManager", "Dashboard")">Dashboard</a>
+                <a asp-controller="ClinicManager" asp-action="Doctors" class="@Active("ClinicManager", "Doctors")">Doctors</a>
+                <a asp-controller="ClinicManager" asp-action="Appointments" class="@Active("ClinicManager", "Appointments")">Appointments</a>
+                <a asp-controller="ClinicManager" asp-action="Reports" class="@Active("ClinicManager", "Reports")">Reports</a>
+                <a asp-controller="ClinicManager" asp-action="Notifications" class="@Active("ClinicManager", "Notifications")">Notifications</a>
             }
 
-            <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+            <form asp-controller="Account" asp-action="Logout" method="post" class="gc-logout-form">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="logout-btn">Logout</button>
+                <button type="submit" class="gc-logout-btn">Logout</button>
             </form>
         }
         else
         {
-            <a asp-controller="Public" asp-action="Lookup" class="@IsActive("Public", "Lookup")">Public Lookup</a>
-            <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
-            <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
+            <a asp-controller="Public" asp-action="Lookup" class="@Active("Public", "Lookup")">Public Lookup</a>
+            <a asp-controller="Account" asp-action="Login" class="@Active("Account", "Login")">Login</a>
+            <a asp-controller="Account" asp-action="Register" class="@Active("Account", "Register")">Register</a>
         }
-
     </div>
 </nav>
 
 <style>
-    .site-nav {
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
-    .site-nav-links {
+    .gc-navbar {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 20px;
-        flex-wrap: wrap;
+        width: 100%;
+        position: relative;
     }
 
-        .site-nav-links a {
-            position: relative;
-            color: #ffffff;
-            text-decoration: none;
-            padding: 8px 0;
-            font-size: 15px;
-            font-weight: 800;
-            background: transparent;
-            border: none;
-            font-family: inherit;
-            transition: color 0.18s ease;
-        }
-
-            .site-nav-links a::after {
-                content: "";
-                position: absolute;
-                left: 0;
-                bottom: 2px;
-                width: 100%;
-                height: 2px;
-                background: #faa634;
-                transform: scaleX(0);
-                transform-origin: left;
-                transition: transform 0.2s ease;
-            }
-
-            .site-nav-links a:hover,
-            .site-nav-links a.active {
-                color: #faa634;
-            }
-
-                .site-nav-links a:hover::after,
-                .site-nav-links a.active::after {
-                    transform: scaleX(1);
-                }
-
-    .logout-form {
-        display: inline;
-        margin: 0;
-        padding: 0;
+    .gc-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
     }
 
-    .logout-btn {
-        min-width: 90px;
-        height: 40px;
-        padding: 0 18px;
-        border-radius: 999px;
-        border: none;
-        background: #faa634;
+    .gc-nav-links a {
         color: #ffffff;
+        font-weight: 800;
         font-size: 14px;
-        font-weight: 900;
-        font-family: inherit;
-        cursor: pointer;
-        box-shadow: none;
-        outline: none;
+        text-decoration: none;
+        padding: 8px 0;
+        border-bottom: 2px solid transparent;
     }
 
-        .logout-btn:hover,
-        .logout-btn:focus,
-        .logout-btn:active {
-            background: #faa634;
-            color: #ffffff;
-            transform: none;
-            box-shadow: none;
-            outline: none;
+    .gc-nav-links a:hover,
+    .gc-nav-links a.active {
+        border-bottom-color: #ffffff;
+    }
+
+    .gc-logout-form {
+        margin: 0;
+    }
+
+    .gc-logout-btn {
+        border: none;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #075168;
+        font-weight: 900;
+        padding: 9px 18px;
+        cursor: pointer;
+    }
+
+    .gc-menu-btn {
+        display: none;
+        border: none;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        font-size: 26px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 900px) {
+        .gc-navbar {
+            justify-content: flex-start;
+            margin-top: 15px;
         }
 
-    @@media (max-width: 960px) {
-        .site-nav {
+        .gc-menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gc-nav-links {
+            display: none;
+            position: absolute;
+            top: 58px;
+            left: 0;
+            width: 240px;
+            background: #075168;
+            padding: 14px;
+            border-radius: 16px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 6px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.20);
+            z-index: 9999;
+        }
+
+        .gc-nav-links.open {
+            display: flex;
+        }
+
+        .gc-nav-links a {
+            padding: 12px;
+            border-radius: 10px;
+            border-bottom: none;
+        }
+
+        .gc-nav-links a:hover,
+        .gc-nav-links a.active {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .gc-logout-btn {
             width: 100%;
-            justify-content: flex-start;
-        }
-
-        .site-nav-links {
-            justify-content: flex-start;
-            gap: 16px;
+            margin-top: 8px;
         }
     }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const button = document.getElementById("gcMenuBtn");
+        const links = document.getElementById("gcNavLinks");
+
+        if (button && links) {
+            button.addEventListener("click", function () {
+                links.classList.toggle("open");
+            });
+        }
+    });
+</script>

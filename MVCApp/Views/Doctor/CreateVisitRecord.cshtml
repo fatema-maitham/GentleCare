@@ -1,4 +1,4 @@
-﻿@model MVCApp.ViewModels.Doctor.CreateVisitRecordViewModel
+@model MVCApp.ViewModels.Doctor.CreateVisitRecordViewModel
 
 @{
     ViewData["Title"] = "Create Visit Record";
@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        <a asp-controller="Doctor"
+        <a asp-controller="DoctorAppointment"
            asp-action="AppointmentDetails"
            asp-route-id="@Model.AppointmentId"
            class="btn btn-outline-secondary">
@@ -60,7 +60,7 @@
     </div>
 
     <!-- Visit record form -->
-    <form asp-controller="Doctor"
+    <form asp-controller="VisitRecord"
           asp-action="CreateVisitRecord"
           method="post">
 
@@ -183,7 +183,7 @@
 
         <!-- Form actions -->
         <div class="d-flex justify-content-end gap-2 mb-4">
-            <a asp-controller="Doctor"
+            <a asp-controller="DoctorAppointment"
                asp-action="AppointmentDetails"
                asp-route-id="@Model.AppointmentId"
                class="btn btn-outline-secondary">

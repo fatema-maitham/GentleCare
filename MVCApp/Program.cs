@@ -43,6 +43,12 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
+builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
+builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>();
+builder.Services.AddScoped<IVisitRecordService, VisitRecordService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

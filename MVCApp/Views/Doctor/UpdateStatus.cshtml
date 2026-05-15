@@ -1,4 +1,4 @@
-﻿@model MVCApp.ViewModels.Doctor.UpdateAppointmentStatusViewModel
+@model MVCApp.ViewModels.Doctor.UpdateAppointmentStatusViewModel
 
 @{
     ViewData["Title"] = "Update Appointment Status";
@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        <a asp-controller="Doctor"
+        <a asp-controller="DoctorAppointment"
            asp-action="AppointmentDetails"
            asp-route-id="@Model.AppointmentId"
            class="btn btn-outline-secondary">
@@ -52,7 +52,7 @@
                     <!-- Shows validation errors from the controller workflow checks -->
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                    <form asp-controller="Doctor"
+                    <form asp-controller="DoctorAppointment"
                           asp-action="UpdateStatus"
                           method="post">
 
@@ -94,7 +94,7 @@
                         }
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a asp-controller="Doctor"
+                            <a asp-controller="DoctorAppointment"
                                asp-action="AppointmentDetails"
                                asp-route-id="@Model.AppointmentId"
                                class="btn btn-outline-secondary">

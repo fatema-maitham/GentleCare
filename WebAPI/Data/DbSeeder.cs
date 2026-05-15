@@ -5,7 +5,7 @@ using WebAPI.Models;
 
 public static class DbSeeder
 {
-    // Keeps old WebAPI calls working if WebAPI/Program.cs still uses the old method.
+    // Old method for WebAPI compatibility
     public static async Task SeedUsersAsync(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
@@ -13,7 +13,7 @@ public static class DbSeeder
         await SeedUsersAndRolesAsync(userManager, roleManager);
     }
 
-    // MVC uses this method so users + linked Doctor/Patient profiles + demo data are created.
+    // Main method used by MVC to seed users + application data
     public static async Task SeedUsersAsync(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
@@ -23,16 +23,25 @@ public static class DbSeeder
         await SeedApplicationDataAsync(userManager, context);
     }
 
+    // Creates demo users and assigns roles
     private static async Task SeedUsersAndRolesAsync(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
     {
         var users = new[]
         {
-            new { FullName = "Clinic Manager", Email = "manager@hcars.com", Password = "Manager@123", Role = "ClinicManager" },
-            new { FullName = "Doctor User", Email = "doctor@hcars.com", Password = "Doctor@123", Role = "Doctor" },
-            new { FullName = "Receptionist User", Email = "receptionist@hcars.com", Password = "Recept@123", Role = "Receptionist" },
-            new { FullName = "Patient User", Email = "patient@hcars.com", Password = "Patient@123", Role = "Patient" }
+            new { FullName = "Hussain Ali", Email = "hussain@gentlecare.com", Password = "Hussain@123", Role = "ClinicManager" },
+            new { FullName = "Sayed Jaffar", Email = "sayedjaffar@gentlecare.com", Password = "Sayed@123", Role = "Receptionist" },
+
+            new { FullName = "Fatema Mohamed", Email = "fatema@gentlecare.com", Password = "Fatema@123", Role = "Doctor" },
+            new { FullName = "Hassan Ali", Email = "hassan@gentlecare.com", Password = "Hassan@123", Role = "Doctor" },
+            new { FullName = "Ali Mohamed", Email = "ali@gentlecare.com", Password = "Ali@1234", Role = "Doctor" },
+            new { FullName = "Jawad Ali", Email = "jawad@gentlecare.com", Password = "Jawad@123", Role = "Doctor" },
+            new { FullName = "Masooma Ridha", Email = "masooma@gentlecare.com", Password = "Masooma@123", Role = "Doctor" },
+
+            new { FullName = "Mohamed Baqer", Email = "mohamed@gentlecare.com", Password = "Mohamed@123", Role = "Patient" },
+            new { FullName = "Zahraa", Email = "zahraa@gmail.com", Password = "Zahraa@123", Role = "Patient" },
+            new { FullName = "Mohsen Ali", Email = "mohsen@gmail.com", Password = "Mohsen@123", Role = "Patient" }
         };
 
         foreach (var u in users)
@@ -56,9 +65,9 @@ public static class DbSeeder
                     CreatedAt = DateTime.UtcNow
                 };
 
-                var createResult = await userManager.CreateAsync(user, u.Password);
+                var result = await userManager.CreateAsync(user, u.Password);
 
-                if (createResult.Succeeded)
+                if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, u.Role);
                 }
@@ -68,7 +77,6 @@ public static class DbSeeder
                 existingUser.FullName = u.FullName;
                 existingUser.IsActive = true;
                 existingUser.EmailConfirmed = true;
-
                 await userManager.UpdateAsync(existingUser);
 
                 if (!await userManager.IsInRoleAsync(existingUser, u.Role))
@@ -79,32 +87,64 @@ public static class DbSeeder
         }
     }
 
+    // Seeds lookup data, profiles, schedules, appointments, records, and notifications
     private static async Task SeedApplicationDataAsync(
         UserManager<ApplicationUser> userManager,
         ApplicationDbContext context)
     {
         await EnsureLookupDataAsync(context);
 
-        var doctorUser = await userManager.FindByEmailAsync("doctor@hcars.com");
-        var patientUser = await userManager.FindByEmailAsync("patient@hcars.com");
+        // More clinic specializations
+        var general = await EnsureSpecializationAsync(context, "General Medicine", "General medical consultation and primary care");
+        var cardio = await EnsureSpecializationAsync(context, "Cardiology", "Heart and cardiovascular care");
+        var derma = await EnsureSpecializationAsync(context, "Dermatology", "Skin care and treatment");
+        var pediatrics = await EnsureSpecializationAsync(context, "Pediatrics", "Children healthcare");
+        var ortho = await EnsureSpecializationAsync(context, "Orthopedics", "Bones, joints, and muscles");
+        var neuro = await EnsureSpecializationAsync(context, "Neurology", "Brain, nerves, and nervous system");
+        var ent = await EnsureSpecializationAsync(context, "ENT", "Ear, nose, and throat care");
+        var dental = await EnsureSpecializationAsync(context, "Dental Care", "Dental and oral health care");
 
-        if (doctorUser == null || patientUser == null)
+        // Doctors: each doctor can have many specializations
+        var fatema = await EnsureDoctorAsync(userManager, context, "fatema@gentlecare.com", "GC-DOC-1001", "Experienced doctor in general medicine and pediatrics.");
+        var hassan = await EnsureDoctorAsync(userManager, context, "hassan@gentlecare.com", "GC-DOC-1002", "Specialist in cardiology and internal medicine.");
+        var ali = await EnsureDoctorAsync(userManager, context, "ali@gentlecare.com", "GC-DOC-1003", "Specialist in dermatology and ENT.");
+        var jawad = await EnsureDoctorAsync(userManager, context, "jawad@gentlecare.com", "GC-DOC-1004", "Specialist in orthopedics and neurology.");
+        var masooma = await EnsureDoctorAsync(userManager, context, "masooma@gentlecare.com", "GC-DOC-1005", "Specialist in pediatrics, dental care, and general medicine.");
+
+        await EnsureDoctorSpecializationsAsync(context, fatema, general.Id, pediatrics.Id, ent.Id);
+        await EnsureDoctorSpecializationsAsync(context, hassan, cardio.Id, general.Id, neuro.Id);
+        await EnsureDoctorSpecializationsAsync(context, ali, derma.Id, ent.Id, general.Id);
+        await EnsureDoctorSpecializationsAsync(context, jawad, ortho.Id, neuro.Id, general.Id);
+        await EnsureDoctorSpecializationsAsync(context, masooma, pediatrics.Id, dental.Id, general.Id);
+
+        var doctors = new List<Doctor> { fatema, hassan, ali, jawad, masooma };
+
+        // Patients: each patient will have many appointments
+        var mohamed = await EnsurePatientAsync(userManager, context, "mohamed@gentlecare.com", "990000001", "PAT-1001", "O+");
+        var zahraa = await EnsurePatientAsync(userManager, context, "zahraa@gmail.com", "990000002", "PAT-1002", "A+");
+        var mohsen = await EnsurePatientAsync(userManager, context, "mohsen@gmail.com", "990000003", "PAT-1003", "B+");
+
+        var patients = new List<Patient> { mohamed, zahraa, mohsen };
+
+        // Working schedules for every doctor
+        foreach (var doctor in doctors)
         {
-            return;
+            await EnsureDoctorScheduleAsync(doctor, context);
         }
 
-        var doctor = await EnsureDoctorProfileAsync(doctorUser, context);
-        var patient = await EnsurePatientProfileAsync(patientUser, context);
+        // More appointments distributed across many doctors and patients
+        await EnsureDemoAppointmentsAsync(doctors, patients, context);
 
-        await EnsureDoctorSpecializationAsync(doctor, context);
-        await EnsureDoctorScheduleAsync(doctor, context);
-        await EnsureDemoAppointmentsAsync(doctor, patient, context);
-        await EnsureDoctorNotificationsAsync(doctorUser, context);
+        // One doctor on leave for manager dashboard testing
+        await EnsureDoctorLeaveAsync(masooma, context);
+
+        // Demo notifications for all users
+        await EnsureNotificationsAsync(userManager, context);
     }
 
     private static async Task EnsureLookupDataAsync(ApplicationDbContext context)
     {
-        var statusData = new[]
+        var statuses = new[]
         {
             new { Name = "Requested", Description = "Appointment has been requested" },
             new { Name = "Confirmed", Description = "Appointment has been confirmed" },
@@ -115,11 +155,9 @@ public static class DbSeeder
             new { Name = "Missed", Description = "Patient missed the appointment" }
         };
 
-        foreach (var status in statusData)
+        foreach (var status in statuses)
         {
-            var exists = await context.AppointmentStatuses.AnyAsync(s => s.Name == status.Name);
-
-            if (!exists)
+            if (!await context.AppointmentStatuses.AnyAsync(s => s.Name == status.Name))
             {
                 context.AppointmentStatuses.Add(new AppointmentStatusLookup
                 {
@@ -133,9 +171,7 @@ public static class DbSeeder
 
         foreach (var type in notificationTypes)
         {
-            var exists = await context.NotificationTypes.AnyAsync(t => t.Name == type);
-
-            if (!exists)
+            if (!await context.NotificationTypes.AnyAsync(t => t.Name == type))
             {
                 context.NotificationTypes.Add(new NotificationType
                 {
@@ -147,117 +183,170 @@ public static class DbSeeder
         await context.SaveChangesAsync();
     }
 
-    private static async Task<Doctor> EnsureDoctorProfileAsync(
-        ApplicationUser doctorUser,
-        ApplicationDbContext context)
+    private static async Task<Specialization> EnsureSpecializationAsync(
+        ApplicationDbContext context,
+        string name,
+        string description)
     {
-        var doctor = await context.Doctors
-            .FirstOrDefaultAsync(d => d.UserId == doctorUser.Id);
+        var specialization = await context.Specializations.FirstOrDefaultAsync(s => s.Name == name);
 
-        if (doctor != null)
+        if (specialization != null)
         {
-            doctor.LicenseNumber = "DOC-1001";
-            doctor.Bio = "General doctor profile used for testing doctor MVC pages.";
-            doctor.UpdatedAt = DateTime.UtcNow;
-
+            specialization.Description = description;
             await context.SaveChangesAsync();
-            return doctor;
+            return specialization;
         }
 
-        doctor = new Doctor
+        specialization = new Specialization
         {
-            UserId = doctorUser.Id,
-            LicenseNumber = "DOC-1001",
-            Bio = "General doctor profile used for testing doctor MVC pages.",
-            CreatedAt = DateTime.UtcNow
+            Name = name,
+            Description = description
         };
 
-        context.Doctors.Add(doctor);
+        context.Specializations.Add(specialization);
         await context.SaveChangesAsync();
+
+        return specialization;
+    }
+
+    private static async Task<Doctor> EnsureDoctorAsync(
+        UserManager<ApplicationUser> userManager,
+        ApplicationDbContext context,
+        string email,
+        string licenseNumber,
+        string bio)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            throw new Exception($"Seed doctor user not found: {email}");
+        }
+
+        var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+        if (doctor == null)
+        {
+            doctor = new Doctor
+            {
+                UserId = user.Id,
+                LicenseNumber = licenseNumber,
+                Bio = bio,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Doctors.Add(doctor);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            doctor.LicenseNumber = licenseNumber;
+            doctor.Bio = bio;
+            doctor.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+        }
 
         return doctor;
     }
 
-    private static async Task<Patient> EnsurePatientProfileAsync(
-        ApplicationUser patientUser,
-        ApplicationDbContext context)
+    // Adds many specializations for one doctor
+    private static async Task EnsureDoctorSpecializationsAsync(
+        ApplicationDbContext context,
+        Doctor doctor,
+        params int[] specializationIds)
     {
-        var patient = await context.Patients
-            .FirstOrDefaultAsync(p => p.UserId == patientUser.Id);
-
-        if (patient != null)
+        foreach (var specializationId in specializationIds)
         {
-            patient.CPRNumber = "990000001";
-            patient.ReferenceNumber = "PAT-1001";
-            patient.BloodType = "O+";
+            var exists = await context.DoctorSpecializations
+                .AnyAsync(ds => ds.DoctorId == doctor.Id && ds.SpecializationId == specializationId);
+
+            if (!exists)
+            {
+                context.DoctorSpecializations.Add(new DoctorSpecialization
+                {
+                    DoctorId = doctor.Id,
+                    SpecializationId = specializationId
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task<Patient> EnsurePatientAsync(
+        UserManager<ApplicationUser> userManager,
+        ApplicationDbContext context,
+        string email,
+        string cpr,
+        string reference,
+        string bloodType)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            throw new Exception($"Seed patient user not found: {email}");
+        }
+
+        // First try to find patient by UserId
+        var patient = await context.Patients
+            .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+        // If not found by UserId, check if CPR already exists
+        if (patient == null)
+        {
+            patient = await context.Patients
+                .FirstOrDefaultAsync(p => p.CPRNumber == cpr);
+        }
+
+        // If not found by CPR, check if ReferenceNumber already exists
+        if (patient == null)
+        {
+            patient = await context.Patients
+                .FirstOrDefaultAsync(p => p.ReferenceNumber == reference);
+        }
+
+        if (patient == null)
+        {
+            patient = new Patient
+            {
+                UserId = user.Id,
+                CPRNumber = cpr,
+                ReferenceNumber = reference,
+                DateOfBirth = new DateTime(2000, 1, 1),
+                BloodType = bloodType,
+                Address = "Bahrain",
+                EmergencyContactName = "Emergency Contact",
+                EmergencyContactPhone = "39999999",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Patients.Add(patient);
+        }
+        else
+        {
+            patient.UserId = user.Id;
+            patient.CPRNumber = cpr;
+            patient.ReferenceNumber = reference;
+            patient.DateOfBirth = new DateTime(2000, 1, 1);
+            patient.BloodType = bloodType;
             patient.Address = "Bahrain";
             patient.EmergencyContactName = "Emergency Contact";
             patient.EmergencyContactPhone = "39999999";
             patient.UpdatedAt = DateTime.UtcNow;
-
-            await context.SaveChangesAsync();
-            return patient;
         }
 
-        patient = new Patient
-        {
-            UserId = patientUser.Id,
-            CPRNumber = "990000001",
-            ReferenceNumber = "PAT-1001",
-            DateOfBirth = new DateTime(2000, 1, 1),
-            BloodType = "O+",
-            Address = "Bahrain",
-            EmergencyContactName = "Emergency Contact",
-            EmergencyContactPhone = "39999999",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        context.Patients.Add(patient);
         await context.SaveChangesAsync();
 
         return patient;
     }
 
-    private static async Task EnsureDoctorSpecializationAsync(
-        Doctor doctor,
-        ApplicationDbContext context)
-    {
-        var specialization = await context.Specializations
-            .FirstOrDefaultAsync(s => s.Name == "General Medicine");
-
-        if (specialization == null)
-        {
-            specialization = new Specialization
-            {
-                Name = "General Medicine",
-                Description = "General medical consultation"
-            };
-
-            context.Specializations.Add(specialization);
-            await context.SaveChangesAsync();
-        }
-
-        var exists = await context.DoctorSpecializations
-            .AnyAsync(ds => ds.DoctorId == doctor.Id && ds.SpecializationId == specialization.Id);
-
-        if (!exists)
-        {
-            context.DoctorSpecializations.Add(new DoctorSpecialization
-            {
-                DoctorId = doctor.Id,
-                SpecializationId = specialization.Id
-            });
-
-            await context.SaveChangesAsync();
-        }
-    }
-
+    // Adds weekly schedules for doctors
     private static async Task EnsureDoctorScheduleAsync(
         Doctor doctor,
         ApplicationDbContext context)
     {
-        var hasSchedule = await context.DoctorSchedules
-            .AnyAsync(s => s.DoctorId == doctor.Id);
+        var hasSchedule = await context.DoctorSchedules.AnyAsync(s => s.DoctorId == doctor.Id);
 
         if (hasSchedule)
         {
@@ -270,7 +359,7 @@ public static class DbSeeder
                 DoctorId = doctor.Id,
                 DayOfWeek = DayOfWeek.Sunday,
                 StartTime = new TimeOnly(9, 0),
-                EndTime = new TimeOnly(14, 0),
+                EndTime = new TimeOnly(15, 0),
                 SlotDurationMinutes = 30
             },
             new DoctorSchedule
@@ -278,7 +367,7 @@ public static class DbSeeder
                 DoctorId = doctor.Id,
                 DayOfWeek = DayOfWeek.Monday,
                 StartTime = new TimeOnly(9, 0),
-                EndTime = new TimeOnly(14, 0),
+                EndTime = new TimeOnly(15, 0),
                 SlotDurationMinutes = 30
             },
             new DoctorSchedule
@@ -286,7 +375,23 @@ public static class DbSeeder
                 DoctorId = doctor.Id,
                 DayOfWeek = DayOfWeek.Tuesday,
                 StartTime = new TimeOnly(9, 0),
-                EndTime = new TimeOnly(14, 0),
+                EndTime = new TimeOnly(15, 0),
+                SlotDurationMinutes = 30
+            },
+            new DoctorSchedule
+            {
+                DoctorId = doctor.Id,
+                DayOfWeek = DayOfWeek.Wednesday,
+                StartTime = new TimeOnly(9, 0),
+                EndTime = new TimeOnly(15, 0),
+                SlotDurationMinutes = 30
+            },
+            new DoctorSchedule
+            {
+                DoctorId = doctor.Id,
+                DayOfWeek = DayOfWeek.Thursday,
+                StartTime = new TimeOnly(9, 0),
+                EndTime = new TimeOnly(15, 0),
                 SlotDurationMinutes = 30
             }
         );
@@ -294,60 +399,52 @@ public static class DbSeeder
         await context.SaveChangesAsync();
     }
 
+    // Creates many appointments so dashboards and history pages look full
     private static async Task EnsureDemoAppointmentsAsync(
-        Doctor doctor,
-        Patient patient,
+        List<Doctor> doctors,
+        List<Patient> patients,
         ApplicationDbContext context)
     {
-        var confirmedStatus = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Confirmed");
-        var checkedInStatus = await context.AppointmentStatuses.FirstAsync(s => s.Name == "CheckedIn");
-        var completedStatus = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Completed");
+        var requested = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Requested");
+        var confirmed = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Confirmed");
+        var checkedIn = await context.AppointmentStatuses.FirstAsync(s => s.Name == "CheckedIn");
+        var inProgress = await context.AppointmentStatuses.FirstAsync(s => s.Name == "InProgress");
+        var completed = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Completed");
+        var cancelled = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Cancelled");
+        var missed = await context.AppointmentStatuses.FirstAsync(s => s.Name == "Missed");
 
         var today = DateTime.Today;
-        var tomorrow = DateTime.Today.AddDays(1);
-        var yesterday = DateTime.Today.AddDays(-1);
+        var tomorrow = today.AddDays(1);
+        var yesterday = today.AddDays(-1);
+        var twoDaysAgo = today.AddDays(-2);
+        var nextWeek = today.AddDays(7);
 
-        await EnsureAppointmentAsync(
-            doctor,
-            patient,
-            confirmedStatus,
-            today,
-            new TimeOnly(9, 0),
-            new TimeOnly(9, 30),
-            "Demo confirmed appointment for doctor testing.",
-            context);
+        // Mohamed Baqer appointments
+        await EnsureAppointmentAsync(doctors[0], patients[0], confirmed, today, new TimeOnly(9, 0), new TimeOnly(9, 30), "General consultation confirmed.", context);
+        await EnsureAppointmentAsync(doctors[1], patients[0], inProgress, today, new TimeOnly(10, 0), new TimeOnly(10, 30), "Cardiology appointment in progress.", context);
+        var mbCompleted1 = await EnsureAppointmentAsync(doctors[2], patients[0], completed, yesterday, new TimeOnly(9, 0), new TimeOnly(9, 30), "Completed dermatology visit.", context);
+        var mbCompleted2 = await EnsureAppointmentAsync(doctors[4], patients[0], completed, twoDaysAgo, new TimeOnly(11, 0), new TimeOnly(11, 30), "Completed dental visit.", context);
+        await EnsureAppointmentAsync(doctors[3], patients[0], confirmed, tomorrow, new TimeOnly(12, 0), new TimeOnly(12, 30), "Orthopedics follow-up tomorrow.", context);
 
-        await EnsureAppointmentAsync(
-            doctor,
-            patient,
-            checkedInStatus,
-            today,
-            new TimeOnly(10, 0),
-            new TimeOnly(10, 30),
-            "Demo checked-in appointment for status workflow testing.",
-            context);
+        // Zahraa appointments
+        await EnsureAppointmentAsync(doctors[1], patients[1], checkedIn, today, new TimeOnly(9, 30), new TimeOnly(10, 0), "Patient checked in and waiting.", context);
+        await EnsureAppointmentAsync(doctors[3], patients[1], requested, today, new TimeOnly(11, 0), new TimeOnly(11, 30), "Neurology appointment request.", context);
+        var zCompleted1 = await EnsureAppointmentAsync(doctors[0], patients[1], completed, yesterday, new TimeOnly(10, 0), new TimeOnly(10, 30), "Completed general visit.", context);
+        await EnsureAppointmentAsync(doctors[2], patients[1], cancelled, yesterday, new TimeOnly(13, 0), new TimeOnly(13, 30), "Cancelled dermatology appointment.", context);
+        await EnsureAppointmentAsync(doctors[4], patients[1], confirmed, nextWeek, new TimeOnly(9, 0), new TimeOnly(9, 30), "Pediatrics appointment next week.", context);
 
-        await EnsureAppointmentAsync(
-            doctor,
-            patient,
-            confirmedStatus,
-            tomorrow,
-            new TimeOnly(11, 0),
-            new TimeOnly(11, 30),
-            "Demo upcoming appointment.",
-            context);
+        // Mohsen Ali appointments
+        await EnsureAppointmentAsync(doctors[2], patients[2], confirmed, today, new TimeOnly(12, 0), new TimeOnly(12, 30), "ENT consultation confirmed.", context);
+        await EnsureAppointmentAsync(doctors[4], patients[2], confirmed, today, new TimeOnly(13, 0), new TimeOnly(13, 30), "Pediatrics consultation confirmed.", context);
+        var moCompleted1 = await EnsureAppointmentAsync(doctors[1], patients[2], completed, yesterday, new TimeOnly(11, 0), new TimeOnly(11, 30), "Completed cardiology visit.", context);
+        await EnsureAppointmentAsync(doctors[3], patients[2], missed, yesterday, new TimeOnly(12, 0), new TimeOnly(12, 30), "Patient did not attend.", context);
+        await EnsureAppointmentAsync(doctors[0], patients[2], confirmed, tomorrow, new TimeOnly(10, 0), new TimeOnly(10, 30), "General follow-up tomorrow.", context);
 
-        var completedAppointment = await EnsureAppointmentAsync(
-            doctor,
-            patient,
-            completedStatus,
-            yesterday,
-            new TimeOnly(12, 0),
-            new TimeOnly(12, 30),
-            "Demo completed appointment with visit record.",
-            context);
-
-        await EnsureVisitRecordAndPrescriptionAsync(completedAppointment, context);
+        // Add visit records and prescriptions for completed appointments
+        await EnsureVisitRecordAndPrescriptionAsync(mbCompleted1, context);
+        await EnsureVisitRecordAndPrescriptionAsync(mbCompleted2, context);
+        await EnsureVisitRecordAndPrescriptionAsync(zCompleted1, context);
+        await EnsureVisitRecordAndPrescriptionAsync(moCompleted1, context);
     }
 
     private static async Task<Appointment> EnsureAppointmentAsync(
@@ -396,6 +493,7 @@ public static class DbSeeder
         return appointment;
     }
 
+    // Completed appointment creates visit history and prescription
     private static async Task EnsureVisitRecordAndPrescriptionAsync(
         Appointment appointment,
         ApplicationDbContext context)
@@ -409,9 +507,9 @@ public static class DbSeeder
             visitRecord = new VisitRecord
             {
                 AppointmentId = appointment.Id,
-                DoctorNotes = "Patient came for a general consultation. Vital signs were stable.",
-                Diagnosis = "Common cold",
-                Treatment = "Rest, fluids, and medication as needed.",
+                DoctorNotes = "Patient attended the appointment. Vital signs were stable.",
+                Diagnosis = "Routine medical condition",
+                Treatment = "Medication and follow-up if symptoms continue.",
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -419,8 +517,7 @@ public static class DbSeeder
             await context.SaveChangesAsync();
         }
 
-        var hasPrescription = await context.Prescriptions
-            .AnyAsync(p => p.VisitRecordId == visitRecord.Id);
+        var hasPrescription = await context.Prescriptions.AnyAsync(p => p.VisitRecordId == visitRecord.Id);
 
         if (!hasPrescription)
         {
@@ -439,46 +536,75 @@ public static class DbSeeder
         }
     }
 
-    private static async Task EnsureDoctorNotificationsAsync(
-        ApplicationUser doctorUser,
+    // Demo leave so Clinic Manager dashboard shows doctor on leave
+    private static async Task EnsureDoctorLeaveAsync(
+        Doctor doctor,
         ApplicationDbContext context)
     {
-        var generalType = await context.NotificationTypes
-            .FirstOrDefaultAsync(t => t.Name == "General");
+        var today = DateTime.Today;
 
-        var appointmentType = await context.NotificationTypes
-            .FirstOrDefaultAsync(t => t.Name == "Appointment");
+        var exists = await context.DoctorLeaves
+            .AnyAsync(l => l.DoctorId == doctor.Id && l.StartDate.Date == today.Date);
 
-        var hasWelcomeNotification = await context.Notifications
-            .AnyAsync(n => n.UserId == doctorUser.Id && n.Title == "Welcome Doctor");
-
-        if (!hasWelcomeNotification)
+        if (exists)
         {
-            context.Notifications.Add(new Notification
-            {
-                UserId = doctorUser.Id,
-                NotificationTypeId = generalType?.Id,
-                Title = "Welcome Doctor",
-                Message = "Your doctor dashboard, schedule, appointments, and profile are ready for testing.",
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            });
+            return;
         }
 
-        var hasAppointmentNotification = await context.Notifications
-            .AnyAsync(n => n.UserId == doctorUser.Id && n.Title == "Appointments Ready");
-
-        if (!hasAppointmentNotification)
+        context.DoctorLeaves.Add(new DoctorLeave
         {
-            context.Notifications.Add(new Notification
+            DoctorId = doctor.Id,
+            StartDate = today,
+            EndDate = today,
+            Reason = "Demo leave for dashboard testing"
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    // Adds unread notifications for demo users
+    private static async Task EnsureNotificationsAsync(
+        UserManager<ApplicationUser> userManager,
+        ApplicationDbContext context)
+    {
+        var generalType = await context.NotificationTypes.FirstOrDefaultAsync(t => t.Name == "General");
+        var appointmentType = await context.NotificationTypes.FirstOrDefaultAsync(t => t.Name == "Appointment");
+
+        var users = await userManager.Users.ToListAsync();
+
+        foreach (var user in users)
+        {
+            var hasWelcome = await context.Notifications
+                .AnyAsync(n => n.UserId == user.Id && n.Title == "Welcome to GentleCare");
+
+            if (!hasWelcome)
             {
-                UserId = doctorUser.Id,
-                NotificationTypeId = appointmentType?.Id,
-                Title = "Appointments Ready",
-                Message = "Demo appointments have been added so you can test the doctor workflow.",
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            });
+                context.Notifications.Add(new Notification
+                {
+                    UserId = user.Id,
+                    NotificationTypeId = generalType?.Id,
+                    Title = "Welcome to GentleCare",
+                    Message = "Your GentleCare account and demo data are ready for testing.",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            var hasAppointmentUpdate = await context.Notifications
+                .AnyAsync(n => n.UserId == user.Id && n.Title == "Appointment Updates Available");
+
+            if (!hasAppointmentUpdate)
+            {
+                context.Notifications.Add(new Notification
+                {
+                    UserId = user.Id,
+                    NotificationTypeId = appointmentType?.Id,
+                    Title = "Appointment Updates Available",
+                    Message = "Appointments have been added for dashboard and workflow testing.",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
         }
 
         await context.SaveChangesAsync();
