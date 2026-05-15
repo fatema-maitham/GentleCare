@@ -37,19 +37,16 @@
         <div class="summary-card">
             <span>Working Days</span>
             <strong>@Model.WorkingDaysCount</strong>
-            <small>Configured weekly days</small>
         </div>
 
         <div class="summary-card">
             <span>Schedule Rows</span>
             <strong>@Model.Schedules.Count</strong>
-            <small>Availability records</small>
         </div>
 
         <div class="summary-card">
             <span>Leave Periods</span>
             <strong>@Model.Leaves.Count</strong>
-            <small>Approved leave records</small>
         </div>
     </div>
 
@@ -165,31 +162,40 @@
     .summary-card {
         background: #ffffff;
         border: 1px solid #d9e2e4;
-        border-radius: 22px;
-        padding: 24px 18px;
-        text-align: center;
+        border-radius: 18px;
+        padding: 22px;
+        min-height: 116px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    .summary-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: #075168;
     }
 
         .summary-card span {
-            display: block;
-            color: #6d7d82;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
+        display: block;
+        color: #12262F;
+        font-size: 15px;
+        font-weight: 800;
+    }
 
         .summary-card strong {
-            display: block;
-            color: #06485F;
-            font-size: 34px;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
+        display: block;
+        color: #075168;
+        font-size: 40px;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 12px;
+    }
 
-        .summary-card small {
-            color: #7f8e93;
-            font-weight: 600;
-        }
+        
 
     .schedule-panel {
         max-width: 1120px;
