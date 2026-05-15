@@ -1,4 +1,4 @@
-﻿// MVCApp/ViewModels/Public/PublicAppointmentLookupViewModel.cs
+﻿using System.Text.Json.Serialization;
 
 namespace MVCApp.ViewModels.Public
 {
@@ -16,12 +16,21 @@ namespace MVCApp.ViewModels.Public
 
     public class PublicAppointmentResultViewModel
     {
-        public DateTime AppointmentDate { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public int AppointmentId { get; set; }
+
         public string DoctorName { get; set; } = string.Empty;
-        public string SpecializationName { get; set; } = string.Empty;
+
+        public DateTime AppointmentDate { get; set; }
+
+        public TimeOnly StartTime { get; set; }
+
+        public TimeOnly EndTime { get; set; }
+
+        [JsonPropertyName("status")]
         public string StatusName { get; set; } = string.Empty;
+
+        public string SpecializationName { get; set; } = "General Clinic";
+
         public string? Notes { get; set; }
     }
 
