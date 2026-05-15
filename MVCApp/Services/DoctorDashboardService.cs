@@ -6,8 +6,6 @@ using WebAPI.Models;
 
 namespace MVCApp.Services
 {
-    // Business logic for doctor dashboard-related pages.
-    // The controller only calls this service; database logic stays here.
     public class DoctorDashboardService : IDoctorDashboardService
     {
         private readonly ApplicationDbContext _context;
@@ -24,14 +22,12 @@ namespace MVCApp.Services
             _workflowService = workflowService;
         }
 
-        // Builds the doctor dashboard with statistics, calendar days, and selected-day appointments.
         public async Task<DoctorDashboardViewModel?> GetDashboardAsync(string userId, DateTime? selectedDate)
         {
             var doctor = await GetCurrentDoctorAsync(userId, includeUser: true);
+
             if (doctor == null)
-            {
                 return null;
-            }
 
             var chosenDate = (selectedDate ?? DateTime.Today).Date;
             var firstDayOfMonth = new DateTime(chosenDate.Year, chosenDate.Month, 1);
@@ -104,7 +100,6 @@ namespace MVCApp.Services
             };
         }
 
-        // Gets the logged-in doctor's profile information.
         public async Task<DoctorProfileViewModel?> GetProfileAsync(string userId)
         {
             var doctor = await _context.Doctors
@@ -115,25 +110,103 @@ namespace MVCApp.Services
                 .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
 
             if (doctor == null)
-            {
                 return null;
-            }
 
             return new DoctorProfileViewModel
             {
                 DoctorId = doctor.Id,
                 FullName = doctor.User.FullName,
-                Email = doctor.User.Email ?? string.Empty,
+                Email = doctor.User.Email ?? "",
                 LicenseNumber = doctor.LicenseNumber,
                 Bio = doctor.Bio,
+
+                // Image is saved in User table
+                ProfilePicture = doctor.User.ProfilePicture,
+
                 Specializations = doctor.DoctorSpecializations
                     .Select(ds => ds.Specialization.Name)
-                    .OrderBy(name => name)
                     .ToList()
             };
         }
 
-        // Gets the logged-in doctor's weekly schedule and leave periods.
+        public async Task<EditDoctorProfileViewModel?> GetEditProfileAsync(string userId)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
+
+            if (doctor == null)
+                return null;
+
+            return new EditDoctorProfileViewModel
+            {
+                DoctorId = doctor.Id,
+                FullName = doctor.User.FullName,
+                Email = doctor.User.Email ?? "",
+                LicenseNumber = doctor.LicenseNumber,
+                Bio = doctor.Bio,
+                CurrentProfilePicture = doctor.User.ProfilePicture
+            };
+        }
+
+        public async Task<bool> UpdateProfileAsync(
+            string userId,
+            EditDoctorProfileViewModel model,
+            string webRootPath)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
+
+            if (doctor == null)
+                return false;
+
+            doctor.User.FullName = model.FullName;
+            doctor.User.Email = model.Email;
+            doctor.User.UserName = model.Email;
+
+            doctor.LicenseNumber = model.LicenseNumber;
+            doctor.Bio = model.Bio;
+
+            if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(webRootPath, "images", "doctors");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+                if (!allowedExtensions.Contains(extension))
+                    return false;
+
+                var newFileName = $"doctor-{doctor.Id}-{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsFolder, newFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProfilePictureFile.CopyToAsync(stream);
+                }
+
+                if (!string.IsNullOrWhiteSpace(doctor.User.ProfilePicture) &&
+                    doctor.User.ProfilePicture != "default-doctor.png")
+                {
+                    var oldPath = Path.Combine(uploadsFolder, doctor.User.ProfilePicture);
+
+                    if (File.Exists(oldPath))
+                        File.Delete(oldPath);
+                }
+
+                // IMPORTANT: save uploaded long image name in User table
+                doctor.User.ProfilePicture = newFileName;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<DoctorScheduleViewModel?> GetScheduleAsync(string userId)
         {
             var doctor = await _context.Doctors
@@ -144,9 +217,7 @@ namespace MVCApp.Services
                 .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
 
             if (doctor == null)
-            {
                 return null;
-            }
 
             return new DoctorScheduleViewModel
             {
@@ -161,14 +232,12 @@ namespace MVCApp.Services
             };
         }
 
-        // Gets all notifications for the logged-in doctor.
         public async Task<DoctorNotificationsViewModel?> GetNotificationsAsync(string userId)
         {
             var doctor = await GetCurrentDoctorAsync(userId, includeUser: false);
+
             if (doctor == null)
-            {
                 return null;
-            }
 
             var notifications = await _notificationService.GetUserNotificationsAsync(doctor.UserId);
 
@@ -188,49 +257,39 @@ namespace MVCApp.Services
             };
         }
 
-        // Marks one doctor notification as read.
         public async Task<bool> MarkNotificationAsReadAsync(string userId, int notificationId)
         {
             var doctor = await GetCurrentDoctorAsync(userId, includeUser: false);
+
             if (doctor == null)
-            {
                 return false;
-            }
 
             return await _notificationService.MarkAsReadAsync(notificationId, doctor.UserId);
         }
 
-        // Marks all doctor notifications as read.
         public async Task MarkAllNotificationsAsReadAsync(string userId)
         {
             var doctor = await GetCurrentDoctorAsync(userId, includeUser: false);
+
             if (doctor == null)
-            {
                 return;
-            }
 
             await _notificationService.MarkAllAsReadAsync(doctor.UserId);
         }
 
-        // Finds the Doctor row linked to the logged-in Identity user.
         private async Task<Doctor?> GetCurrentDoctorAsync(string userId, bool includeUser)
         {
             if (string.IsNullOrWhiteSpace(userId))
-            {
                 return null;
-            }
 
             var query = _context.Doctors.AsQueryable();
 
             if (includeUser)
-            {
                 query = query.Include(d => d.User);
-            }
 
             return await query.FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
         }
 
-        // Builds calendar boxes for the selected month, including previous/next month filler days.
         private static List<DoctorDashboardCalendarDayViewModel> BuildCalendarDays(
             DateTime selectedDate,
             List<Appointment> monthAppointments)
@@ -266,74 +325,6 @@ namespace MVCApp.Services
             }
 
             return days;
-        }
-
-        public async Task<EditDoctorProfileViewModel?> GetEditProfileAsync(string userId)
-        {
-            var doctor = await _context.Doctors
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
-
-            if (doctor == null)
-                return null;
-
-            return new EditDoctorProfileViewModel
-            {
-                DoctorId = doctor.Id,
-                FullName = doctor.User.FullName,
-                Email = doctor.User.Email ?? string.Empty,
-                LicenseNumber = doctor.LicenseNumber,
-                Bio = doctor.Bio,
-                CurrentProfilePicture = doctor.User.ProfilePicture
-            };
-        }
-
-        public async Task<bool> UpdateProfileAsync(
-            string userId,
-            EditDoctorProfileViewModel model,
-            string webRootPath)
-        {
-            var doctor = await _context.Doctors
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.UserId == userId && d.User.IsActive);
-
-            if (doctor == null)
-                return false;
-
-            doctor.User.FullName = model.FullName.Trim();
-            doctor.User.Email = model.Email.Trim();
-            doctor.User.UserName = model.Email.Trim();
-            doctor.User.NormalizedEmail = model.Email.Trim().ToUpper();
-            doctor.User.NormalizedUserName = model.Email.Trim().ToUpper();
-
-            doctor.LicenseNumber = model.LicenseNumber.Trim();
-            doctor.Bio = model.Bio?.Trim();
-            doctor.UpdatedAt = DateTime.UtcNow;
-
-            if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
-            {
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                    return false;
-
-                var folderPath = Path.Combine(webRootPath, "images", "doctors");
-
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                var fileName = $"doctor-{doctor.Id}-{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(folderPath, fileName);
-
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await model.ProfilePictureFile.CopyToAsync(stream);
-
-                doctor.User.ProfilePicture = $"/images/doctors/{fileName}";
-            }
-
-            await _context.SaveChangesAsync();
-            return true;
         }
     }
 }
