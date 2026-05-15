@@ -4,8 +4,8 @@
     ViewData["Title"] = "Doctor Profile";
 
     var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
-        ? Url.Content("~/images/doctors/default-doctor.png")
-        : Url.Content("~/images/doctors/" + Model.ProfilePicture);
+         ? Url.Content("~/images/doctors/default-doctor.png")
+         : Url.Content("~/images/doctors/" + Model.ProfilePicture + "?v=" + DateTime.Now.Ticks);
 }
 
 <style>

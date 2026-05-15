@@ -87,6 +87,7 @@ namespace MVCApp.Services
                 UnreadNotificationsCount = unreadNotificationsCount,
                 TotalPatientsSeen = totalPatientsSeen,
                 CalendarDays = BuildCalendarDays(chosenDate, monthAppointments),
+
                 SelectedDayAppointments = selectedDayAppointments.Select(a => new DoctorDashboardAppointmentItemViewModel
                 {
                     AppointmentId = a.Id,
@@ -112,6 +113,8 @@ namespace MVCApp.Services
             if (doctor == null)
                 return null;
 
+            var profilePicture = doctor.User.ProfilePicture;
+
             return new DoctorProfileViewModel
             {
                 DoctorId = doctor.Id,
@@ -119,9 +122,7 @@ namespace MVCApp.Services
                 Email = doctor.User.Email ?? "",
                 LicenseNumber = doctor.LicenseNumber,
                 Bio = doctor.Bio,
-
-                // Image is saved in User table
-                ProfilePicture = doctor.User.ProfilePicture,
+                ProfilePicture = profilePicture,
 
                 Specializations = doctor.DoctorSpecializations
                     .Select(ds => ds.Specialization.Name)
@@ -138,6 +139,8 @@ namespace MVCApp.Services
             if (doctor == null)
                 return null;
 
+            var profilePicture = doctor.User.ProfilePicture;
+
             return new EditDoctorProfileViewModel
             {
                 DoctorId = doctor.Id,
@@ -145,7 +148,7 @@ namespace MVCApp.Services
                 Email = doctor.User.Email ?? "",
                 LicenseNumber = doctor.LicenseNumber,
                 Bio = doctor.Bio,
-                CurrentProfilePicture = doctor.User.ProfilePicture
+                CurrentProfilePicture = profilePicture
             };
         }
 
@@ -176,7 +179,6 @@ namespace MVCApp.Services
                     Directory.CreateDirectory(uploadsFolder);
 
                 var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
-
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 
                 if (!allowedExtensions.Contains(extension))
@@ -190,16 +192,17 @@ namespace MVCApp.Services
                     await model.ProfilePictureFile.CopyToAsync(stream);
                 }
 
-                if (!string.IsNullOrWhiteSpace(doctor.User.ProfilePicture) &&
-                    doctor.User.ProfilePicture != "default-doctor.png")
+                var oldImage = doctor.User.ProfilePicture;
+
+                if (!string.IsNullOrWhiteSpace(oldImage) &&
+                    oldImage != "default-doctor.png")
                 {
-                    var oldPath = Path.Combine(uploadsFolder, doctor.User.ProfilePicture);
+                    var oldPath = Path.Combine(uploadsFolder, oldImage);
 
                     if (File.Exists(oldPath))
                         File.Delete(oldPath);
                 }
 
-                // IMPORTANT: save uploaded long image name in User table
                 doctor.User.ProfilePicture = newFileName;
             }
 
@@ -226,6 +229,7 @@ namespace MVCApp.Services
                     .OrderBy(s => s.DayOfWeek)
                     .ThenBy(s => s.StartTime)
                     .ToList(),
+
                 Leaves = doctor.Leaves
                     .OrderByDescending(l => l.StartDate)
                     .ToList()
@@ -244,6 +248,7 @@ namespace MVCApp.Services
             return new DoctorNotificationsViewModel
             {
                 UnreadCount = notifications.Count(n => !n.IsRead),
+
                 Notifications = notifications.Select(n => new DoctorNotificationViewModel
                 {
                     NotificationId = n.Id,
