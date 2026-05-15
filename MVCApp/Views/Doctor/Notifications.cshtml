@@ -4,143 +4,354 @@
     ViewData["Title"] = "My Notifications";
 }
 
-<div class="container mt-4">
+<section class="doctor-notifications-page">
 
-    @if (TempData["Success"] != null)
-    {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
+    <div class="notification-summary">
 
-    @if (TempData["Error"] != null)
-    {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
-
-    <!-- Notification summary -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Total Notifications</h6>
-                    <h3 class="fw-bold">@Model.TotalNotifications</h3>
-                    <p class="mb-0 text-muted">All received notifications</p>
-                </div>
-            </div>
+        <div class="summary-card">
+            <span>Total Notifications</span>
+            <strong>@Model.TotalNotifications</strong>
+            <small>All received notifications</small>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Unread</h6>
-                    <h3 class="fw-bold">@Model.UnreadCount</h3>
-                    <p class="mb-0 text-muted">Notifications not read yet</p>
-                </div>
-            </div>
+        <div class="summary-card">
+            <span>Unread</span>
+            <strong>@Model.UnreadCount</strong>
+            <small>Notifications not read yet</small>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    @if (Model.HasUnreadNotifications)
-                    {
-                    <form asp-controller="Doctor"
-                          asp-action="MarkAllNotificationsAsRead"
-                          method="post"
-                          class="w-100">
-                        @Html.AntiForgeryToken()
+        <div class="summary-card action-card">
 
-                        <button type="submit" class="btn btn-primary w-100">
-                            Mark All as Read
-                        </button>
-                    </form>
-                    }
-                    else
-                    {
-                    <span class="text-muted">No unread notifications</span>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notifications list -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h5 class="fw-bold mb-0">Notification List</h5>
-        </div>
-
-        <div class="card-body">
-            @if (Model.HasNotifications)
+            @if (Model.HasUnreadNotifications)
             {
-            <div class="list-group list-group-flush">
-                @foreach (var notification in Model.Notifications)
-                    {
-                <div class="list-group-item px-0">
-                    <div class="d-flex justify-content-between align-items-start gap-3">
+                <form asp-controller="Doctor"
+                      asp-action="MarkAllNotificationsAsRead"
+                      method="post"
+                      class="w-100">
 
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <h6 class="fw-bold mb-0">@notification.Title</h6>
+                    @Html.AntiForgeryToken()
 
-                                @if (notification.IsRead)
-                                        {
-                                <span class="badge bg-secondary">Read</span>
-                                        }
-                                        else
-                                        {
-                                <span class="badge bg-primary">Unread</span>
-                                        }
-                            </div>
-
-                            <p class="mb-1">@notification.Message</p>
-
-                            <small class="text-muted">
-                                Created at: @notification.CreatedAtDisplay
-                            </small>
-
-                            @if (notification.HasRelatedEntity)
-                                    {
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    Related to: @notification.RelatedEntityType
-                                </small>
-                            </div>
-                                    }
-                        </div>
-
-                        <div class="text-end">
-                            @if (!notification.IsRead)
-                                    {
-                            <form asp-controller="Doctor"
-                                  asp-action="MarkNotificationAsRead"
-                                  asp-route-id="@notification.NotificationId"
-                                  method="post">
-                                @Html.AntiForgeryToken()
-
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Mark Read
-                                </button>
-                            </form>
-                                    }
-                        </div>
-
-                    </div>
-                </div>
-                    }
-            </div>
+                    <button type="submit" class="main-btn">
+                        Mark All as Read
+                    </button>
+                </form>
             }
             else
             {
-            <div class="alert alert-info mb-0">
+                <div class="no-unread">
+                    No unread notifications
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+    <div class="notification-panel">
+
+        <h2>Notification List</h2>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="notification-alert success">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="notification-alert error">
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (Model.HasNotifications)
+        {
+            <div class="notification-list">
+
+                @foreach (var notification in Model.Notifications)
+                {
+                    <div class="notification-card">
+
+                        <div class="notification-content">
+
+                            <div class="notification-top">
+
+                                <h3>@notification.Title</h3>
+
+                                @if (notification.IsRead)
+                                {
+                                    <span class="status-badge read">
+                                        Read
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge unread">
+                                        Unread
+                                    </span>
+                                }
+
+                            </div>
+
+                            <p class="notification-message">
+                                @notification.Message
+                            </p>
+
+                            <div class="notification-meta">
+                                <span>
+                                    @notification.CreatedAtDisplay
+                                </span>
+
+                                @if (notification.HasRelatedEntity)
+                                {
+                                    <span>
+                                        Related to: @notification.RelatedEntityType
+                                    </span>
+                                }
+                            </div>
+
+                        </div>
+
+                        <div class="notification-action">
+
+                            @if (!notification.IsRead)
+                            {
+                                <form asp-controller="Doctor"
+                                      asp-action="MarkNotificationAsRead"
+                                      asp-route-id="@notification.NotificationId"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit" class="secondary-btn">
+                                        Mark Read
+                                    </button>
+                                </form>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">
                 You do not have any notifications yet.
             </div>
-            }
-        </div>
+        }
+
     </div>
-</div>
+
+</section>
+
+<style>
+
+    .doctor-notifications-page {
+        min-height: calc(100vh - 90px);
+        padding: 38px 22px;
+        background: #f1efed;
+    }
+
+    .notification-summary {
+        max-width: 1120px;
+        margin: 0 auto 24px auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid #d9e2e4;
+        border-radius: 22px;
+        padding: 24px 18px;
+        text-align: center;
+    }
+
+        .summary-card span {
+            display: block;
+            color: #6d7d82;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .summary-card strong {
+            display: block;
+            color: #06485F;
+            font-size: 34px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .summary-card small {
+            color: #7f8e93;
+            font-weight: 600;
+        }
+
+    .action-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-btn {
+        width: 100%;
+        border: none;
+        background: #06485F;
+        color: white;
+        border-radius: 14px;
+        padding: 13px;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+        .main-btn:hover {
+            background: #04384b;
+        }
+
+    .no-unread {
+        color: #7f8e93;
+        font-weight: 700;
+    }
+
+    .notification-panel {
+        max-width: 1120px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #d9e2e4;
+        border-radius: 22px;
+        padding: 24px;
+    }
+
+        .notification-panel h2 {
+            color: #06485F;
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+    .notification-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .notification-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        border: 1px solid #d9e2e4;
+        border-radius: 18px;
+        padding: 20px;
+        background: #ffffff;
+    }
+
+    .notification-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+        .notification-top h3 {
+            margin: 0;
+            color: #102a36;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+    .notification-message {
+        color: #42555d;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .notification-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: #7f8e93;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+        .status-badge.read {
+            background: #eef1f3;
+            color: #5f6d73;
+        }
+
+        .status-badge.unread {
+            background: #dff2f7;
+            color: #06485F;
+        }
+
+    .secondary-btn {
+        border: 1px solid #06485F;
+        background: white;
+        color: #06485F;
+        border-radius: 12px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .secondary-btn:hover {
+            background: #06485F;
+            color: white;
+        }
+
+    .notification-alert {
+        margin-bottom: 16px;
+        padding: 14px 18px;
+        border-radius: 14px;
+        font-weight: 700;
+    }
+
+        .notification-alert.success {
+            background: #e8f7ef;
+            color: #1f7a45;
+            border: 1px solid #bce3cc;
+        }
+
+        .notification-alert.error {
+            background: #fdecec;
+            color: #b42318;
+            border: 1px solid #fac5c5;
+        }
+
+    .empty-box {
+        background: #f8fafb;
+        border: 1px dashed #93acb4;
+        color: #06485F;
+        border-radius: 16px;
+        padding: 18px;
+        text-align: center;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 900px) {
+        .notification-summary
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .notification-card {
+        flex-direction: column;
+    }
+
+    }
+</style>

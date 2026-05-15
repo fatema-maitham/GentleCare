@@ -33,300 +33,236 @@
 
 <section class="doctor-schedule-page">
 
-    <div class="schedule-card">
-
-        <div class="schedule-header">
-            <h1>My Schedule</h1>
-            <p>View your weekly working hours, real shift duration, slot duration, and available slots.</p>
+    <div class="schedule-summary">
+        <div class="summary-card">
+            <span>Working Days</span>
+            <strong>@Model.WorkingDaysCount</strong>
+            <small>Configured weekly days</small>
         </div>
 
-        <div class="schedule-summary">
-            <div class="summary-box">
-                <span>Working Days</span>
-                <strong>@Model.WorkingDaysCount</strong>
-                <small>Configured weekly days</small>
-            </div>
-
-            <div class="summary-box">
-                <span>Schedule Rows</span>
-                <strong>@Model.Schedules.Count</strong>
-                <small>Availability records</small>
-            </div>
-
-            <div class="summary-box">
-                <span>Leave Periods</span>
-                <strong>@Model.Leaves.Count</strong>
-                <small>Approved leave records</small>
-            </div>
+        <div class="summary-card">
+            <span>Schedule Rows</span>
+            <strong>@Model.Schedules.Count</strong>
+            <small>Availability records</small>
         </div>
 
-        <div class="schedule-section">
-            <h2>Weekly Working Schedule</h2>
-
-            @if (Model.HasSchedules)
-            {
-                <div class="schedule-list">
-                    @foreach (var schedule in Model.Schedules)
-                    {
-                        var totalMinutes = GetTotalMinutes(schedule.StartTime, schedule.EndTime);
-
-                        var slotCount = schedule.SlotDurationMinutes > 0 && totalMinutes > 0
-                        ? totalMinutes / schedule.SlotDurationMinutes
-                        : 0;
-
-                        <div class="schedule-row">
-                            <div class="day-badge">
-                                @schedule.DayOfWeek
-                            </div>
-
-                            <div class="time-info">
-                                <span>Start</span>
-                                <strong>@FormatTimeOnly(schedule.StartTime)</strong>
-                            </div>
-
-                            <div class="time-info">
-                                <span>End</span>
-                                <strong>@FormatTimeOnly(schedule.EndTime)</strong>
-                            </div>
-
-                            <div class="time-info">
-                                <span>Shift Duration</span>
-                                <strong>@FormatDuration(totalMinutes)</strong>
-                            </div>
-
-                            <div class="time-info">
-                                <span>Slot Duration</span>
-                                <strong>@FormatDuration(schedule.SlotDurationMinutes)</strong>
-                            </div>
-
-                            <div class="time-info">
-                                <span>Available Slots</span>
-                                <strong>@slotCount slots</strong>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="empty-box">
-                    No weekly schedule has been configured for you yet.
-                </div>
-            }
+        <div class="summary-card">
+            <span>Leave Periods</span>
+            <strong>@Model.Leaves.Count</strong>
+            <small>Approved leave records</small>
         </div>
-
-        <div class="schedule-section">
-            <h2>Leave Periods</h2>
-
-            @if (Model.HasLeaves)
-            {
-                <div class="leave-list">
-                    @foreach (var leave in Model.Leaves)
-                    {
-                        var leaveDays = (leave.EndDate.Date - leave.StartDate.Date).Days + 1;
-
-                        <div class="leave-row">
-                            <div>
-                                <span>Start Date</span>
-                                <strong>@leave.StartDate.ToString("dd MMM yyyy")</strong>
-                            </div>
-
-                            <div>
-                                <span>End Date</span>
-                                <strong>@leave.EndDate.ToString("dd MMM yyyy")</strong>
-                            </div>
-
-                            <div>
-                                <span>Duration</span>
-                                <strong>@leaveDays day@(leaveDays == 1 ? "" : "s")</strong>
-                            </div>
-
-                            <div>
-                                <span>Reason</span>
-                                <strong>
-                                    @(string.IsNullOrWhiteSpace(leave.Reason) ? "No reason recorded" : leave.Reason)
-                                </strong>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="empty-box">
-                    No leave periods are recorded for you.
-                </div>
-            }
-        </div>
-
     </div>
+
+    <div class="schedule-panel">
+        <h2>Weekly Working Schedule</h2>
+
+        @if (Model.HasSchedules)
+        {
+            <div class="table-responsive">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Shift Duration</th>
+                            <th>Slot Duration</th>
+                            <th>Available Slots</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var schedule in Model.Schedules)
+                        {
+                            var totalMinutes = GetTotalMinutes(schedule.StartTime, schedule.EndTime);
+
+                            var slotCount = schedule.SlotDurationMinutes > 0 && totalMinutes > 0
+                            ? totalMinutes / schedule.SlotDurationMinutes
+                            : 0;
+
+                            <tr>
+                                <td class="fw-bold">@schedule.DayOfWeek</td>
+                                <td>@FormatTimeOnly(schedule.StartTime)</td>
+                                <td>@FormatTimeOnly(schedule.EndTime)</td>
+                                <td>@FormatDuration(totalMinutes)</td>
+                                <td>@FormatDuration(schedule.SlotDurationMinutes)</td>
+                                <td>@slotCount slots</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">
+                No weekly schedule has been configured for you yet.
+            </div>
+        }
+    </div>
+
+    <div class="schedule-panel">
+        <h2>Leave Periods</h2>
+
+        @if (Model.HasLeaves)
+        {
+            <div class="table-responsive">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Leave Duration</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var leave in Model.Leaves)
+                        {
+                            var leaveDays = (leave.EndDate.Date - leave.StartDate.Date).Days + 1;
+
+                            <tr>
+                                <td>@leave.StartDate.ToString("dd MMM yyyy")</td>
+                                <td>@leave.EndDate.ToString("dd MMM yyyy")</td>
+                                <td>@leaveDays day@(leaveDays == 1 ? "" : "s")</td>
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(leave.Reason)
+                                                                ? "No reason recorded"
+                                                                : leave.Reason)
+                        </td>
+                    </tr>
+                                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">
+                No leave periods are recorded for you.
+            </div>
+        }
+    </div>
+
 </section>
 
 <style>
     .doctor-schedule-page {
         min-height: calc(100vh - 90px);
-        padding: 40px 18px;
+        padding: 38px 22px;
         background: #f1efed;
     }
 
-    .schedule-card {
-        max-width: 1150px;
-        margin: 0 auto;
+    .schedule-summary {
+        max-width: 1120px;
+        margin: 0 auto 24px auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .summary-card {
         background: #ffffff;
         border: 1px solid #d9e2e4;
         border-radius: 22px;
-        padding: 32px;
-    }
-
-    .schedule-header {
+        padding: 24px 18px;
         text-align: center;
-        margin-bottom: 28px;
     }
 
-        .schedule-header h1 {
-            color: #06485F;
+        .summary-card span {
+            display: block;
+            color: #6d7d82;
             font-weight: 800;
             margin-bottom: 8px;
         }
 
-        .schedule-header p {
-            color: #6f7f85;
-            margin: 0;
-        }
-
-    .schedule-summary {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 30px;
-    }
-
-    .summary-box {
-        background: #f8fafb;
-        border: 1px solid #d9e2e4;
-        border-radius: 18px;
-        padding: 20px;
-        text-align: center;
-    }
-
-        .summary-box span {
+        .summary-card strong {
             display: block;
-            color: #6f7f85;
-            font-weight: 700;
+            color: #06485F;
+            font-size: 34px;
+            font-weight: 900;
+            line-height: 1;
             margin-bottom: 8px;
         }
 
-        .summary-box strong {
-            display: block;
-            color: #06485F;
-            font-size: 32px;
-            font-weight: 900;
+        .summary-card small {
+            color: #7f8e93;
+            font-weight: 600;
         }
 
-        .summary-box small {
-            color: #7d8d92;
-        }
-
-    .schedule-section {
-        margin-top: 30px;
+    .schedule-panel {
+        max-width: 1120px;
+        margin: 0 auto 24px auto;
+        background: #ffffff;
+        border: 1px solid #d9e2e4;
+        border-radius: 22px;
+        padding: 24px;
     }
 
-        .schedule-section h2 {
+        .schedule-panel h2 {
             color: #06485F;
             font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 16px;
+            font-weight: 900;
+            margin-bottom: 18px;
         }
 
-    .schedule-list,
-    .leave-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .schedule-row {
-        display: grid;
-        grid-template-columns: 1.2fr repeat(5, 1fr);
-        gap: 12px;
-        align-items: center;
-        padding: 18px;
+    .schedule-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
         border: 1px solid #d9e2e4;
-        border-radius: 18px;
+        border-radius: 16px;
         background: #ffffff;
     }
 
-    .day-badge {
-        background: #eaf3f6;
-        color: #06485F;
-        border-radius: 14px;
-        padding: 13px;
-        text-align: center;
-        font-weight: 900;
-    }
+        .schedule-table thead th {
+            background: #eaf3f6;
+            color: #06485F;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 14px;
+            border-bottom: 1px solid #d9e2e4;
+            white-space: nowrap;
+        }
 
-    .time-info span,
-    .leave-row span {
-        display: block;
-        color: #7a8a90;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
+        .schedule-table tbody td {
+            color: #102a36;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 14px;
+            border-bottom: 1px solid #edf1f2;
+            vertical-align: middle;
+        }
 
-    .time-info strong,
-    .leave-row strong {
-        color: #102a36;
-        font-size: 14px;
-        font-weight: 800;
-    }
+        .schedule-table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
-    .leave-row {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 14px;
-        padding: 18px;
-        border: 1px solid #d9e2e4;
-        border-radius: 18px;
-        background: #ffffff;
-    }
+        .schedule-table tbody tr:hover {
+            background: #f8fafb;
+        }
 
     .empty-box {
         background: #f8fafb;
         border: 1px dashed #93acb4;
         color: #06485F;
-        border-radius: 18px;
+        border-radius: 16px;
         padding: 18px;
         text-align: center;
-        font-weight: 700;
+        font-weight: 800;
     }
 
-    @@media (max-width: 992px) {
+    @@media (max-width: 900px) {
         .schedule-summary
 
     {
         grid-template-columns: 1fr;
     }
 
-    .schedule-row {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .leave-row {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    }
-
-    @@media (max-width: 576px) {
-        .schedule-card
-
-    {
-        padding: 22px;
-    }
-
-    .schedule-row,
-    .leave-row {
-        grid-template-columns: 1fr;
+    .schedule-panel {
+        padding: 18px;
     }
 
     }

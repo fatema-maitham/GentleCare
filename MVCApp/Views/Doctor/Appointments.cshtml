@@ -5,326 +5,9 @@
     var selectedDateValue = Model.SelectedDate?.ToString("yyyy-MM-dd");
 }
 
-<style>
-    .appointments-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 18px 0 50px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .appointments-title-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-
-        .appointments-title-row h1 {
-            margin: 0;
-            font-size: 30px;
-            font-weight: 900;
-            color: #12262F;
-        }
-
-        .appointments-title-row p {
-            margin: 6px 0 0;
-            color: #687A80;
-            font-weight: 600;
-        }
-
-    .result-pill {
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-        border-radius: 999px;
-        padding: 9px 15px;
-        font-size: 13px;
-        font-weight: 900;
-        white-space: nowrap;
-    }
-
-    .filter-card,
-    .appointments-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 24px;
-        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.08);
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .card-clean-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
-        background: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-    }
-
-        .card-clean-header h4 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 900;
-            color: #075168;
-        }
-
-        .card-clean-header p {
-            margin: 5px 0 0;
-            color: #687A80;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-    .filter-body {
-        padding: 24px;
-    }
-
-    .filter-grid {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr auto;
-        gap: 16px;
-        align-items: end;
-    }
-
-    .filter-field label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 850;
-        color: #12262F;
-        font-size: 14px;
-    }
-
-    .filter-field input,
-    .filter-field select {
-        width: 100%;
-        height: 46px;
-        border: 1px solid #D6DDDE;
-        border-radius: 14px;
-        padding: 0 14px;
-        outline: none;
-        background: #ffffff;
-        color: #12262F;
-        font-weight: 600;
-    }
-
-        .filter-field input:focus,
-        .filter-field select:focus {
-            border-color: #00779B;
-            box-shadow: 0 0 0 3px rgba(0, 119, 155, 0.14);
-        }
-
-    .filter-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .gc-btn {
-        height: 46px;
-        border-radius: 14px;
-        padding: 0 18px;
-        border: none;
-        font-weight: 900;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        transition: 0.2s ease;
-    }
-
-    .gc-btn-primary {
-        background: #075168;
-        color: #ffffff;
-    }
-
-        .gc-btn-primary:hover {
-            background: #00779B;
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-
-    .gc-btn-light {
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-    }
-
-        .gc-btn-light:hover {
-            background: #DCE8EA;
-            color: #075168;
-            transform: translateY(-2px);
-        }
-
-    .active-filters {
-        margin-top: 18px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        color: #687A80;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .filter-badge {
-        background: #F8FAFA;
-        color: #075168;
-        border: 1px solid #D6DDDE;
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-weight: 850;
-    }
-
-    .appointments-table-wrap {
-        overflow-x: auto;
-    }
-
-    .appointments-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        .appointments-table th {
-            background: #F8FAFA;
-            color: #12262F;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 15px 18px;
-            border-bottom: 1px solid #D6DDDE;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .appointments-table td {
-            padding: 17px 18px;
-            border-bottom: 1px solid #EDF1F2;
-            vertical-align: middle;
-            color: #12262F;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .appointments-table tbody tr {
-            transition: background-color 0.18s ease;
-        }
-
-            .appointments-table tbody tr:hover {
-                background: #FAFCFC;
-            }
-
-    .patient-name {
-        font-weight: 900;
-        color: #12262F;
-    }
-
-    .reference-text,
-    .notes-muted {
-        color: #687A80;
-        font-weight: 650;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 6px 11px;
-        border-radius: 999px;
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-        font-size: 12px;
-        font-weight: 900;
-        white-space: nowrap;
-    }
-
-    .table-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .table-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 36px;
-        padding: 8px 12px;
-        border-radius: 12px;
-        border: 1px solid #D6DDDE;
-        background: #ffffff;
-        color: #075168;
-        font-size: 12px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: 0.2s ease;
-        white-space: nowrap;
-    }
-
-        .table-btn:hover {
-            background: #E7F1F3;
-            color: #075168;
-            transform: translateY(-1px);
-        }
-
-    .table-btn-main {
-        background: #075168;
-        color: #ffffff;
-        border-color: #075168;
-    }
-
-        .table-btn-main:hover {
-            background: #00779B;
-            color: #ffffff;
-            border-color: #00779B;
-        }
-
-    .empty-box {
-        margin: 24px;
-        padding: 18px;
-        border-radius: 16px;
-        background: #E7F1F3;
-        border: 1px solid #C9DBDF;
-        color: #075168;
-        font-weight: 800;
-    }
-
-    @@media (max-width: 900px) {
-        .appointments-title-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .filter-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .filter-actions {
-            width: 100%;
-        }
-
-        .gc-btn {
-            flex: 1;
-        }
-
-        .table-actions {
-            justify-content: flex-start;
-        }
-    }
-</style>
-
 <div class="appointments-page">
 
     <div class="appointments-title-row">
-        <div>
-            <h1>My Appointments</h1>
-            <p>Search, filter, and manage your patient appointments.</p>
-        </div>
-
         <span class="result-pill">
             @Model.TotalAppointments result(s)
         </span>
@@ -334,7 +17,7 @@
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
@@ -342,16 +25,13 @@
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <div class="filter-card">
         <div class="card-clean-header">
-            <div>
-                <h4>Search and Filter</h4>
-                <p>Find appointments by patient, status, date, CPR, reference, or notes.</p>
-            </div>
+            <h4>Search and Filter</h4>
         </div>
 
         <div class="filter-body">
@@ -361,16 +41,15 @@
                   class="filter-grid">
 
                 <div class="filter-field">
-                    <label for="searchTerm">Search</label>
-                    <input id="searchTerm"
-                           name="searchTerm"
+                    <label>Search</label>
+                    <input name="searchTerm"
                            value="@Model.SearchTerm"
                            placeholder="Patient name, CPR, reference, or notes" />
                 </div>
 
                 <div class="filter-field">
-                    <label for="status">Status</label>
-                    <select id="status" name="status">
+                    <label>Status</label>
+                    <select name="status">
                         <option value="">All statuses</option>
 
                         @foreach (var statusOption in Model.StatusOptions)
@@ -388,17 +67,12 @@
                 </div>
 
                 <div class="filter-field">
-                    <label for="date">Date</label>
-                    <input id="date"
-                           name="date"
-                           type="date"
-                           value="@selectedDateValue" />
+                    <label>Date</label>
+                    <input name="date" type="date" value="@selectedDateValue" />
                 </div>
 
                 <div class="filter-actions">
-                    <button type="submit" class="gc-btn gc-btn-primary">
-                        Apply
-                    </button>
+                    <button type="submit" class="gc-btn gc-btn-primary">Apply</button>
 
                     <a asp-controller="DoctorAppointment"
                        asp-action="Appointments"
@@ -407,39 +81,12 @@
                     </a>
                 </div>
             </form>
-
-            @if (Model.HasActiveFilters)
-            {
-                <div class="active-filters">
-                    <span>Active filters:</span>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
-                    {
-                        <span class="filter-badge">Search: @Model.SearchTerm</span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(Model.SelectedStatus))
-                    {
-                        <span class="filter-badge">Status: @Model.SelectedStatus</span>
-                    }
-
-                    @if (Model.SelectedDate.HasValue)
-                    {
-                        <span class="filter-badge">
-                            Date: @Model.SelectedDate.Value.ToString("dd MMM yyyy")
-                        </span>
-                    }
-                </div>
-            }
         </div>
     </div>
 
     <div class="appointments-card">
         <div class="card-clean-header">
-            <div>
-                <h4>Appointments</h4>
-                <p>Review appointment details, update status, or open patient history.</p>
-            </div>
+            <h4>Appointments</h4>
         </div>
 
         @if (Model.HasAppointments)
@@ -454,7 +101,7 @@
                             <th>Time</th>
                             <th>Status</th>
                             <th>Notes</th>
-                            <th style="text-align: right;">Actions</th>
+                            <th style="text-align:right;">Actions</th>
                         </tr>
                     </thead>
 
@@ -462,30 +109,16 @@
                         @foreach (var appointment in Model.Appointments)
                         {
                             <tr>
-                                <td>
-                                    <div class="patient-name">@appointment.PatientFullName</div>
-                                </td>
-
-                                <td>
-                                    <span class="reference-text">
-                                        @appointment.PatientReferenceNumber
-                                    </span>
-                                </td>
-
+                                <td class="patient-name">@appointment.PatientFullName</td>
+                                <td>@appointment.PatientReferenceNumber</td>
                                 <td>@appointment.AppointmentDateDisplay</td>
-
                                 <td>@appointment.TimeDisplay</td>
-
-                                <td>
-                                    <span class="status-badge">
-                                        @appointment.StatusName
-                                    </span>
-                                </td>
+                                <td><span class="status-badge">@appointment.StatusName</span></td>
 
                                 <td>
                                     @if (!string.IsNullOrWhiteSpace(appointment.Notes))
                                     {
-                                        <span>@appointment.Notes</span>
+                                        @appointment.Notes
                                     }
                                     else
                                     {
@@ -528,9 +161,191 @@
         }
         else
         {
-            <div class="empty-box">
-                No appointments found for the selected search or filters.
-            </div>
+            <div class="empty-box">No appointments found.</div>
         }
     </div>
 </div>
+
+<style>
+    .appointments-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 30px 20px 50px;
+    }
+
+    .appointments-title-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 22px;
+    }
+
+    .result-pill {
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        border-radius: 999px;
+        padding: 9px 15px;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .filter-card,
+    .appointments-card {
+        background: #ffffff;
+        border: 1px solid #D6DDDE;
+        border-radius: 24px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .card-clean-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #E9EEEE;
+    }
+
+        .card-clean-header h4 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            color: #075168;
+        }
+
+    .filter-body {
+        padding: 24px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr auto;
+        gap: 16px;
+        align-items: end;
+    }
+
+    .filter-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 850;
+        color: #12262F;
+    }
+
+    .filter-field input,
+    .filter-field select {
+        width: 100%;
+        height: 46px;
+        border: 1px solid #D6DDDE;
+        border-radius: 14px;
+        padding: 0 14px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .gc-btn {
+        height: 46px;
+        border-radius: 14px;
+        padding: 0 18px;
+        font-weight: 900;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+    }
+
+    .gc-btn-primary {
+        background: #075168;
+        color: #ffffff;
+    }
+
+    .gc-btn-light {
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+    }
+
+    .appointments-table-wrap {
+        overflow-x: auto;
+    }
+
+    .appointments-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .appointments-table th {
+            background: #F8FAFA;
+            color: #12262F;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 15px 18px;
+            border-bottom: 1px solid #D6DDDE;
+            text-align: left;
+        }
+
+        .appointments-table td {
+            padding: 17px 18px;
+            border-bottom: 1px solid #EDF1F2;
+            color: #12262F;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+    .patient-name {
+        font-weight: 900;
+    }
+
+    .status-badge {
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .notes-muted {
+        color: #687A80;
+    }
+
+    .table-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .table-btn {
+        padding: 8px 12px;
+        border-radius: 12px;
+        border: 1px solid #D6DDDE;
+        background: #ffffff;
+        color: #075168;
+        font-size: 12px;
+        font-weight: 900;
+        text-decoration: none;
+    }
+
+    .table-btn-main {
+        background: #075168;
+        color: #ffffff;
+        border-color: #075168;
+    }
+
+    .empty-box {
+        margin: 24px;
+        padding: 18px;
+        border-radius: 16px;
+        background: #E7F1F3;
+        color: #075168;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 900px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

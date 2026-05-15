@@ -4,246 +4,9 @@
     ViewData["Title"] = "Appointment Details";
 }
 
-<style>
-    .details-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 18px 0 50px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .details-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-        .details-header h1 {
-            margin: 0;
-            font-size: 30px;
-            font-weight: 900;
-            color: #12262F;
-        }
-
-        .details-header p {
-            margin: 6px 0 0;
-            color: #687A80;
-            font-weight: 600;
-        }
-
-    .details-btn {
-        min-height: 44px;
-        border-radius: 14px;
-        padding: 10px 17px;
-        border: 1px solid #C9DBDF;
-        background: #E7F1F3;
-        color: #075168;
-        font-weight: 900;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.2s ease;
-        white-space: nowrap;
-    }
-
-        .details-btn:hover {
-            background: #DCE8EA;
-            color: #075168;
-            transform: translateY(-2px);
-        }
-
-    .details-btn-main {
-        background: #075168;
-        color: #ffffff;
-        border-color: #075168;
-    }
-
-        .details-btn-main:hover {
-            background: #00779B;
-            color: #ffffff;
-            border-color: #00779B;
-        }
-
-    .details-btn-success {
-        background: #4C825C;
-        color: #ffffff;
-        border-color: #4C825C;
-    }
-
-        .details-btn-success:hover {
-            background: #3f704e;
-            color: #ffffff;
-        }
-
-    .details-grid-top {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 22px;
-        margin-bottom: 24px;
-    }
-
-    .details-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 24px;
-        box-shadow: 0 12px 28px rgba(7, 81, 104, 0.08);
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .details-card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
-        background: #ffffff;
-    }
-
-        .details-card-header h4 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 900;
-            color: #075168;
-        }
-
-    .details-card-body {
-        padding: 24px;
-    }
-
-    .info-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .info-row {
-        display: grid;
-        grid-template-columns: 170px 1fr;
-        gap: 16px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid #EDF1F2;
-    }
-
-        .info-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-    .info-label {
-        color: #687A80;
-        font-weight: 850;
-        font-size: 14px;
-    }
-
-    .info-value {
-        color: #12262F;
-        font-weight: 700;
-        word-break: break-word;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 6px 11px;
-        border-radius: 999px;
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-        font-size: 12px;
-        font-weight: 900;
-    }
-
-    .muted-value {
-        color: #687A80;
-        font-weight: 650;
-    }
-
-    .actions-wrap {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .empty-box {
-        padding: 16px;
-        border-radius: 16px;
-        background: #E7F1F3;
-        border: 1px solid #C9DBDF;
-        color: #075168;
-        font-weight: 800;
-    }
-
-    .prescription-table-wrap {
-        overflow-x: auto;
-    }
-
-    .prescription-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        .prescription-table th {
-            background: #F8FAFA;
-            color: #12262F;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 15px 18px;
-            border-bottom: 1px solid #D6DDDE;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .prescription-table td {
-            padding: 17px 18px;
-            border-bottom: 1px solid #EDF1F2;
-            vertical-align: middle;
-            color: #12262F;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .prescription-table tbody tr:hover {
-            background: #FAFCFC;
-        }
-
-    @@media (max-width: 900px) {
-        .details-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .details-grid-top {
-            grid-template-columns: 1fr;
-        }
-
-        .info-row {
-            grid-template-columns: 1fr;
-            gap: 5px;
-        }
-
-        .details-btn {
-            width: 100%;
-        }
-
-        .actions-wrap .details-btn {
-            width: auto;
-        }
-    }
-
-    @@media (max-width: 600px) {
-        .actions-wrap .details-btn {
-            width: 100%;
-        }
-    }
-</style>
-
 <div class="details-page">
 
     <div class="details-header">
-        <div>
-            <h1>Appointment Details</h1>
-            <p>Review appointment information, patient details, visit record, and prescriptions.</p>
-        </div>
-
         <a asp-controller="DoctorAppointment"
            asp-action="Appointments"
            class="details-btn">
@@ -255,7 +18,7 @@
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
@@ -263,7 +26,7 @@
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
@@ -296,14 +59,7 @@
                     <div class="info-row">
                         <div class="info-label">Notes</div>
                         <div class="info-value">
-                            @if (!string.IsNullOrWhiteSpace(Model.Notes))
-                            {
-                                @Model.Notes
-                            }
-                            else
-                            {
-                                <span class="muted-value">No notes recorded.</span>
-                            }
+                            @(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes recorded." : Model.Notes)
                         </div>
                     </div>
 
@@ -341,7 +97,7 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 18px;">
+                <div style="margin-top:18px;">
                     <a asp-controller="DoctorAppointment"
                        asp-action="PatientHistory"
                        asp-route-patientId="@Model.PatientId"
@@ -390,11 +146,6 @@
                         Edit Visit Record
                     </a>
                 }
-
-                @if (!Model.CanUpdateStatus && !Model.CanCreateVisitRecord && !Model.CanEditVisitRecord)
-                {
-                    <span class="muted-value">No actions are available for this appointment.</span>
-                }
             </div>
         </div>
     </div>
@@ -421,14 +172,7 @@
                     <div class="info-row">
                         <div class="info-label">Treatment</div>
                         <div class="info-value">
-                            @if (!string.IsNullOrWhiteSpace(Model.Treatment))
-                            {
-                                @Model.Treatment
-                            }
-                            else
-                            {
-                                <span class="muted-value">No treatment recorded.</span>
-                            }
+                            @(string.IsNullOrWhiteSpace(Model.Treatment) ? "No treatment recorded." : Model.Treatment)
                         </div>
                     </div>
                 </div>
@@ -471,14 +215,7 @@
                                     <td>@prescription.Frequency</td>
                                     <td>@prescription.DurationDisplay</td>
                                     <td>
-                                        @if (!string.IsNullOrWhiteSpace(prescription.Instructions))
-                                        {
-                                            @prescription.Instructions
-                                        }
-                                        else
-                                        {
-                                            <span class="muted-value">No instructions</span>
-                                        }
+                                        @(string.IsNullOrWhiteSpace(prescription.Instructions) ? "No instructions" : prescription.Instructions)
                                     </td>
                                 </tr>
                             }
@@ -496,3 +233,151 @@
     </div>
 
 </div>
+
+<style>
+    .details-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 30px 20px 50px;
+    }
+
+    .details-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 24px;
+    }
+
+    .details-grid-top {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 22px;
+        margin-bottom: 24px;
+    }
+
+    .details-card {
+        background: #ffffff;
+        border: 1px solid #D6DDDE;
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .details-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #E9EEEE;
+    }
+
+        .details-card-header h4 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            color: #075168;
+        }
+
+    .details-card-body {
+        padding: 24px;
+    }
+
+    .info-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #EDF1F2;
+    }
+
+    .info-label {
+        color: #687A80;
+        font-weight: 850;
+    }
+
+    .info-value {
+        color: #12262F;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .details-btn {
+        border-radius: 14px;
+        padding: 10px 17px;
+        border: 1px solid #C9DBDF;
+        background: #E7F1F3;
+        color: #075168;
+        font-weight: 900;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .details-btn-main {
+        background: #075168;
+        color: #ffffff;
+        border-color: #075168;
+    }
+
+    .details-btn-success {
+        background: #4C825C;
+        color: #ffffff;
+        border-color: #4C825C;
+    }
+
+    .actions-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .empty-box {
+        padding: 16px;
+        border-radius: 16px;
+        background: #E7F1F3;
+        color: #075168;
+        font-weight: 800;
+    }
+
+    .prescription-table-wrap {
+        overflow-x: auto;
+    }
+
+    .prescription-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .prescription-table th {
+            background: #F8FAFA;
+            padding: 15px 18px;
+            font-weight: 900;
+            border-bottom: 1px solid #D6DDDE;
+        }
+
+        .prescription-table td {
+            padding: 17px 18px;
+            border-bottom: 1px solid #EDF1F2;
+            font-weight: 600;
+        }
+
+    @@media (max-width: 900px) {
+        .details-grid-top {
+            grid-template-columns: 1fr;
+        }
+
+        .info-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
