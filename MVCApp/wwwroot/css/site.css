@@ -931,14 +931,15 @@ main,
 
 /* Footer */
 
-.app-footer,
-.layout-footer {
-    border-top: 1px solid var(--gc-border);
-    background: #ffffff;
-    color: var(--gc-muted);
+.gc-footer {
+    width: 100%;
+    margin-top: auto;
+    padding: 18px 20px;
+    background: #075168;
+    color: #ffffff;
     text-align: center;
-    padding: 18px 0;
-    margin-top: 30px;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 /* Mobile */
