@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create Doctor";
 }
 
-<div class="page-header">
+<div class="page-header clean-header">
     <div>
         <h1>Create Doctor</h1>
         <p>Add a new doctor account and profile.</p>
@@ -13,7 +13,7 @@
     <a asp-controller="ClinicManager"
        asp-action="Doctors"
        class="secondary-btn">
-        Back to Doctors
+        Back
     </a>
 </div>
 
@@ -27,79 +27,64 @@
 <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<div class="section-card">
-    <form asp-controller="ClinicManager" asp-action="CreateDoctor" method="post">
+<div class="clean-form-wrapper">
+    <form asp-controller="ClinicManager" asp-action="CreateDoctor" method="post" class="clean-form">
         @Html.AntiForgeryToken()
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div class="form-grid">
-            <div class="form-group">
-                <label asp-for="FullName"></label>
-                <input asp-for="FullName" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="PhoneNumber"></label>
-                <input asp-for="PhoneNumber" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="LicenseNumber"></label>
-                <input asp-for="LicenseNumber" />
-                <span asp-validation-for="LicenseNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ConfirmPassword"></label>
-                <input asp-for="ConfirmPassword" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
+        <div class="form-row">
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
+        <div class="form-row">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" placeholder="Enter email address" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <label asp-for="PhoneNumber"></label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <label asp-for="LicenseNumber"></label>
+            <input asp-for="LicenseNumber" class="form-control" placeholder="Enter license number" />
+            <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" placeholder="Enter password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
             <label asp-for="Bio"></label>
-            <textarea asp-for="Bio" rows="4"></textarea>
+            <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Write short doctor bio"></textarea>
             <span asp-validation-for="Bio" class="text-danger"></span>
         </div>
 
-        <div class="form-group checkbox-row">
-            <input asp-for="IsActive" />
-            <label asp-for="IsActive"></label>
-            <span asp-validation-for="IsActive" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="SelectedSpecializationIds"></label>
+        <div class="form-row">
+            <label asp-for="SelectedSpecializationIds">Specialization</label>
 
             @if (Model.SpecializationOptions.Any())
             {
-            <div class="checkbox-list">
-                @foreach (var specialization in Model.SpecializationOptions)
-                    {
-                <label class="checkbox-item">
-                    <input type="checkbox"
-                           name="SelectedSpecializationIds"
-                           value="@specialization.Value"
-                           checked="@(Model.SelectedSpecializationIds.Contains(int.Parse(specialization.Value)))" />
-                    <span>@specialization.Text</span>
-                </label>
-                    }
-            </div>
+            <select asp-for="SelectedSpecializationIds"
+                    asp-items="Model.SpecializationOptions"
+                    class="form-control">
+                <option value="">Select specialization</option>
+            </select>
             }
             else
             {
@@ -109,7 +94,15 @@
             <span asp-validation-for="SelectedSpecializationIds" class="text-danger"></span>
         </div>
 
-        <div class="form-actions">
+        <div class="form-row active-row">
+            <label class="switch-line">
+                <input asp-for="IsActive" />
+                <span>Active doctor account</span>
+            </label>
+            <span asp-validation-for="IsActive" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions clean-actions">
             <button type="submit" class="primary-btn">Create Doctor</button>
 
             <a asp-controller="ClinicManager"
@@ -120,6 +113,121 @@
         </div>
     </form>
 </div>
+
+<style>
+    .clean-header {
+        margin-bottom: 24px;
+    }
+
+    .clean-form-wrapper {
+        max-width: 760px;
+        background: transparent;
+    }
+
+    .clean-form {
+        width: 100%;
+    }
+
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+        .form-row label {
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: #0f172a;
+        }
+
+        .form-control,
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 15px;
+            background: #fff;
+            color: #0f172a;
+            outline: none;
+        }
+
+        .form-row textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+            .form-control:focus,
+            .form-row input:focus,
+            .form-row select:focus,
+            .form-row textarea:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            }
+
+    .active-row {
+        margin-top: 4px;
+    }
+
+    .switch-line {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500 !important;
+    }
+
+        .switch-line input {
+            width: 16px;
+            height: 16px;
+            min-height: auto;
+        }
+
+    .clean-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        min-width: 130px;
+        height: 42px;
+        border-radius: 8px;
+        padding: 10px 18px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+
+    .primary-btn {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+    }
+
+    .secondary-btn {
+        background: #fff;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .empty-text {
+        color: #64748b;
+        margin: 0;
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

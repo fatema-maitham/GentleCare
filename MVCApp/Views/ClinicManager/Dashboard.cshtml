@@ -20,77 +20,400 @@
     }
 }
 
-<div class="gc-dashboard">
+<style>
+    :root {
+        --primary: #0066CC;
+        --accent: #00A8A8;
+        --sidebar: #1A3A52;
+        --page: #F8FAFC;
+        --surface: #FFFFFF;
+        --soft: #EFF4F9;
+        --text: #1A1F2E;
+        --muted: #64748B;
+        --border: #D8E3ED;
+    }
 
-    <!-- Top Cards -->
-    <div class="gc-card-row">
+    body {
+        background: var(--page) !important;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
+        color: var(--text);
+    }
 
-        <div class="gc-stat-card">
-            <span>Doctors</span>
-            <strong>@Model.TotalDoctors</strong>
-        </div>
+    .manager-dashboard-page {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 24px 0 44px;
+    }
 
-        <div class="gc-stat-card">
-            <span>Patients</span>
-            <strong>@Model.TotalPatients</strong>
-        </div>
+    .dashboard-header {
+        margin-bottom: 22px;
+    }
 
-        <div class="gc-stat-card">
-            <span>Appointments Today</span>
-            <strong>@Model.AppointmentsToday</strong>
-        </div>
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--text);
+        }
 
-        <div class="gc-stat-card">
-            <span>Doctors On Leave</span>
-            <strong>@Model.DoctorsOnLeaveToday</strong>
-        </div>
+        .dashboard-header p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
 
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .dashboard-stat {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+        min-height: 116px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-stat::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: var(--accent);
+        }
+
+    .dashboard-number {
+        display: block;
+        font-size: 38px;
+        font-weight: 900;
+        color: var(--primary);
+        margin-bottom: 12px;
+        line-height: 1;
+    }
+
+    .dashboard-stat-title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .dashboard-main-grid {
+        display: grid;
+        grid-template-columns: 410px 1fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .dashboard-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .calendar-wrap {
+        padding-bottom: 18px;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px 22px 12px;
+    }
+
+    .calendar-month {
+        text-align: center;
+    }
+
+        .calendar-month h2 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .calendar-month small {
+            display: block;
+            margin-top: 8px;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+    .calendar-weekdays,
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        padding: 0 24px;
+    }
+
+    .calendar-weekdays {
+        margin-top: 18px;
+        margin-bottom: 10px;
+    }
+
+        .calendar-weekdays div {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text);
+            padding: 6px 0;
+        }
+
+    .calendar-grid {
+        padding-bottom: 22px;
+    }
+
+    .calendar-day,
+    .calendar-empty {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 800;
+        border-radius: 12px;
+        position: relative;
+    }
+
+    .calendar-day-number {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .calendar-day.today .calendar-day-number {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 6px 14px rgba(0,102,204,0.22);
+    }
+
+    .calendar-dot {
+        position: absolute;
+        bottom: 4px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+    }
+
+    .calendar-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding: 0 24px 6px;
+    }
+
+        .calendar-summary div {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .calendar-summary span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .calendar-summary strong {
+            color: var(--text);
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+    .appointments-card {
+        padding: 26px 28px;
+    }
+
+    .appointments-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+        .appointments-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .appointments-header a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 900;
+        }
+
+    .manager-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .manager-table th {
+            text-align: left;
+            padding: 13px 14px;
+            background: var(--soft);
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .manager-table td {
+            padding: 16px 14px;
+            border-bottom: 1px solid #EAF0F6;
+            color: var(--text);
+            font-size: 15px;
+        }
+
+    .status-pill {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(0,168,168,0.10);
+        color: #007D7D;
+        border: 1px solid rgba(0,168,168,0.25);
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .details-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 900;
+    }
+
+    .empty-message {
+        padding: 16px;
+        border-radius: 14px;
+        background: var(--soft);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        margin: 0;
+    }
+
+    @@media (max-width: 980px) {
+        .dashboard-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .dashboard-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .appointments-card {
+            padding: 20px;
+        }
+
+        .calendar-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="manager-dashboard-page">
+
+    <div class="dashboard-header">
+        <h1>Clinic Manager Dashboard</h1>
+        <p>Monitor doctors, patients, appointments, and today’s clinic activity.</p>
     </div>
 
-    <!-- Main Dashboard -->
-    <div class="gc-dashboard-grid">
+    <div class="dashboard-stats">
+        <div class="dashboard-stat">
+            <strong class="dashboard-number">@Model.TotalDoctors</strong>
+            <p class="dashboard-stat-title">Doctors</p>
+        </div>
 
-        <!-- Calendar Panel -->
-        <div class="gc-panel">
-            <div class="gc-panel-header">
-                <h2>Appointments Calendar</h2>
+        <div class="dashboard-stat">
+            <strong class="dashboard-number">@Model.TotalPatients</strong>
+            <p class="dashboard-stat-title">Patients</p>
+        </div>
+
+        <div class="dashboard-stat">
+            <strong class="dashboard-number">@Model.AppointmentsToday</strong>
+            <p class="dashboard-stat-title">Appointments Today</p>
+        </div>
+
+        <div class="dashboard-stat">
+            <strong class="dashboard-number">@Model.DoctorsOnLeaveToday</strong>
+            <p class="dashboard-stat-title">Doctors On Leave</p>
+        </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+
+        <div class="dashboard-card calendar-wrap">
+            <div class="calendar-header">
+                <div class="calendar-month">
+                    <h2>@today.ToString("MMMM")</h2>
+                    <small>@today.Year</small>
+                </div>
             </div>
 
-            <div class="gc-calendar-header">
-                <button type="button" disabled>&lt;</button>
-                <h3>@today.ToString("MMMM yyyy")</h3>
-                <button type="button" disabled>&gt;</button>
+            <div class="calendar-weekdays">
+                <div>S</div>
+                <div>M</div>
+                <div>T</div>
+                <div>W</div>
+                <div>T</div>
+                <div>F</div>
+                <div>S</div>
             </div>
 
-            <div class="gc-calendar-weekdays">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
-            </div>
-
-            <div class="gc-calendar-days">
+            <div class="calendar-grid">
                 @for (var i = 0; i < startOffset; i++)
                 {
-                <span class="gc-empty-day"></span>
+                <span class="calendar-empty"></span>
                 }
 
                 @for (var day = 1; day <= daysInMonth; day++)
                 {
                     var isToday = day == today.Day;
 
-                <span class="@(isToday ? "gc-day active" : "gc-day")">
-                    @day
+                <span class="calendar-day @(isToday ? "today" : "")">
+                    <span class="calendar-day-number">@day</span>
+
+                    @if (isToday && Model.AppointmentsToday > 0)
+                        {
+                    <span class="calendar-dot"></span>
+                        }
                 </span>
                 }
             </div>
 
-            <div class="gc-calendar-summary">
+            <div class="calendar-summary">
                 <div>
-                    <span>Today Appointments</span>
+                    <span>Today</span>
                     <strong>@Model.AppointmentsToday</strong>
                 </div>
 
@@ -106,9 +429,8 @@
             </div>
         </div>
 
-        <!-- Today Appointments Panel -->
-        <div class="gc-panel">
-            <div class="gc-panel-header">
+        <div class="dashboard-card appointments-card">
+            <div class="appointments-header">
                 <h2>Today Appointments</h2>
 
                 <a asp-controller="ClinicManager"
@@ -120,55 +442,45 @@
 
             @if (Model.HasAppointmentsToday)
             {
-            <div class="gc-table-wrap">
-                <table class="gc-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Patient</th>
-                            <th>Doctor</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+            <table class="manager-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        @foreach (var appointment in Model.TodayAppointments.Take(5))
-                            {
-                        <tr>
-                            <td>@appointment.TimeText</td>
-                            <td>@appointment.PatientName</td>
-                            <td>Dr. @appointment.DoctorName</td>
-                            <td>
-                                <span class="gc-status-pill">@appointment.StatusName</span>
-                            </td>
-                            <td>
-                                <a asp-controller="ClinicManager"
-                                   asp-action="AppointmentDetails"
-                                   asp-route-id="@appointment.AppointmentId">
-                                    Details
-                                </a>
-                            </td>
-                        </tr>
-                            }
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="gc-table-footer">
-                <a asp-controller="ClinicManager"
-                   asp-action="Appointments"
-                   asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")">
-                    View all appointments
-                </a>
-            </div>
+                <tbody>
+                    @foreach (var appointment in Model.TodayAppointments.Take(5))
+                        {
+                    <tr>
+                        <td>@appointment.TimeText</td>
+                        <td>@appointment.PatientName</td>
+                        <td>Dr. @appointment.DoctorName</td>
+                        <td>
+                            <span class="status-pill">@appointment.StatusName</span>
+                        </td>
+                        <td>
+                            <a asp-controller="ClinicManager"
+                               asp-action="AppointmentDetails"
+                               asp-route-id="@appointment.AppointmentId"
+                               class="details-link">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                        }
+                </tbody>
+            </table>
             }
             else
             {
-            <p class="gc-empty">No appointments scheduled for today.</p>
+            <p class="empty-message">No appointments scheduled for today.</p>
             }
         </div>
 
     </div>
-
 </div>
