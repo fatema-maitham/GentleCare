@@ -4,28 +4,29 @@ using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Doctor;
 using WebAPI.Data;
 using WebAPI.Models;
+using WebAPI.Services;
 
 namespace MVCApp.Services
 {
-    // Business logic for doctor appointments.
-    // This keeps filtering, details, status workflow, and patient history outside controllers.
     public class DoctorAppointmentService : IDoctorAppointmentService
     {
         private readonly ApplicationDbContext _context;
         private readonly IAppointmentWorkflowService _workflowService;
         private readonly INotificationService _notificationService;
+        private readonly NotificationHubService _hubService;
 
         public DoctorAppointmentService(
             ApplicationDbContext context,
             IAppointmentWorkflowService workflowService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            NotificationHubService hubService)
         {
             _context = context;
             _workflowService = workflowService;
             _notificationService = notificationService;
+            _hubService = hubService;
         }
 
-        // Gets appointment list for the logged-in doctor with optional filters.
         public async Task<DoctorAppointmentListViewModel?> GetAppointmentsAsync(
             string userId,
             string? searchTerm,
@@ -33,18 +34,14 @@ namespace MVCApp.Services
             DateTime? date)
         {
             var doctor = await GetCurrentDoctorAsync(userId);
-            if (doctor == null)
-            {
-                return null;
-            }
+            if (doctor == null) return null;
 
             searchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
             status = string.IsNullOrWhiteSpace(status) ? null : _workflowService.NormalizeStatusName(status.Trim());
 
             var query = _context.Appointments
                 .AsNoTracking()
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
                 .Include(a => a.Status)
                 .Where(a => a.DoctorId == doctor.Id)
                 .AsQueryable();
@@ -59,9 +56,7 @@ namespace MVCApp.Services
             }
 
             if (!string.IsNullOrWhiteSpace(status))
-            {
                 query = query.Where(a => a.Status.Name == status);
-            }
 
             if (date.HasValue)
             {
@@ -96,14 +91,10 @@ namespace MVCApp.Services
             };
         }
 
-        // Gets one appointment details page for the logged-in doctor.
         public async Task<DoctorAppointmentDetailsViewModel?> GetAppointmentDetailsAsync(string userId, int appointmentId)
         {
-            var appointment = await GetDoctorAppointmentAsync(userId, appointmentId, asTracking: false);
-            if (appointment == null)
-            {
-                return null;
-            }
+            var appointment = await GetDoctorAppointmentAsync(userId, appointmentId, false);
+            if (appointment == null) return null;
 
             var currentStatus = appointment.Status.Name;
             var allowedNextStatuses = BuildAllowedStatusSelectList(currentStatus);
@@ -117,18 +108,22 @@ namespace MVCApp.Services
                 StatusName = _workflowService.FormatStatusName(currentStatus),
                 Notes = appointment.Notes,
                 CancellationReason = appointment.CancellationReason,
+
                 PatientId = appointment.PatientId,
                 PatientFullName = appointment.Patient.User.FullName,
                 PatientReferenceNumber = appointment.Patient.ReferenceNumber,
                 PatientCprNumber = appointment.Patient.CPRNumber,
+
                 DoctorNotes = appointment.VisitRecord?.DoctorNotes,
                 Diagnosis = appointment.VisitRecord?.Diagnosis,
                 Treatment = appointment.VisitRecord?.Treatment,
+
                 HasVisitRecord = appointment.VisitRecord != null,
                 CanCreateVisitRecord = appointment.VisitRecord == null && CanCreateVisitRecord(currentStatus),
                 CanEditVisitRecord = appointment.VisitRecord != null,
                 CanUpdateStatus = allowedNextStatuses.Any(),
                 AvailableNextStatuses = allowedNextStatuses,
+
                 Prescriptions = appointment.VisitRecord?.Prescriptions
                     .Select(p => new PrescriptionInputViewModel
                     {
@@ -138,19 +133,14 @@ namespace MVCApp.Services
                         DurationDays = p.DurationDays,
                         Instructions = p.Instructions
                     })
-                    .ToList()
-                    ?? new List<PrescriptionInputViewModel>()
+                    .ToList() ?? new List<PrescriptionInputViewModel>()
             };
         }
 
-        // Builds the update-status form with only valid next statuses.
         public async Task<UpdateAppointmentStatusViewModel?> GetUpdateStatusModelAsync(string userId, int appointmentId)
         {
-            var appointment = await GetDoctorAppointmentAsync(userId, appointmentId, asTracking: false);
-            if (appointment == null)
-            {
-                return null;
-            }
+            var appointment = await GetDoctorAppointmentAsync(userId, appointmentId, false);
+            if (appointment == null) return null;
 
             return new UpdateAppointmentStatusViewModel
             {
@@ -161,42 +151,34 @@ namespace MVCApp.Services
             };
         }
 
-        // Updates status after checking appointment ownership and valid workflow transition.
         public async Task<(bool Success, string? ErrorMessage)> UpdateStatusAsync(
             string userId,
             UpdateAppointmentStatusViewModel model)
         {
-            var appointment = await GetDoctorAppointmentAsync(userId, model.AppointmentId, asTracking: true);
+            var appointment = await GetDoctorAppointmentAsync(userId, model.AppointmentId, true);
+
             if (appointment == null)
-            {
                 return (false, "Appointment was not found.");
-            }
 
             var newStatus = _workflowService.NormalizeStatusName(model.NewStatusName);
+
             if (string.IsNullOrWhiteSpace(newStatus))
-            {
                 return (false, "Please select a new status.");
-            }
 
             if (!GetDoctorAllowedNextStatuses(appointment.Status.Name).Contains(newStatus))
-            {
                 return (false, "Invalid status transition for doctor workflow.");
-            }
 
             if (newStatus == "Missed" && !CanMarkAsMissed(appointment))
-            {
                 return (false, "The appointment can only be marked as missed after its scheduled time has passed.");
-            }
 
             var newStatusEntity = await _context.AppointmentStatuses
                 .FirstOrDefaultAsync(s => s.Name == newStatus);
 
             if (newStatusEntity == null)
-            {
                 return (false, "Selected status does not exist in the database.");
-            }
 
             var oldStatusName = appointment.Status.Name;
+
             appointment.StatusId = newStatusEntity.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
 
@@ -208,37 +190,52 @@ namespace MVCApp.Services
                 appointment.Id,
                 nameof(Appointment));
 
+            await _notificationService.CreateNotificationAsync(
+                appointment.Doctor.UserId,
+                "Appointment Status Updated",
+                $"Appointment with {appointment.Patient.User.FullName} is now {_workflowService.FormatStatusName(newStatusEntity.Name)}.",
+                "Appointment",
+                appointment.Id,
+                nameof(Appointment));
+
             await _context.SaveChangesAsync();
+
+            await _hubService.NotifyAppointmentStatusChanged(
+                appointment.Id,
+                appointment.Patient.User.FullName,
+                appointment.Doctor.User.FullName,
+                _workflowService.FormatStatusName(newStatusEntity.Name));
+
+            await _hubService.NotifyPatient(
+                appointment.PatientId,
+                "Appointment Update",
+                $"Your appointment is now {_workflowService.FormatStatusName(newStatusEntity.Name)}.");
+
+            await _hubService.NotifyDoctor(
+                appointment.DoctorId,
+                "Appointment Update",
+                $"Appointment with {appointment.Patient.User.FullName} is now {_workflowService.FormatStatusName(newStatusEntity.Name)}.");
+
             return (true, null);
         }
 
-        // Gets patient history only if the logged-in doctor has an appointment with that patient.
         public async Task<DoctorPatientHistoryViewModel?> GetPatientHistoryAsync(string userId, int patientId)
         {
             var doctor = await GetCurrentDoctorAsync(userId);
-            if (doctor == null)
-            {
-                return null;
-            }
+            if (doctor == null) return null;
 
             var patient = await _context.Patients
                 .AsNoTracking()
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.Id == patientId);
 
-            if (patient == null)
-            {
-                return null;
-            }
+            if (patient == null) return null;
 
             var hasRelationship = await _context.Appointments
                 .AsNoTracking()
                 .AnyAsync(a => a.DoctorId == doctor.Id && a.PatientId == patientId);
 
-            if (!hasRelationship)
-            {
-                return null;
-            }
+            if (!hasRelationship) return null;
 
             var visits = await _context.Appointments
                 .AsNoTracking()
@@ -281,10 +278,7 @@ namespace MVCApp.Services
 
         private async Task<Doctor?> GetCurrentDoctorAsync(string userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(userId)) return null;
 
             return await _context.Doctors
                 .Include(d => d.User)
@@ -293,25 +287,18 @@ namespace MVCApp.Services
 
         private async Task<Appointment?> GetDoctorAppointmentAsync(string userId, int appointmentId, bool asTracking)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(userId)) return null;
 
             var query = _context.Appointments.AsQueryable();
+
             if (!asTracking)
-            {
                 query = query.AsNoTracking();
-            }
 
             return await query
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
                 .Include(a => a.Status)
-                .Include(a => a.VisitRecord)
-                    .ThenInclude(v => v!.Prescriptions)
+                .Include(a => a.VisitRecord).ThenInclude(v => v!.Prescriptions)
                 .FirstOrDefaultAsync(a =>
                     a.Id == appointmentId &&
                     a.Doctor.UserId == userId &&
@@ -343,8 +330,6 @@ namespace MVCApp.Services
                 .ToList();
         }
 
-
-        // Doctors can only move appointments through consultation progress statuses.
         private static List<string> GetDoctorAllowedNextStatuses(string currentStatusName)
         {
             return currentStatusName switch
