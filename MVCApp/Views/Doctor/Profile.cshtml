@@ -3,9 +3,24 @@
 @{
     ViewData["Title"] = "Doctor Profile";
 
-    var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
-        ? Url.Content("~/images/doctors/default-doctor.png")
-        : Url.Content("~/" + Model.ProfilePicture.TrimStart('/'));
+    string profileImage;
+
+    if (string.IsNullOrWhiteSpace(Model.ProfilePicture))
+    {
+        profileImage = Url.Content("~/images/doctors/default-doctor.png");
+    }
+    else if (Model.ProfilePicture.StartsWith("/"))
+    {
+        profileImage = Url.Content("~" + Model.ProfilePicture);
+    }
+    else if (Model.ProfilePicture.Contains("/"))
+    {
+        profileImage = Url.Content("~/" + Model.ProfilePicture.TrimStart('/'));
+    }
+    else
+    {
+        profileImage = Url.Content("~/images/doctors/" + Model.ProfilePicture);
+    }
 }
 
 <style>
@@ -177,9 +192,9 @@
 
         <div class="doctor-avatar-area">
             <img src="@profileImage"
-                 alt=""
+                 alt="Doctor profile picture"
                  class="doctor-avatar-img"
-                 onerror="this.src='@Url.Content("~/images/doctors/default-doctor.png")';" />
+                 onerror="this.onerror=null; this.src='@Url.Content("~/images/doctors/default-doctor.png")';" />
         </div>
 
         <div class="doctor-name-block">
@@ -216,19 +231,19 @@
             <div class="doctor-info-row">
                 <div class="doctor-label">Bio</div>
                 <div class="doctor-value">
-                    @(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio added yet." : Model.Bio)
+                    @(string.IsNullOrWhiteSpace(Model.Bio)
+                                        ? "No bio added yet."
+                                        : Model.Bio)
                 </div>
             </div>
 
         </div>
 
         <div class="doctor-profile-actions">
-            <a asp-controller="Doctor" asp-action="EditProfile" class="doctor-btn doctor-btn-primary">
+            <a asp-controller="Doctor"
+               asp-action="EditProfile"
+               class="doctor-btn doctor-btn-primary">
                 Edit Profile
-            </a>
-
-            <a asp-controller="Doctor" asp-action="Dashboard" class="doctor-btn doctor-btn-secondary">
-                Back to Dashboard
             </a>
         </div>
 
