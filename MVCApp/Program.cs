@@ -2,10 +2,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Models;
+using WebAPI.Hubs;
+using WebAPI.Services;
 using MVCApp.Services;
 using MVCApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<NotificationHubService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -66,6 +71,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.MapHub<AppointmentHub>("/hubs/appointment");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

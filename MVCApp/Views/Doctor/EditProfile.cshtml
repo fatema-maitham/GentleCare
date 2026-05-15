@@ -2,9 +2,10 @@
 
 @{
     ViewData["Title"] = "Edit Profile";
+
     var profileImage = string.IsNullOrWhiteSpace(Model.CurrentProfilePicture)
-        ? "/images/doctors/default-doctor.png"
-        : Model.CurrentProfilePicture;
+        ? Url.Content("~/images/doctors/default-doctor.png")
+        : Url.Content("~/images/doctors/" + System.IO.Path.GetFileName(Model.CurrentProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
 <style>
@@ -181,11 +182,6 @@
 
 <div class="doctor-edit-page">
     <section class="doctor-edit-card">
-
-        <div class="doctor-edit-header">
-            <h1>Edit Profile</h1>
-            <p>Update your doctor information and profile picture.</p>
-        </div>
 
         <form asp-controller="Doctor"
               asp-action="EditProfile"
