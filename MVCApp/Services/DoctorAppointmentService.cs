@@ -350,7 +350,7 @@ namespace MVCApp.Services
             return currentStatusName switch
             {
                 "Confirmed" => new List<string> { "CheckedIn", "Missed" },
-                "CheckedIn" => new List<string> { "InProgress", "Missed" },
+                "CheckedIn" => new List<string> { "InProgress" },
                 "InProgress" => new List<string> { "Completed" },
                 _ => new List<string>()
             };
