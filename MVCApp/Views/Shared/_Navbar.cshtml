@@ -9,14 +9,20 @@
 }
 
 <nav class="gc-navbar">
-    <button type="button" class="gc-menu-btn" id="gcMenuBtn">
-        ☰
-    </button>
+    <button type="button" class="gc-menu-btn" id="gcMenuBtn">☰</button>
 
     <div class="gc-nav-links" id="gcNavLinks">
-
         @if (User?.Identity != null && User.Identity.IsAuthenticated)
         {
+            if (User.IsInRole("Patient"))
+            {
+                <a asp-controller="Patient" asp-action="Dashboard" class="@Active("Patient", "Dashboard")">Dashboard</a>
+                <a asp-controller="Patient" asp-action="BookAppointment" class="@Active("Patient", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Patient" asp-action="Appointments" class="@Active("Patient", "Appointments")">Appointments</a>
+                <a asp-controller="Patient" asp-action="History" class="@Active("Patient", "History")">History</a>
+                <a asp-controller="Patient" asp-action="Profile" class="@Active("Patient", "Profile")">Profile</a>
+            }
+
             if (User.IsInRole("Doctor"))
             {
                 <a asp-controller="Doctor" asp-action="Dashboard" class="@Active("Doctor", "Dashboard")">Dashboard</a>
@@ -27,13 +33,11 @@
                 <a asp-controller="Doctor" asp-action="Profile" class="@Active("Doctor", "Profile")">Profile</a>
             }
 
-            if (User.IsInRole("Patient"))
+            if (User.IsInRole("Receptionist"))
             {
-                <a asp-controller="Patient" asp-action="Dashboard" class="@Active("Patient", "Dashboard")">Dashboard</a>
-                <a asp-controller="Appointment" asp-action="Book" class="@Active("Appointment", "Book")">Book</a>
-                <a asp-controller="Appointment" asp-action="List" class="@Active("Appointment", "List")">Appointments</a>
-                <a asp-controller="Patient" asp-action="History" class="@Active("Patient", "History")">History</a>
-                <a asp-controller="Patient" asp-action="Profile" class="@Active("Patient", "Profile")">Profile</a>
+                <a asp-controller="Receptionist" asp-action="Index" class="@Active("Receptionist", "Index")">Dashboard</a>
+                <a asp-controller="Receptionist" asp-action="BookAppointment" class="@Active("Receptionist", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Receptionist" asp-action="Appointments" class="@Active("Receptionist", "Appointments")">Appointments</a>
             }
 
             if (User.IsInRole("ClinicManager"))
@@ -42,6 +46,7 @@
                 <a asp-controller="ClinicManager" asp-action="Doctors" class="@Active("ClinicManager", "Doctors")">Doctors</a>
                 <a asp-controller="ClinicManager" asp-action="Appointments" class="@Active("ClinicManager", "Appointments")">Appointments</a>
                 <a asp-controller="ClinicManager" asp-action="Reports" class="@Active("ClinicManager", "Reports")">Reports</a>
+                <a asp-controller="ClinicManager" asp-action="Notifications" class="@Active("ClinicManager", "Notifications")">Notifications</a>
             }
 
             <form asp-controller="Account" asp-action="Logout" method="post" class="gc-logout-form">
@@ -51,10 +56,10 @@
         }
         else
         {
-            <a asp-controller="Account" asp-action="Login">Login</a>
-            <a asp-controller="Account" asp-action="Register">Register</a>
+            <a asp-controller="Public" asp-action="Lookup" class="@Active("Public", "Lookup")">Public Lookup</a>
+            <a asp-controller="Account" asp-action="Login" class="@Active("Account", "Login")">Login</a>
+            <a asp-controller="Account" asp-action="Register" class="@Active("Account", "Register")">Register</a>
         }
-
     </div>
 </nav>
 
@@ -73,19 +78,19 @@
         gap: 18px;
     }
 
-        .gc-nav-links a {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 14px;
-            text-decoration: none;
-            padding: 8px 0;
-            border-bottom: 2px solid transparent;
-        }
+    .gc-nav-links a {
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 14px;
+        text-decoration: none;
+        padding: 8px 0;
+        border-bottom: 2px solid transparent;
+    }
 
-            .gc-nav-links a:hover,
-            .gc-nav-links a.active {
-                border-bottom-color: #ffffff;
-            }
+    .gc-nav-links a:hover,
+    .gc-nav-links a.active {
+        border-bottom-color: #ffffff;
+    }
 
     .gc-logout-form {
         margin: 0;
@@ -131,7 +136,6 @@
             position: absolute;
             top: 58px;
             left: 0;
-            right: auto;
             width: 240px;
             background: #075168;
             padding: 14px;
@@ -143,20 +147,20 @@
             z-index: 9999;
         }
 
-            .gc-nav-links.open {
-                display: flex;
-            }
+        .gc-nav-links.open {
+            display: flex;
+        }
 
-            .gc-nav-links a {
-                padding: 12px;
-                border-radius: 10px;
-                border-bottom: none;
-            }
+        .gc-nav-links a {
+            padding: 12px;
+            border-radius: 10px;
+            border-bottom: none;
+        }
 
-                .gc-nav-links a:hover,
-                .gc-nav-links a.active {
-                    background: rgba(255, 255, 255, 0.14);
-                }
+        .gc-nav-links a:hover,
+        .gc-nav-links a.active {
+            background: rgba(255, 255, 255, 0.14);
+        }
 
         .gc-logout-btn {
             width: 100%;
