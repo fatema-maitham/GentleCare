@@ -443,8 +443,18 @@ namespace MVCApp.Services
                 })
                 .ToListAsync();
 
-            model.DoctorOptions = await _context.Doctors
+            var doctorsQuery = _context.Doctors
                 .Include(d => d.User)
+                .Include(d => d.DoctorSpecializations)
+                .AsQueryable();
+
+            if (model.SpecializationId != null)
+            {
+                doctorsQuery = doctorsQuery.Where(d =>
+                    d.DoctorSpecializations.Any(ds => ds.SpecializationId == model.SpecializationId.Value));
+            }
+
+            model.DoctorOptions = await doctorsQuery
                 .OrderBy(d => d.User.FullName)
                 .Select(d => new SelectListItem
                 {
@@ -455,6 +465,62 @@ namespace MVCApp.Services
                 .ToListAsync();
 
             model.AvailableSlotOptions = new List<SelectListItem>();
+
+            if (model.DoctorId == null || model.AppointmentDate == null)
+            {
+                return;
+            }
+
+            var appointmentDate = model.AppointmentDate.Value.Date;
+
+            if (appointmentDate < DateTime.Today)
+            {
+                return;
+            }
+
+            var doctor = await _context.Doctors
+                .Include(d => d.Schedules)
+                .FirstOrDefaultAsync(d => d.Id == model.DoctorId.Value);
+
+            if (doctor == null)
+            {
+                return;
+            }
+
+            var schedule = doctor.Schedules
+                .FirstOrDefault(s => s.DayOfWeek == appointmentDate.DayOfWeek);
+
+            if (schedule == null)
+            {
+                return;
+            }
+
+            var bookedTimes = await _context.Appointments
+                .Include(a => a.Status)
+                .Where(a =>
+                    a.DoctorId == model.DoctorId.Value &&
+                    a.AppointmentDate.Date == appointmentDate &&
+                    a.Status.Name != "Cancelled" &&
+                    a.Status.Name != "Missed")
+                .Select(a => a.StartTime)
+                .ToListAsync();
+
+            var currentTime = schedule.StartTime;
+
+            while (currentTime.AddMinutes(schedule.SlotDurationMinutes) <= schedule.EndTime)
+            {
+                if (!bookedTimes.Contains(currentTime))
+                {
+                    model.AvailableSlotOptions.Add(new SelectListItem
+                    {
+                        Value = currentTime.ToString("HH:mm"),
+                        Text = currentTime.ToString("HH:mm"),
+                        Selected = model.StartTime == currentTime.ToString("HH:mm")
+                    });
+                }
+
+                currentTime = currentTime.AddMinutes(schedule.SlotDurationMinutes);
+            }
         }
     }
-}
+    }
