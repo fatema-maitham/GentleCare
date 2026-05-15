@@ -337,7 +337,7 @@
 
     .actions-wrap {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 10px;
     }
 
@@ -378,6 +378,24 @@
 
         .info-row {
             grid-template-columns: 1fr;
+        }
+    }
+
+    .actions-wrap {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .actions-wrap .details-btn {
+        width: auto !important;
+        white-space: nowrap;
+    }
+
+    @@media (max-width: 700px) {
+        .actions-wrap {
+            flex-wrap: wrap !important;
         }
     }
 </style>
