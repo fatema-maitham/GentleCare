@@ -1,6 +1,4 @@
-﻿// MVCApp/Controllers/PublicController.cs
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MVCApp.ViewModels.Public;
 using System.Net;
 using System.Net.Http.Json;
@@ -40,31 +38,24 @@ namespace MVCApp.Controllers
             var client = _httpClientFactory.CreateClient("WebAPI");
 
             var url =
-                $"api/appointment/lookup?cprNumber={WebUtility.UrlEncode(model.CPRNumber.Trim())}&referenceNumber={WebUtility.UrlEncode(model.ReferenceNumber.Trim())}";
+                $"api/Appointment/lookup?cprNumber={WebUtility.UrlEncode(model.CPRNumber.Trim())}&referenceNumber={WebUtility.UrlEncode(model.ReferenceNumber.Trim())}";
 
             try
             {
-                var result = await client.GetFromJsonAsync<PublicAppointmentLookupViewModel>(url);
+                var appointments = await client.GetFromJsonAsync<List<PublicAppointmentResultViewModel>>(url);
 
-                if (result == null)
+                if (appointments == null || !appointments.Any())
                 {
                     model.ErrorMessage = "No appointment details were found.";
                     return View(model);
                 }
 
-                model.UpcomingAppointments = result.UpcomingAppointments ?? new();
-                model.RecentVisits = result.RecentVisits ?? new();
-
-                if (!model.UpcomingAppointments.Any() && !model.RecentVisits.Any())
-                {
-                    model.ErrorMessage = "No upcoming appointments or recent visits were found.";
-                }
-
+                model.UpcomingAppointments = appointments;
                 return View(model);
             }
             catch
             {
-                model.ErrorMessage = "Could not connect to the appointment lookup service. Please try again later.";
+                model.ErrorMessage = "Could not read appointment details from the API.";
                 return View(model);
             }
         }
