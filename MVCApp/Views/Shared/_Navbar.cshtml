@@ -15,49 +15,49 @@
         {
             if (User.IsInRole("Patient"))
             {
-        <a asp-controller="Patient" asp-action="Dashboard" class="@IsActive("Patient", "Dashboard")">Home</a>
-        <a asp-controller="Appointment" asp-action="Book" class="@IsActive("Appointment", "Book")">Book Appointment</a>
-        <a asp-controller="Appointment" asp-action="List" class="@IsActive("Appointment", "List")">Appointments</a>
-        <a asp-controller="Patient" asp-action="History" class="@IsActive("Patient", "History")">History</a>
-        <a asp-controller="Patient" asp-action="Profile" class="@IsActive("Patient", "Profile")">Profile</a>
+                <a asp-controller="Patient" asp-action="Dashboard" class="@IsActive("Patient", "Dashboard")">Home</a>
+                <a asp-controller="Patient" asp-action="BookAppointment" class="@IsActive("Patient", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Patient" asp-action="Appointments" class="@IsActive("Patient", "Appointments")">Appointments</a>
+                <a asp-controller="Patient" asp-action="History" class="@IsActive("Patient", "History")">History</a>
+                <a asp-controller="Patient" asp-action="Profile" class="@IsActive("Patient", "Profile")">Profile</a>
             }
 
             if (User.IsInRole("Doctor"))
             {
-        <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
-        <a asp-controller="Doctor" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
-        <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
-        <a asp-controller="Doctor" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
-        <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
-        <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
+                <a asp-controller="Doctor" asp-action="Dashboard" class="@IsActive("Doctor", "Dashboard")">Home</a>
+                <a asp-controller="Doctor" asp-action="Appointments" class="@IsActive("Doctor", "Appointments")">Appointments</a>
+                <a asp-controller="Doctor" asp-action="Schedule" class="@IsActive("Doctor", "Schedule")">Schedule</a>
+                <a asp-controller="Doctor" asp-action="Prescriptions" class="@IsActive("Doctor", "Prescriptions")">Prescriptions</a>
+                <a asp-controller="Doctor" asp-action="Notifications" class="@IsActive("Doctor", "Notifications")">Notifications</a>
+                <a asp-controller="Doctor" asp-action="Profile" class="@IsActive("Doctor", "Profile")">Profile</a>
             }
 
             if (User.IsInRole("Receptionist"))
             {
-        <a asp-controller="Receptionist" asp-action="Index" class="@IsActive("Receptionist", "Index")">Home</a>
-        <a asp-controller="Receptionist" asp-action="BookAppointment" class="@IsActive("Receptionist", "BookAppointment")">Book Appointment</a>
-        <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
+                <a asp-controller="Receptionist" asp-action="Index" class="@IsActive("Receptionist", "Index")">Home</a>
+                <a asp-controller="Receptionist" asp-action="BookAppointment" class="@IsActive("Receptionist", "BookAppointment")">Book Appointment</a>
+                <a asp-controller="Receptionist" asp-action="Appointments" class="@IsActive("Receptionist", "Appointments")">Appointments</a>
             }
 
-        if (User.IsInRole("ClinicManager"))
-{
-        <a asp-controller="ClinicManager" asp-action="Dashboard">Home</a>
-        <a asp-controller="ClinicManager" asp-action="Doctors">Doctors</a>
-        <a asp-controller="ClinicManager" asp-action="Appointments">Appointments</a>
-        <a asp-controller="ClinicManager" asp-action="Reports">Reports</a>
-        <a asp-controller="ClinicManager" asp-action="Notifications">Notifications</a>
-}
+            if (User.IsInRole("ClinicManager"))
+            {
+                <a asp-controller="ClinicManager" asp-action="Dashboard" class="@IsActive("ClinicManager", "Dashboard")">Home</a>
+                <a asp-controller="ClinicManager" asp-action="Doctors" class="@IsActive("ClinicManager", "Doctors")">Doctors</a>
+                <a asp-controller="ClinicManager" asp-action="Appointments" class="@IsActive("ClinicManager", "Appointments")">Appointments</a>
+                <a asp-controller="ClinicManager" asp-action="Reports" class="@IsActive("ClinicManager", "Reports")">Reports</a>
+                <a asp-controller="ClinicManager" asp-action="Notifications" class="@IsActive("ClinicManager", "Notifications")">Notifications</a>
+            }
 
-        <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
         }
         else
         {
-        <a asp-controller="Public" asp-action="Lookup" class="@IsActive("Public", "Lookup")">Public Lookup</a>
-        <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
-        <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
+            <a asp-controller="Public" asp-action="Lookup" class="@IsActive("Public", "Lookup")">Public Lookup</a>
+            <a asp-controller="Account" asp-action="Login" class="@IsActive("Account", "Login")">Login</a>
+            <a asp-controller="Account" asp-action="Register" class="@IsActive("Account", "Register")">Register</a>
         }
 
     </div>

@@ -1,5 +1,32 @@
 ﻿@{
     var pageTitle = ViewData["Title"] as string ?? "GentleCare";
+
+    var homeController = "Public";
+    var homeAction = "Lookup";
+
+    if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        if (User.IsInRole("Patient"))
+        {
+            homeController = "Patient";
+            homeAction = "Dashboard";
+        }
+        else if (User.IsInRole("Receptionist"))
+        {
+            homeController = "Receptionist";
+            homeAction = "Index";
+        }
+        else if (User.IsInRole("Doctor"))
+        {
+            homeController = "Doctor";
+            homeAction = "Dashboard";
+        }
+        else if (User.IsInRole("ClinicManager"))
+        {
+            homeController = "ClinicManager";
+            homeAction = "Dashboard";
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -43,10 +70,6 @@
         a {
             text-decoration: none;
         }
-
-        /* =========================
-           navbar
-           ========================= */
 
         .main-navbar {
             background: var(--main);
@@ -119,10 +142,6 @@
             opacity: 1 !important;
         }
 
-        /* =========================
-           layout
-           ========================= */
-
         .layout-main {
             max-width: 1180px;
             margin: 28px auto 0;
@@ -135,505 +154,8 @@
             padding: 18px 22px 28px;
             color: var(--muted);
             font-size: 13px;
-        }
-
-        /* =========================
-           common page styles
-           ========================= */
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-            .page-header h1 {
-                margin: 0;
-                font-size: 31px;
-                font-weight: 900;
-                color: var(--text);
-            }
-
-            .page-header p {
-                margin: 6px 0 0;
-                color: var(--muted);
-            }
-
-        .header-actions,
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .primary-btn,
-        .secondary-btn,
-        .cm-main-btn {
-            display: inline-block;
-            border: none;
-            border-radius: 999px;
-            padding: 10px 18px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        .primary-btn,
-        .cm-main-btn {
-            background: var(--main);
-            color: #ffffff;
-        }
-
-            .primary-btn:hover,
-            .cm-main-btn:hover {
-                background: var(--accent);
-                color: #ffffff;
-            }
-
-        .secondary-btn {
-            background: #e9f0f2;
-            color: var(--main);
-        }
-
-            .secondary-btn:hover {
-                background: #dfe9ec;
-                color: var(--main);
-            }
-
-        .btn-link,
-        .table-link {
-            color: var(--main);
-            font-weight: 800;
-            margin-right: 8px;
-        }
-
-            .btn-link:hover,
-            .table-link:hover {
-                color: var(--accent);
-                text-decoration: underline;
-            }
-
-        .danger-button {
-            border: none;
-            background: transparent;
-            color: var(--main);
-            cursor: pointer;
-            padding: 0;
-            font: inherit;
-            font-weight: 800;
-        }
-
-        .section-card,
-        .dashboard-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-            .section-header h2 {
-                margin: 0;
-                font-size: 22px;
-                font-weight: 900;
-                color: var(--text);
-            }
-
-        .details-grid,
-        .form-grid,
-        .status-grid,
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-        }
-
-        .details-item,
-        .status-box {
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 15px;
-        }
-
-            .details-item span,
-            .status-box span {
-                display: block;
-                color: var(--muted);
-                font-size: 14px;
-                font-weight: 800;
-            }
-
-            .details-item strong,
-            .status-box strong {
-                display: block;
-                margin-top: 5px;
-                font-size: 21px;
-                font-weight: 900;
-                color: var(--text);
-            }
-
-        /* =========================
-           dashboard clean design
-           ========================= */
-
-        .cm-dashboard {
-            max-width: 1180px;
-            margin: 0 auto;
-        }
-
-        .cm-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 18px;
-            margin-bottom: 22px;
-        }
-
-            .cm-top h1 {
-                margin: 0;
-                font-size: 30px;
-                font-weight: 900;
-                color: var(--text);
-            }
-
-            .cm-top p {
-                margin: 6px 0 0;
-                color: var(--muted);
-                font-size: 14px;
-            }
-
-        .cm-card-row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .cm-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-top: 5px solid var(--main);
-            border-radius: 18px;
-            padding: 18px;
-            min-height: 102px;
-            box-shadow: var(--shadow);
-        }
-
-            .cm-card.alt {
-                border-top-color: var(--accent);
-            }
-
-            .cm-card span {
-                display: block;
-                color: var(--muted);
-                font-size: 13px;
-                font-weight: 900;
-                margin-bottom: 12px;
-            }
-
-            .cm-card strong {
-                display: block;
-                font-size: 36px;
-                font-weight: 900;
-                line-height: 1;
-                color: var(--text);
-            }
-
-        .cm-main-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.45fr) 340px;
-            gap: 18px;
-            align-items: start;
-        }
-
-        .cm-left,
-        .cm-right {
-            display: grid;
-            gap: 18px;
-        }
-
-        .cm-panel {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .cm-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            gap: 12px;
-        }
-
-            .cm-panel-header h2 {
-                margin: 0;
-                font-size: 19px;
-                font-weight: 900;
-                color: var(--text);
-            }
-
-            .cm-panel-header a,
-            .cm-table a,
-            .cm-list-item a {
-                color: var(--main);
-                font-size: 13px;
-                font-weight: 900;
-            }
-
-                .cm-panel-header a:hover,
-                .cm-table a:hover,
-                .cm-list-item a:hover {
-                    color: var(--accent);
-                    text-decoration: underline;
-                }
-
-        .cm-status {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .cm-status-box {
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 14px;
-        }
-
-            .cm-status-box span {
-                display: block;
-                color: var(--muted);
-                font-size: 12px;
-                font-weight: 900;
-                margin-bottom: 7px;
-            }
-
-            .cm-status-box strong {
-                display: block;
-                color: var(--text);
-                font-size: 24px;
-                font-weight: 900;
-            }
-
-        .cm-calendar {
             text-align: center;
         }
-
-        .cm-calendar-box {
-            background: var(--main);
-            color: #ffffff;
-            border-radius: 18px;
-            padding: 22px;
-            margin-bottom: 14px;
-        }
-
-            .cm-calendar-box span {
-                display: block;
-                font-size: 14px;
-                font-weight: 800;
-                opacity: 0.95;
-            }
-
-            .cm-calendar-box strong {
-                display: block;
-                font-size: 58px;
-                font-weight: 900;
-                line-height: 1;
-                margin: 8px 0;
-            }
-
-            .cm-calendar-box p {
-                margin: 0;
-                font-weight: 700;
-            }
-
-        .cm-calendar-mini {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-            .cm-calendar-mini div {
-                background: var(--soft);
-                border: 1px solid var(--border);
-                border-radius: 13px;
-                padding: 12px 8px;
-            }
-
-            .cm-calendar-mini span {
-                display: block;
-                color: var(--muted);
-                font-size: 11px;
-                font-weight: 900;
-                margin-bottom: 5px;
-            }
-
-            .cm-calendar-mini strong {
-                color: var(--text);
-                font-size: 21px;
-                font-weight: 900;
-            }
-
-        .cm-table-wrap {
-            overflow-x: auto;
-        }
-
-        .cm-table,
-        .data-table,
-        .clean-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-            .cm-table th,
-            .cm-table td,
-            .data-table th,
-            .data-table td,
-            .clean-table th,
-            .clean-table td {
-                padding: 13px 12px;
-                border-bottom: 1px solid var(--border);
-                text-align: left;
-                vertical-align: middle;
-                font-size: 13px;
-            }
-
-            .cm-table th,
-            .data-table th,
-            .clean-table th {
-                background: var(--soft);
-                font-weight: 900;
-                color: var(--text);
-            }
-
-        .cm-pill,
-        .status-pill,
-        .clean-pill {
-            display: inline-block;
-            border-radius: 999px;
-            padding: 6px 11px;
-            background: rgba(113, 153, 159, 0.16);
-            color: var(--main);
-            font-size: 12px;
-            font-weight: 900;
-        }
-
-        .cm-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .cm-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 13px;
-        }
-
-            .cm-list-item h3 {
-                margin: 0;
-                font-size: 15px;
-                font-weight: 900;
-            }
-
-            .cm-list-item p {
-                margin: 4px 0 0;
-                color: var(--muted);
-                font-size: 12px;
-            }
-
-        .cm-empty,
-        .empty-text,
-        .muted-text {
-            color: var(--muted);
-            margin: 0;
-        }
-
-        /* =========================
-           forms
-           ========================= */
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-            .form-group label {
-                font-weight: 900;
-                color: var(--text);
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                width: 100%;
-                padding: 11px 12px;
-                border-radius: 12px;
-                border: 1px solid #cbd5e1;
-                outline: none;
-                background: #ffffff;
-            }
-
-                .form-group input:focus,
-                .form-group select:focus,
-                .form-group textarea:focus {
-                    border-color: var(--accent);
-                    box-shadow: 0 0 0 3px rgba(113, 153, 159, 0.16);
-                }
-
-        .filter-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            align-items: end;
-        }
-
-        .checkbox-row {
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .checkbox-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            background: var(--soft);
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 12px;
-        }
-
-            .checkbox-item small {
-                display: block;
-                color: var(--muted);
-                margin-top: 3px;
-            }
 
         .alert {
             padding: 12px 14px;
@@ -653,150 +175,9 @@
         }
 
         .text-danger {
-            color: var(--main) !important;
+            color: #b42318 !important;
             font-size: 13px;
             font-weight: 700;
-        }
-
-        /* =========================
-           other pages
-           ========================= */
-
-        .doctor-grid,
-        .quick-actions,
-        .workload-list,
-        .leave-list {
-            display: grid;
-            gap: 16px;
-        }
-
-        .doctor-card,
-        .workload-item,
-        .leave-item,
-        .action-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .doctor-card-header,
-        .workload-item,
-        .leave-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-            .doctor-card-header h3,
-            .workload-item h3,
-            .leave-item h3 {
-                margin: 0;
-                font-weight: 900;
-            }
-
-            .doctor-card-header p,
-            .workload-item p,
-            .leave-item p {
-                margin: 5px 0 0;
-                color: var(--muted);
-            }
-
-        .doctor-info p {
-            margin: 6px 0;
-        }
-
-        .doctor-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 14px 0;
-        }
-
-            .doctor-stats div {
-                background: var(--soft);
-                border-radius: 12px;
-                padding: 12px;
-                text-align: center;
-                border: 1px solid var(--border);
-            }
-
-            .doctor-stats strong {
-                display: block;
-                font-size: 22px;
-            }
-
-            .doctor-stats span {
-                color: var(--muted);
-                font-size: 13px;
-            }
-
-        .doctor-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            border-top: 1px solid var(--border);
-            padding-top: 14px;
-        }
-
-        .doctor-status-row {
-            margin-bottom: 12px;
-        }
-
-        .status-active,
-        .status-inactive,
-        .leave-badge,
-        .tag-pill {
-            background: rgba(113, 153, 159, 0.16);
-            color: var(--main);
-            border-radius: 999px;
-            padding: 6px 11px;
-            font-size: 13px;
-            font-weight: 900;
-            display: inline-block;
-        }
-
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .profile-note {
-            margin-top: 14px;
-            background: var(--soft);
-            border: 1px solid var(--border);
-            padding: 14px;
-            border-radius: 12px;
-        }
-
-            .profile-note span {
-                display: block;
-                font-weight: 900;
-                color: var(--muted);
-                margin-bottom: 5px;
-            }
-
-            .profile-note p {
-                margin: 0;
-            }
-
-        hr {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 22px 0;
-            opacity: 1;
-        }
-
-        @@media (max-width: 1050px) {
-            .cm-card-row {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .cm-main-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         @@media (max-width: 960px) {
@@ -815,36 +196,6 @@
             .text-logo-name {
                 font-size: 26px;
             }
-
-            .page-header,
-            .section-header,
-            .cm-top,
-            .cm-panel-header,
-            .doctor-card-header,
-            .workload-item,
-            .leave-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-                .page-header h1,
-                .cm-top h1 {
-                    font-size: 26px;
-                }
-        }
-
-        @@media (max-width: 650px) {
-            .cm-card-row {
-                grid-template-columns: 1fr;
-            }
-
-            .cm-status {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .cm-calendar-mini {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -853,7 +204,7 @@
     <header class="main-navbar">
         <div class="main-navbar-inner">
 
-            <a asp-controller="ClinicManager" asp-action="Dashboard" class="text-logo">
+            <a asp-controller="@homeController" asp-action="@homeAction" class="text-logo">
                 <span class="text-logo-name">GentleCare</span>
             </a>
 
