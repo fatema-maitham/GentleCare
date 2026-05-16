@@ -7,7 +7,6 @@ using WebAPI.Models;
 
 namespace MVCApp.Controllers
 {
-    // Handles Doctor appointment pages: list, details, status update, patient history, and follow-up requests.
     [Authorize(Roles = "Doctor")]
     [Route("Doctor")]
     public class DoctorAppointmentController : Controller
@@ -23,7 +22,6 @@ namespace MVCApp.Controllers
             _userManager = userManager;
         }
 
-        // Lists only the logged-in doctor's appointments.
         [HttpGet("Appointments")]
         public async Task<IActionResult> Appointments(
             string? searchTerm = null,
@@ -47,7 +45,6 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/Appointments.cshtml", model);
         }
 
-        // Shows full appointment details.
         [HttpGet("AppointmentDetails/{id:int}")]
         public async Task<IActionResult> AppointmentDetails(int id)
         {
@@ -65,7 +62,6 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/AppointmentDetails.cshtml", model);
         }
 
-        // Opens update-status page with valid next statuses only.
         [HttpGet("UpdateStatus/{id:int}")]
         public async Task<IActionResult> UpdateStatus(int id)
         {
@@ -89,7 +85,6 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/UpdateStatus.cshtml", model);
         }
 
-        // Saves appointment status update.
         [HttpPost("UpdateStatus")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(UpdateAppointmentStatusViewModel model)
@@ -139,7 +134,6 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(AppointmentDetails), new { id = model.AppointmentId });
         }
 
-        // Shows visit history for a patient linked to the logged-in doctor.
         [HttpGet("PatientHistory/{patientId:int}")]
         public async Task<IActionResult> PatientHistory(int patientId)
         {
@@ -157,11 +151,10 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/PatientHistory.cshtml", model);
         }
 
-        // Opens the follow-up request form for a completed appointment.
-        // Absolute route fixes HTTP 405 for:
-        // /Doctor/CreateFollowUpRequest/23
-        [HttpGet("/Doctor/CreateFollowUpRequest/{appointmentId:int}")]
-        public async Task<IActionResult> CreateFollowUpRequest(int appointmentId)
+        // GET page for follow-up request.
+        // URL: /Doctor/FollowUpRequest/23
+        [HttpGet("FollowUpRequest/{appointmentId:int}")]
+        public async Task<IActionResult> FollowUpRequest(int appointmentId)
         {
             ViewData["Title"] = "Create Follow-Up Request";
 
@@ -172,46 +165,14 @@ namespace MVCApp.Controllers
             if (model == null)
             {
                 TempData["Error"] = "Follow-up request can only be created for completed appointments.";
-
-                return RedirectToAction(
-                    nameof(AppointmentDetails),
-                    new { id = appointmentId });
+                return RedirectToAction(nameof(AppointmentDetails), new { id = appointmentId });
             }
 
             return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
         }
 
-        // Also supports:
-        // /Doctor/CreateFollowUpRequest?appointmentId=23
-        [HttpGet("/Doctor/CreateFollowUpRequest")]
-        public async Task<IActionResult> CreateFollowUpRequestByQuery(int appointmentId)
-        {
-            ViewData["Title"] = "Create Follow-Up Request";
-
-            if (appointmentId <= 0)
-            {
-                TempData["Error"] = "Appointment was not selected.";
-                return RedirectToAction(nameof(Appointments));
-            }
-
-            var model = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
-                GetCurrentUserId(),
-                appointmentId);
-
-            if (model == null)
-            {
-                TempData["Error"] = "Follow-up request can only be created for completed appointments.";
-
-                return RedirectToAction(
-                    nameof(AppointmentDetails),
-                    new { id = appointmentId });
-            }
-
-            return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
-        }
-
-        // Saves the follow-up request as a new requested appointment.
-        [HttpPost("/Doctor/CreateFollowUpRequest")]
+        // POST saves the follow-up request.
+        [HttpPost("CreateFollowUpRequest")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFollowUpRequest(CreateFollowUpRequestViewModel model)
         {
@@ -220,7 +181,6 @@ namespace MVCApp.Controllers
             if (!ModelState.IsValid)
             {
                 await ReloadFollowUpDisplayDataAsync(model);
-
                 return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
             }
 
@@ -235,18 +195,14 @@ namespace MVCApp.Controllers
                     result.ErrorMessage ?? "Unable to create follow-up request.");
 
                 await ReloadFollowUpDisplayDataAsync(model);
-
                 return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
             }
 
             TempData["Success"] = "Follow-up appointment request created successfully.";
 
-            return RedirectToAction(
-                nameof(AppointmentDetails),
-                new { id = result.NewAppointmentId });
+            return RedirectToAction(nameof(AppointmentDetails), new { id = result.NewAppointmentId });
         }
 
-        // Reloads readonly display fields when validation fails.
         private async Task ReloadFollowUpDisplayDataAsync(CreateFollowUpRequestViewModel model)
         {
             var freshModel = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
