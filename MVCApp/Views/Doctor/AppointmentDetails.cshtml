@@ -149,9 +149,7 @@
 
                 @if (Model.CanCreateFollowUpRequest)
                 {
-                    <a asp-controller="DoctorAppointment"
-                       asp-action="CreateFollowUpRequest"
-                       asp-route-id="@Model.AppointmentId"
+                    <a href="/Doctor/FollowUpRequest/@Model.AppointmentId"
                        class="details-btn details-btn-main">
                         Create Follow-Up Request
                     </a>
