@@ -5,12 +5,6 @@
 }
 
 <div class="reports-page">
-    <div class="reports-header">
-        <div>
-            <h1>Clinic Reports</h1>
-            <p>Operational reports for clinic performance, doctor workload, demand, attendance, leave impact, cancellations, and prescriptions.</p>
-        </div>
-    </div>
 
     @if (TempData["Success"] != null)
     {
@@ -22,57 +16,116 @@
         <div class="alert alert-danger">@TempData["Error"]</div>
     }
 
-    <div class="report-card">
-        <div class="report-card-header">
-            <h2>Report Filter</h2>
-            <span>@Model.DateRangeText</span>
-        </div>
+    <div class="report-card report-filter-card no-print">
+        <form asp-controller="ClinicManager"
+              asp-action="Reports"
+              method="get"
+              class="filter-form"
+              id="reportFilterForm">
 
-        <form asp-controller="ClinicManager" asp-action="Reports" method="get" class="filter-form">
             <div class="form-group">
                 <label for="fromDate">From Date</label>
-                <input type="date" id="fromDate" name="fromDate" value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+                <input type="date"
+                       id="fromDate"
+                       name="fromDate"
+                       value="@Model.FromDate.ToString("yyyy-MM-dd")" />
             </div>
 
             <div class="form-group">
                 <label for="toDate">To Date</label>
-                <input type="date" id="toDate" name="toDate" value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+                <input type="date"
+                       id="toDate"
+                       name="toDate"
+                       value="@Model.ToDate.ToString("yyyy-MM-dd")" />
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn-main">Generate</button>
-                <a asp-action="Reports" class="btn-light">Reset</a>
+                <button type="submit" class="btn-main">
+                    Generate Report
+                </button>
+
+                <a asp-controller="ClinicManager"
+                   asp-action="Reports"
+                   class="btn-light">
+                    Reset
+                </a>
             </div>
         </form>
+
+        <div id="dateError" class="date-error d-none">
+            From Date cannot be after To Date.
+        </div>
     </div>
 
-    <div class="report-card">
+    <div id="monthlyPerformanceReport" class="report-card printable-report">
         <div class="report-card-header">
-            <h2>Monthly Clinic Performance Report</h2>
-            <span>Overall clinic activity</span>
+            <div>
+                <h2>Monthly Clinic Performance Report</h2>
+                <p class="header-note">Overall clinic activity and appointment performance.</p>
+            </div>
         </div>
 
         <div class="summary-grid">
-            <div class="summary-box"><span>Total Appointments</span><strong>@Model.TotalAppointments</strong></div>
-            <div class="summary-box"><span>Completed</span><strong>@Model.CompletedAppointments</strong></div>
-            <div class="summary-box"><span>Cancelled</span><strong>@Model.CancelledAppointments</strong></div>
-            <div class="summary-box"><span>Missed</span><strong>@Model.MissedAppointments</strong></div>
+            <div class="summary-box">
+                <span>Total Appointments</span>
+                <strong>@Model.TotalAppointments</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Completed</span>
+                <strong>@Model.CompletedAppointments</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Cancelled</span>
+                <strong>@Model.CancelledAppointments</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Missed</span>
+                <strong>@Model.MissedAppointments</strong>
+            </div>
         </div>
 
         <div class="mini-grid">
-            <div class="mini-box"><span>Completion Rate</span><strong>@Model.CompletionRate.ToString("0.##")%</strong></div>
-            <div class="mini-box"><span>Cancellation Rate</span><strong>@Model.CancellationRate.ToString("0.##")%</strong></div>
-            <div class="mini-box"><span>Missed Rate</span><strong>@Model.MissedRate.ToString("0.##")%</strong></div>
-            <div class="mini-box"><span>Busiest Doctor</span><strong>@Model.BusiestDoctorName</strong></div>
-            <div class="mini-box"><span>Busiest Specialization</span><strong>@Model.BusiestSpecializationName</strong></div>
-            <div class="mini-box"><span>Busiest Hour</span><strong>@Model.BusiestHourText</strong></div>
+            <div class="mini-box">
+                <span>Completion Rate</span>
+                <strong>@Model.CompletionRate.ToString("0.##")%</strong>
+            </div>
+
+            <div class="mini-box">
+                <span>Cancellation Rate</span>
+                <strong>@Model.CancellationRate.ToString("0.##")%</strong>
+            </div>
+
+            <div class="mini-box">
+                <span>Missed Rate</span>
+                <strong>@Model.MissedRate.ToString("0.##")%</strong>
+            </div>
+
+            <div class="mini-box">
+                <span>Busiest Doctor</span>
+                <strong>@Model.BusiestDoctorName</strong>
+            </div>
+
+            <div class="mini-box">
+                <span>Busiest Specialization</span>
+                <strong>@Model.BusiestSpecializationName</strong>
+            </div>
+
+            <div class="mini-box">
+                <span>Busiest Hour</span>
+                <strong>@Model.BusiestHourText</strong>
+            </div>
         </div>
     </div>
 
-    <div class="report-card">
+    <div id="doctorUtilizationReport" class="report-card printable-report">
         <div class="report-card-header">
-            <h2>Doctor Utilization Report</h2>
-            <span>Doctor workload and performance</span>
+            <div>
+                <h2>Doctor Utilization Report</h2>
+                <p class="header-note">Doctor workload, appointment completion, and utilization rate.</p>
+            </div>
         </div>
 
         @if (Model.HasDoctorReports)
@@ -121,10 +174,12 @@
     </div>
 
     <div class="two-column-grid">
-        <div class="report-card">
+        <div id="specializationDemandReport" class="report-card printable-report">
             <div class="report-card-header">
-                <h2>Specialization Demand Report</h2>
-                <span>Most requested services</span>
+                <div>
+                    <h2>Specialization Demand Report</h2>
+                    <p class="header-note">Most requested clinic services.</p>
+                </div>
             </div>
 
             @if (Model.HasSpecializationDemandReports)
@@ -159,10 +214,12 @@
             }
         </div>
 
-        <div class="report-card">
+        <div id="busiestHoursReport" class="report-card printable-report">
             <div class="report-card-header">
-                <h2>Busiest Hours Report</h2>
-                <span>Most crowded time slots</span>
+                <div>
+                    <h2>Busiest Hours Report</h2>
+                    <p class="header-note">Most crowded appointment time slots.</p>
+                </div>
             </div>
 
             @if (Model.HasBusiestHourReports)
@@ -196,10 +253,12 @@
         </div>
     </div>
 
-    <div class="report-card">
+    <div id="doctorLeaveImpactReport" class="report-card printable-report">
         <div class="report-card-header">
-            <h2>Doctor Leave Impact Report</h2>
-            <span>Appointments affected by leave periods</span>
+            <div>
+                <h2>Doctor Leave Impact Report</h2>
+                <p class="header-note">Appointments affected by doctor leave periods.</p>
+            </div>
         </div>
 
         @if (Model.HasDoctorLeaveImpactReports)
@@ -234,10 +293,12 @@
         }
     </div>
 
-    <div class="report-card">
+    <div id="missedAppointmentRiskReport" class="report-card printable-report">
         <div class="report-card-header">
-            <h2>Missed Appointment Risk Report</h2>
-            <span>Patients with missed appointments</span>
+            <div>
+                <h2>Missed Appointment Risk Report</h2>
+                <p class="header-note">Patients with missed appointment patterns.</p>
+            </div>
         </div>
 
         @if (Model.HasMissedAppointmentRiskReports)
@@ -279,10 +340,12 @@
     </div>
 
     <div class="two-column-grid">
-        <div class="report-card">
+        <div id="cancellationReasonReport" class="report-card printable-report">
             <div class="report-card-header">
-                <h2>Cancellation Reason Analysis Report</h2>
-                <span>Common cancellation reasons</span>
+                <div>
+                    <h2>Cancellation Reason Analysis Report</h2>
+                    <p class="header-note">Most common cancellation reasons.</p>
+                </div>
             </div>
 
             @if (Model.HasCancellationReasonReports)
@@ -315,10 +378,12 @@
             }
         </div>
 
-        <div class="report-card">
+        <div id="prescriptionVolumeReport" class="report-card printable-report">
             <div class="report-card-header">
-                <h2>Prescription Volume Report</h2>
-                <span>Treatment workload by doctor</span>
+                <div>
+                    <h2>Prescription Volume Report</h2>
+                    <p class="header-note">Treatment and prescription activity by doctor.</p>
+                </div>
             </div>
 
             @if (Model.HasPrescriptionVolumeReports)
@@ -361,27 +426,10 @@
     .reports-page {
         max-width: 1180px;
         margin: 0 auto;
-        padding: 30px 20px 60px;
+        padding: 24px 20px 60px;
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        color: #12262F;
     }
-
-    .reports-header {
-        margin-bottom: 24px;
-    }
-
-        .reports-header h1 {
-            margin: 0;
-            color: #12262F;
-            font-size: 34px;
-            font-weight: 900;
-        }
-
-        .reports-header p {
-            margin: 8px 0 0;
-            color: #687A80;
-            font-weight: 700;
-            line-height: 1.6;
-        }
 
     .report-card {
         background: #ffffff;
@@ -390,6 +438,10 @@
         margin-bottom: 24px;
         overflow: hidden;
         box-shadow: 0 8px 20px rgba(7, 81, 104, 0.05);
+    }
+
+    .report-filter-card {
+        margin-bottom: 22px;
     }
 
     .report-card-header {
@@ -409,11 +461,13 @@
             font-weight: 900;
         }
 
-        .report-card-header span {
-            color: #687A80;
-            font-size: 14px;
-            font-weight: 800;
-        }
+    .header-note {
+        margin: 6px 0 0;
+        color: #687A80;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
 
     .filter-form {
         padding: 24px;
@@ -472,6 +526,7 @@
         justify-content: center;
         cursor: pointer;
         white-space: nowrap;
+        transition: 0.2s ease;
     }
 
     .btn-main {
@@ -479,11 +534,21 @@
         color: #ffffff;
     }
 
+        .btn-main:hover {
+            background: #006B8A;
+            color: #ffffff;
+        }
+
     .btn-light {
         background: #F1EFED;
         color: #12262F;
         border: 1px solid #D6DDDE;
     }
+
+        .btn-light:hover {
+            background: #E7F1F3;
+            color: #075168;
+        }
 
     .summary-grid {
         padding: 24px;
@@ -640,6 +705,20 @@
         border-color: #F3B8B2;
     }
 
+    .date-error {
+        margin: 0 24px 20px;
+        padding: 12px 14px;
+        border-radius: 13px;
+        background: #FFF1F0;
+        color: #B42318;
+        border: 1px solid #F3B8B2;
+        font-weight: 850;
+    }
+
+    .d-none {
+        display: none;
+    }
+
     @@media (max-width: 950px) {
         .filter-form,
         .summary-grid,
@@ -655,3 +734,23 @@
         }
     }
 </style>
+
+@section Scripts {
+    <script>
+        const reportForm = document.getElementById("reportFilterForm");
+        const fromDate = document.getElementById("fromDate");
+        const toDate = document.getElementById("toDate");
+        const dateError = document.getElementById("dateError");
+
+        if (reportForm && fromDate && toDate && dateError) {
+            reportForm.addEventListener("submit", function (event) {
+                dateError.classList.add("d-none");
+
+                if (fromDate.value && toDate.value && fromDate.value > toDate.value) {
+                    event.preventDefault();
+                    dateError.classList.remove("d-none");
+                }
+            });
+        }
+    </script>
+}
