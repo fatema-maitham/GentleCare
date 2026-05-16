@@ -36,6 +36,7 @@ namespace MVCApp.ViewModels.Doctor
         public bool CanCreateVisitRecord { get; set; }
         public bool CanEditVisitRecord { get; set; }
         public bool CanUpdateStatus { get; set; }
+        public bool CanCreateFollowUpRequest { get; set; }
 
         // Dropdown options for valid next appointment statuses.
         public List<SelectListItem> AvailableNextStatuses { get; set; } = new();
