@@ -5,6 +5,8 @@ using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.ClinicManager;
 using WebAPI.Data;
 using WebAPI.Models;
+using Microsoft.AspNetCore.SignalR;
+using WebAPI.Hubs;
 
 namespace MVCApp.Services
 {
@@ -17,6 +19,7 @@ namespace MVCApp.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAppointmentWorkflowService _workflowService;
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppointmentHub> _appointmentHub;
 
         private static class StatusNames
         {
@@ -34,14 +37,16 @@ namespace MVCApp.Services
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IAppointmentWorkflowService workflowService,
-            INotificationService notificationService)
-        {
-            _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _workflowService = workflowService;
-            _notificationService = notificationService;
-        }
+            INotificationService notificationService,
+            IHubContext<AppointmentHub> appointmentHub)
+                {
+                    _context = context;
+                    _userManager = userManager;
+                    _roleManager = roleManager;
+                    _workflowService = workflowService;
+                    _notificationService = notificationService;
+                    _appointmentHub = appointmentHub;
+                }
 
         // =========================
         // Dashboard
@@ -902,6 +907,8 @@ namespace MVCApp.Services
                 return (false, "This appointment cannot be cancelled.", appointment.DoctorId);
             }
 
+            var oldStatusName = appointment.Status.Name;
+
             var cancelledStatus = await _context.AppointmentStatuses
                 .FirstOrDefaultAsync(s => s.Name == StatusNames.Cancelled);
 
@@ -911,6 +918,7 @@ namespace MVCApp.Services
             }
 
             appointment.StatusId = cancelledStatus.Id;
+            appointment.Status = cancelledStatus;
             appointment.CancellationReason = string.IsNullOrWhiteSpace(reason)
                 ? "Cancelled by clinic manager due to doctor availability change."
                 : reason.Trim();
@@ -922,6 +930,11 @@ namespace MVCApp.Services
                 appointment,
                 "Appointment Cancelled",
                 $"Appointment on {appointment.AppointmentDate:dd MMM yyyy} was cancelled due to doctor availability change.");
+
+            await BroadcastAppointmentStatusChangedAsync(
+                appointment,
+                oldStatusName,
+                StatusNames.Cancelled);
 
             return (true, "Appointment cancelled and notifications were created.", appointment.DoctorId);
         }
@@ -1110,9 +1123,10 @@ namespace MVCApp.Services
                 return (false, "Appointment was not found.");
             }
 
+            var oldStatusName = appointment.Status.Name;
             var newStatus = _workflowService.NormalizeStatusName(model.NewStatusName);
 
-            if (!_workflowService.IsValidStatusTransition(appointment.Status.Name, newStatus))
+            if (!_workflowService.IsValidStatusTransition(oldStatusName, newStatus))
             {
                 return (false, "This status change is not allowed.");
             }
@@ -1131,6 +1145,7 @@ namespace MVCApp.Services
             }
 
             appointment.StatusId = statusEntity.Id;
+            appointment.Status = statusEntity;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             if (newStatus == StatusNames.Cancelled)
@@ -1144,6 +1159,11 @@ namespace MVCApp.Services
                 appointment,
                 "Appointment Status Updated",
                 $"Appointment on {appointment.AppointmentDate:dd MMM yyyy} is now {_workflowService.FormatStatusName(newStatus)}.");
+
+            await BroadcastAppointmentStatusChangedAsync(
+                appointment,
+                oldStatusName,
+                newStatus);
 
             return (true, "Appointment status updated successfully.");
         }
@@ -1666,6 +1686,46 @@ namespace MVCApp.Services
             var result = await _userManager.UpdateAsync(user);
 
             return result.Succeeded;
+        }
+
+        private async Task BroadcastAppointmentStatusChangedAsync(
+    Appointment appointment,
+    string oldStatusName,
+    string newStatusName)
+        {
+            var statusText = _workflowService.FormatStatusName(newStatusName);
+
+            var updateData = new
+            {
+                AppointmentId = appointment.Id,
+                PatientId = appointment.PatientId,
+                DoctorId = appointment.DoctorId,
+                PatientName = appointment.Patient.User.FullName,
+                DoctorName = appointment.Doctor.User.FullName,
+                AppointmentDate = appointment.AppointmentDate.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
+                OldStatus = _workflowService.FormatStatusName(oldStatusName),
+                NewStatus = statusText,
+                UpdatedBy = "Clinic Manager",
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _appointmentHub.Clients
+                .Group("ReceptionistGroup")
+                .SendAsync("AppointmentStatusChanged", updateData);
+
+            await _appointmentHub.Clients
+                .Group("ReceptionistGroup")
+                .SendAsync("WaitingRoomUpdated", updateData);
+
+            await _appointmentHub.Clients
+                .Group($"Doctor_{appointment.DoctorId}")
+                .SendAsync("AppointmentStatusChanged", updateData);
+
+            await _appointmentHub.Clients
+                .Group($"Patient_{appointment.PatientId}")
+                .SendAsync("AppointmentStatusChanged", updateData);
         }
     }
 }
