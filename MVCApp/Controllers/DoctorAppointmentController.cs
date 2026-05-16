@@ -85,11 +85,16 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/UpdateStatus.cshtml", model);
         }
 
-        [HttpPost("UpdateStatus")]
+        [HttpPost("UpdateStatus/{id:int?}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(UpdateAppointmentStatusViewModel model)
+        public async Task<IActionResult> UpdateStatus(int? id, UpdateAppointmentStatusViewModel model)
         {
             ViewData["Title"] = "Update Appointment Status";
+
+            if (id.HasValue && model.AppointmentId == 0)
+            {
+                model.AppointmentId = id.Value;
+            }
 
             if (!ModelState.IsValid)
             {

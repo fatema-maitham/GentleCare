@@ -17,10 +17,7 @@
             <h2>Status Update Form</h2>
         </div>
 
-        <form asp-controller="DoctorAppointment"
-              asp-action="UpdateStatus"
-              method="post"
-              class="status-form">
+        <form action="/Doctor/UpdateStatus" method="post" class="status-form">
 
             @Html.AntiForgeryToken()
 
