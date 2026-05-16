@@ -1003,24 +1003,34 @@ namespace MVCApp.Services
             var schedules = doctor.Schedules.ToList();
             var leaves = doctor.Leaves.ToList();
 
-            var impacted = appointments
-                .Where(a => IsAppointmentImpacted(a, schedules, leaves))
-                .Select(a => new ImpactedAppointmentItemViewModel
+            var impactedAppointments = new List<ImpactedAppointmentItemViewModel>();
+
+            foreach (var appointment in appointments)
+            {
+                if (!IsAppointmentImpacted(appointment, schedules, leaves))
                 {
-                    AppointmentId = a.Id,
-                    DoctorId = a.DoctorId,
-                    PatientId = a.PatientId,
-                    PatientName = a.Patient.User.FullName,
-                    DoctorName = a.Doctor.User.FullName,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    StatusName = _workflowService.FormatStatusName(a.Status.Name),
-                    Notes = a.Notes ?? string.Empty,
-                    ImpactType = GetImpactType(a, leaves),
-                    ImpactReason = BuildImpactReason(a, schedules, leaves)
-                })
-                .ToList();
+                    continue;
+                }
+
+                var item = new ImpactedAppointmentItemViewModel
+                {
+                    AppointmentId = appointment.Id,
+                    DoctorId = appointment.DoctorId,
+                    PatientId = appointment.PatientId,
+                    PatientName = appointment.Patient.User.FullName,
+                    DoctorName = appointment.Doctor.User.FullName,
+                    AppointmentDate = appointment.AppointmentDate,
+                    StartTime = appointment.StartTime,
+                    EndTime = appointment.EndTime,
+                    StatusName = _workflowService.FormatStatusName(appointment.Status.Name),
+                    Notes = appointment.Notes ?? string.Empty,
+                    ImpactType = GetImpactType(appointment, leaves),
+                    ImpactReason = BuildImpactReason(appointment, schedules, leaves),
+                    RescheduleSuggestions = await GetRescheduleSuggestionsAsync(appointment)
+                };
+
+                impactedAppointments.Add(item);
+            }
 
             return new AppointmentImpactViewModel
             {
@@ -1030,10 +1040,9 @@ namespace MVCApp.Services
                 LicenseNumber = doctor.LicenseNumber,
                 FromDate = start,
                 ToDate = end,
-                ImpactedAppointments = impacted
+                ImpactedAppointments = impactedAppointments
             };
         }
-
         public async Task<(bool Success, string Message, int? DoctorId)> CancelImpactedAppointmentAsync(
             int appointmentId,
             string? reason)
@@ -1086,6 +1095,93 @@ namespace MVCApp.Services
                 StatusNames.Cancelled);
 
             return (true, "Appointment cancelled and notifications were created.", appointment.DoctorId);
+        }
+
+        public async Task<(bool Success, string Message, int? DoctorId)> RescheduleImpactedAppointmentAsync(
+    int appointmentId,
+    int newDoctorId,
+    DateTime newDate,
+    TimeOnly newStartTime,
+    TimeOnly newEndTime)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Status)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId);
+
+            if (appointment == null)
+            {
+                return (false, "Appointment was not found.", null);
+            }
+
+            var oldDoctorId = appointment.DoctorId;
+            var oldDoctorName = appointment.Doctor.User.FullName;
+            var oldDate = appointment.AppointmentDate;
+            var oldStartTime = appointment.StartTime;
+            var oldEndTime = appointment.EndTime;
+
+            if (appointment.Status.Name == StatusNames.Completed ||
+                appointment.Status.Name == StatusNames.Cancelled ||
+                appointment.Status.Name == StatusNames.Missed)
+            {
+                return (false, "This appointment cannot be rescheduled because it is already completed, cancelled, or missed.", oldDoctorId);
+            }
+
+            var newDoctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == newDoctorId);
+
+            if (newDoctor == null)
+            {
+                return (false, "Selected doctor was not found.", oldDoctorId);
+            }
+
+            var isValidSlot = await IsSuggestedSlotStillAvailableAsync(
+                appointment,
+                newDoctorId,
+                newDate.Date,
+                newStartTime,
+                newEndTime);
+
+            if (!isValidSlot)
+            {
+                return (false, "This suggested slot is no longer available. Please refresh the impact page and choose another slot.", oldDoctorId);
+            }
+
+            appointment.DoctorId = newDoctorId;
+            appointment.AppointmentDate = newDate.Date;
+            appointment.StartTime = newStartTime;
+            appointment.EndTime = newEndTime;
+            appointment.Notes = string.IsNullOrWhiteSpace(appointment.Notes)
+                ? $"Rescheduled from Dr. {oldDoctorName} on {oldDate:dd MMM yyyy}."
+                : appointment.Notes + $" | Rescheduled from Dr. {oldDoctorName} on {oldDate:dd MMM yyyy}.";
+            appointment.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await NotifyAppointmentUsersAsync(
+                appointment,
+                "Appointment Rescheduled",
+                $"Appointment was rescheduled to {newDate:dd MMM yyyy}, {newStartTime:HH\\:mm} - {newEndTime:HH\\:mm} with Dr. {newDoctor.User.FullName}.");
+
+            await _appointmentHub.Clients.All.SendAsync("AppointmentUpdated", new
+            {
+                appointmentId = appointment.Id,
+                oldDoctorId,
+                newDoctorId,
+                oldDoctorName,
+                newDoctorName = newDoctor.User.FullName,
+                oldDate = oldDate.ToString("yyyy-MM-dd"),
+                newDate = newDate.ToString("yyyy-MM-dd"),
+                oldTime = $"{oldStartTime:HH\\:mm} - {oldEndTime:HH\\:mm}",
+                newTime = $"{newStartTime:HH\\:mm} - {newEndTime:HH\\:mm}",
+                status = appointment.Status.Name
+            });
+
+            return (true, "Appointment rescheduled successfully and users were notified.", oldDoctorId);
         }
 
         // =========================
@@ -2021,6 +2117,193 @@ namespace MVCApp.Services
             }
 
             return "Appointment time is outside the current doctor schedule.";
+        }
+
+        private async Task<List<AppointmentRescheduleSuggestionViewModel>> GetRescheduleSuggestionsAsync(Appointment appointment)
+        {
+            var appointmentDurationMinutes =
+                (int)(appointment.EndTime.ToTimeSpan() - appointment.StartTime.ToTimeSpan()).TotalMinutes;
+
+            if (appointmentDurationMinutes <= 0)
+            {
+                appointmentDurationMinutes = 30;
+            }
+
+            var originalDoctorSpecializationIds = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .Where(ds => ds.DoctorId == appointment.DoctorId)
+                .Select(ds => ds.SpecializationId)
+                .ToListAsync();
+
+            if (!originalDoctorSpecializationIds.Any())
+            {
+                return new List<AppointmentRescheduleSuggestionViewModel>();
+            }
+
+            var candidateDoctors = await _context.Doctors
+                .AsNoTracking()
+                .Include(d => d.User)
+                .Include(d => d.Schedules)
+                .Include(d => d.Leaves)
+                .Include(d => d.DoctorSpecializations)
+                .Where(d =>
+                    d.User.IsActive &&
+                    d.DoctorSpecializations.Any(ds => originalDoctorSpecializationIds.Contains(ds.SpecializationId)))
+                .OrderBy(d => d.Id == appointment.DoctorId ? 0 : 1)
+                .ThenBy(d => d.User.FullName)
+                .ToListAsync();
+
+            var suggestions = new List<AppointmentRescheduleSuggestionViewModel>();
+
+            var startDate = appointment.AppointmentDate.Date;
+            var endDate = startDate.AddDays(14);
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                foreach (var doctor in candidateDoctors)
+                {
+                    if (suggestions.Count >= 3)
+                    {
+                        return suggestions;
+                    }
+
+                    var doctorSchedules = doctor.Schedules
+                        .Where(s => s.DayOfWeek == date.DayOfWeek)
+                        .OrderBy(s => s.StartTime)
+                        .ToList();
+
+                    if (!doctorSchedules.Any())
+                    {
+                        continue;
+                    }
+
+                    var isOnLeave = doctor.Leaves.Any(l =>
+                        date.Date >= l.StartDate.Date &&
+                        date.Date <= l.EndDate.Date);
+
+                    if (isOnLeave)
+                    {
+                        continue;
+                    }
+
+                    foreach (var schedule in doctorSchedules)
+                    {
+                        var slotStart = schedule.StartTime;
+                        var slotEnd = slotStart.AddMinutes(appointmentDurationMinutes);
+
+                        while (slotEnd <= schedule.EndTime)
+                        {
+                            var available = await IsSlotAvailableAsync(
+                                appointment.Id,
+                                doctor.Id,
+                                date,
+                                slotStart,
+                                slotEnd);
+
+                            if (available)
+                            {
+                                suggestions.Add(new AppointmentRescheduleSuggestionViewModel
+                                {
+                                    DoctorId = doctor.Id,
+                                    DoctorName = doctor.User.FullName,
+                                    NewDate = date,
+                                    NewStartTime = slotStart,
+                                    NewEndTime = slotEnd,
+                                    SpecializationMatchText = doctor.Id == appointment.DoctorId
+                                        ? "Same doctor"
+                                        : "Same specialization"
+                                });
+
+                                break;
+                            }
+
+                            slotStart = slotStart.AddMinutes(schedule.SlotDurationMinutes);
+                            slotEnd = slotStart.AddMinutes(appointmentDurationMinutes);
+                        }
+                    }
+                }
+            }
+
+            return suggestions;
+        }
+
+        private async Task<bool> IsSuggestedSlotStillAvailableAsync(
+            Appointment appointment,
+            int newDoctorId,
+            DateTime newDate,
+            TimeOnly newStartTime,
+            TimeOnly newEndTime)
+        {
+            var originalDoctorSpecializationIds = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .Where(ds => ds.DoctorId == appointment.DoctorId)
+                .Select(ds => ds.SpecializationId)
+                .ToListAsync();
+
+            var newDoctorMatchesSpecialization = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .AnyAsync(ds =>
+                    ds.DoctorId == newDoctorId &&
+                    originalDoctorSpecializationIds.Contains(ds.SpecializationId));
+
+            if (!newDoctorMatchesSpecialization)
+            {
+                return false;
+            }
+
+            var hasSchedule = await _context.DoctorSchedules
+                .AsNoTracking()
+                .AnyAsync(s =>
+                    s.DoctorId == newDoctorId &&
+                    s.DayOfWeek == newDate.DayOfWeek &&
+                    newStartTime >= s.StartTime &&
+                    newEndTime <= s.EndTime);
+
+            if (!hasSchedule)
+            {
+                return false;
+            }
+
+            var isOnLeave = await _context.DoctorLeaves
+                .AsNoTracking()
+                .AnyAsync(l =>
+                    l.DoctorId == newDoctorId &&
+                    newDate.Date >= l.StartDate.Date &&
+                    newDate.Date <= l.EndDate.Date);
+
+            if (isOnLeave)
+            {
+                return false;
+            }
+
+            return await IsSlotAvailableAsync(
+                appointment.Id,
+                newDoctorId,
+                newDate,
+                newStartTime,
+                newEndTime);
+        }
+
+        private async Task<bool> IsSlotAvailableAsync(
+            int currentAppointmentId,
+            int doctorId,
+            DateTime date,
+            TimeOnly startTime,
+            TimeOnly endTime)
+        {
+            var hasConflict = await _context.Appointments
+                .AsNoTracking()
+                .Include(a => a.Status)
+                .AnyAsync(a =>
+                    a.Id != currentAppointmentId &&
+                    a.DoctorId == doctorId &&
+                    a.AppointmentDate.Date == date.Date &&
+                    a.Status.Name != StatusNames.Cancelled &&
+                    a.Status.Name != StatusNames.Missed &&
+                    startTime < a.EndTime &&
+                    a.StartTime < endTime);
+
+            return !hasConflict;
         }
 
         private async Task NotifyAppointmentUsersAsync(Appointment appointment, string title, string message)
