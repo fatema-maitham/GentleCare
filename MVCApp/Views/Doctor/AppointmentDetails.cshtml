@@ -146,6 +146,16 @@
                         Edit Visit Record
                     </a>
                 }
+
+                @if (Model.CanCreateFollowUpRequest)
+                {
+                    <a asp-controller="DoctorAppointment"
+                       asp-action="CreateFollowUpRequest"
+                       asp-route-appointmentId="@Model.AppointmentId"
+                       class="details-btn details-btn-main">
+                        Create Follow-Up Request
+                    </a>
+                }
             </div>
         </div>
     </div>
