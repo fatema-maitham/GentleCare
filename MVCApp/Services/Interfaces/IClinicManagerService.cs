@@ -180,5 +180,20 @@ namespace MVCApp.Services.Interfaces
         Task<(bool Success, string Message, int SentCount)> SendAnnouncementAsync(
             ClinicAnnouncementViewModel model,
             string managerUserId);
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        // Gets doctor, receptionist, and patient accounts for activation/deactivation.
+        Task<ClinicManagerUserAccountsViewModel> GetUserAccountsAsync(
+            string? searchTerm,
+            string? selectedRole,
+            bool? isActive);
+
+        // Activates or deactivates a user account.
+        Task<(bool Success, string Message)> ToggleUserActiveStatusAsync(
+            string targetUserId,
+            string managerUserId);
     }
 }
