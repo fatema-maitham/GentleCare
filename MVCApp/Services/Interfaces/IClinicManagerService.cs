@@ -154,6 +154,11 @@ namespace MVCApp.Services.Interfaces
         // Marks all notifications as read.
         Task MarkAllNotificationsAsReadAsync(string userId);
 
+
+        // =========================
+        // Profile
+        // =========================
+
         Task<ClinicManagerProfileViewModel?> GetProfileAsync(string userId);
 
         Task<EditClinicManagerProfileViewModel?> GetEditProfileAsync(string userId);
@@ -163,5 +168,17 @@ namespace MVCApp.Services.Interfaces
             EditClinicManagerProfileViewModel model,
             string webRootPath);
 
+
+        // =========================
+        // Announcements
+        // =========================
+
+        // Prepares the announcement form with audience options.
+        Task<ClinicAnnouncementViewModel> GetCreateAnnouncementViewModelAsync();
+
+        // Sends a clinic announcement to the selected audience.
+        Task<(bool Success, string Message, int SentCount)> SendAnnouncementAsync(
+            ClinicAnnouncementViewModel model,
+            string managerUserId);
     }
 }

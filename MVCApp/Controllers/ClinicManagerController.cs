@@ -642,6 +642,56 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // GET: /ClinicManager/CreateAnnouncement
+        [HttpGet]
+        public async Task<IActionResult> CreateAnnouncement()
+        {
+            ViewData["Title"] = "Create Announcement";
+
+            var model = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+
+            return View(model);
+        }
+
+        // POST: /ClinicManager/CreateAnnouncement
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAnnouncement(ClinicAnnouncementViewModel model)
+        {
+            ViewData["Title"] = "Create Announcement";
+
+            if (!ModelState.IsValid)
+            {
+                var reloadModel = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+                model.AudienceOptions = reloadModel.AudienceOptions;
+
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _clinicManagerService.SendAnnouncementAsync(model, user.Id);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+
+                var reloadModel = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+                model.AudienceOptions = reloadModel.AudienceOptions;
+
+                return View(model);
+            }
+
+            TempData["Success"] = result.Message;
+
+            return RedirectToAction(nameof(Notifications));
+        }
+
         // =========================
         // Notifications
         // =========================

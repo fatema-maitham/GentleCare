@@ -1354,6 +1354,144 @@ namespace MVCApp.Services
             await _notificationService.MarkAllAsReadAsync(userId);
         }
 
+        public Task<ClinicAnnouncementViewModel> GetCreateAnnouncementViewModelAsync()
+        {
+            var model = new ClinicAnnouncementViewModel
+            {
+                SelectedAudience = "All",
+                AudienceOptions = GetAnnouncementAudienceOptions()
+            };
+
+            return Task.FromResult(model);
+        }
+
+        public async Task<(bool Success, string Message, int SentCount)> SendAnnouncementAsync(
+            ClinicAnnouncementViewModel model,
+            string managerUserId)
+        {
+            if (model == null)
+            {
+                return (false, "Announcement form was not submitted correctly.", 0);
+            }
+
+            var title = model.Title?.Trim();
+            var message = model.Message?.Trim();
+            var audience = model.SelectedAudience?.Trim();
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return (false, "Announcement title is required.", 0);
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return (false, "Announcement message is required.", 0);
+            }
+
+            if (string.IsNullOrWhiteSpace(audience))
+            {
+                return (false, "Please select who should receive this announcement.", 0);
+            }
+
+            var validAudiences = new[] { "All", "Doctors", "Receptionists", "Patients" };
+
+            if (!validAudiences.Contains(audience))
+            {
+                return (false, "Selected announcement audience is not valid.", 0);
+            }
+
+            var recipientUserIds = new List<string>();
+
+            if (audience == "All" || audience == "Doctors")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Doctor"));
+            }
+
+            if (audience == "All" || audience == "Receptionists")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Receptionist"));
+            }
+
+            if (audience == "All" || audience == "Patients")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Patient"));
+            }
+
+            recipientUserIds = recipientUserIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Where(id => id != managerUserId)
+                .Distinct()
+                .ToList();
+
+            if (!recipientUserIds.Any())
+            {
+                return (false, "No active users were found for the selected audience.", 0);
+            }
+
+            await _notificationService.CreateNotificationsAsync(
+                recipientUserIds,
+                title,
+                message,
+                "Clinic Announcement",
+                null,
+                "ClinicAnnouncement");
+
+            return (
+                true,
+                $"Announcement sent successfully to {recipientUserIds.Count} user(s).",
+                recipientUserIds.Count);
+        }
+
+        private static List<SelectListItem> GetAnnouncementAudienceOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem
+        {
+            Value = "All",
+            Text = "All users"
+        },
+        new SelectListItem
+        {
+            Value = "Doctors",
+            Text = "Doctors only"
+        },
+        new SelectListItem
+        {
+            Value = "Receptionists",
+            Text = "Receptionists only"
+        },
+        new SelectListItem
+        {
+            Value = "Patients",
+            Text = "Patients only"
+        }
+    };
+        }
+
+        private async Task<List<string>> GetActiveUserIdsInRoleAsync(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                return new List<string>();
+            }
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+            if (!roleExists)
+            {
+                return new List<string>();
+            }
+
+            var users = await _userManager.GetUsersInRoleAsync(roleName);
+
+            return users
+                .Where(u => u.IsActive)
+                .Select(u => u.Id)
+                .Distinct()
+                .ToList();
+        }
+
         // =========================
         // Private Helpers
         // =========================
