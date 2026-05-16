@@ -532,33 +532,54 @@ This update improves management visibility into clinic operations, appointment p
 
 ### Clinic Manager
 
-| Email                                                   | Password    |
-| ------------------------------------------------------- | ----------- |
-| [hussain@gentlecare.com](mailto:hussain@gentlecare.com) | Hussain@123 |
+| Email | Password |
+|---|---|
+| hussain@gentlecare.com | Hussain@123 |
 
 ### Receptionist
 
-| Email                                                           | Password  |
-| --------------------------------------------------------------- | --------- |
-| [sayedjaffar@gentlecare.com](mailto:sayedjaffar@gentlecare.com) | Sayed@123 |
+| Email | Password |
+|---|---|
+| sayedjaffar@gentlecare.com | Sayed@123 |
 
 ### Doctors
 
-| Email                                                   | Password    |
-| ------------------------------------------------------- | ----------- |
-| [fatema@gentlecare.com](mailto:fatema@gentlecare.com)   | Fatema@123  |
-| [hassan@gentlecare.com](mailto:hassan@gentlecare.com)   | Hassan@123  |
-| [ali@gentlecare.com](mailto:ali@gentlecare.com)         | Ali@1234    |
-| [jawad@gentlecare.com](mailto:jawad@gentlecare.com)     | Jawad@123   |
-| [masooma@gentlecare.com](mailto:masooma@gentlecare.com) | Masooma@123 |
+| Doctor Name | Email | Password |
+|---|---|---|
+| Fatema Mohamed | fatema@gentlecare.com | Fatema@123 |
+| Hassan Ali | hassan@gentlecare.com | Hassan@123 |
+| Ali Mohamed | ali@gentlecare.com | Ali@1234 |
+| Jawad Ali | jawad@gentlecare.com | Jawad@123 |
+| Masooma Ridha | masooma@gentlecare.com | Masooma@123 |
+| Abbas Ali | abbas@gentlecare.com | Abbas@123 |
 
 ### Patients
 
-| Patient Email                                           | Password    | CPR       | Patient Reference Number |
-| ------------------------------------------------------- | ----------- | --------- | ------------------------ |
-| [mohamed@gentlecare.com](mailto:mohamed@gentlecare.com) | Mohamed@123 | 990000001 | PAT-1001                 |
-| [zahraa@gmail.com](mailto:zahraa@gmail.com)             | Zahraa@123  | 990000002 | PAT-1002                 |
-| [mohsen@gmail.com](mailto:mohsen@gmail.com)             | Mohsen@123  | 990000003 | PAT-1003                 |
+| Patient Name | Email | Password | CPR Number | Patient Reference Number |
+|---|---|---|---|---|
+| Sayed Hassan | sayedhassan@gmail.com | Sayed@123 | 900101001 | PAT-1001 |
+| Mohamed Baqer | mohamed@gmail.com | Mohamed@123 | 980312002 | PAT-1002 |
+| Zahraa Ahmed | zahraa@gmail.com | Zahraa@123 | 010705003 | PAT-1003 |
+| Mohsen Ali | mohsen@gmail.com | Mohsen@123 | 951122004 | PAT-1004 |
+| Zainab Abbas | zainab@gmail.com | Maryam@123 | 070218005 | PAT-1005 |
+| Sajjad Ali | sajjad@gmail.com | Sajjad@123 | 890909006 | PAT-1006 |
+| Mahdi Mohamed | mahdi@gmail.com | Mahdi@123 | 040415007 | PAT-1007 |
+| Hadi Ali | hadi@gmail.com | Hadi@123 | 001230008 | PAT-1008 |
+
+### Public Lookup Test Data
+
+Patients can use the public lookup page with their CPR number and patient reference number.
+
+| Patient Name | CPR Number | Patient Reference Number |
+|---|---|---|
+| Sayed Hassan | 900101001 | PAT-1001 |
+| Mohamed Baqer | 980312002 | PAT-1002 |
+| Zahraa Ahmed | 010705003 | PAT-1003 |
+| Mohsen Ali | 951122004 | PAT-1004 |
+| Zainab Abbas | 070218005 | PAT-1005 |
+| Sajjad Ali | 890909006 | PAT-1006 |
+| Mahdi Mohamed | 040415007 | PAT-1007 |
+| Hadi Ali | 001230008 | PAT-1008 |
 
 ---
 
