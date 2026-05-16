@@ -148,32 +148,16 @@ namespace MVCApp.Services
             };
 
             await PopulateBookAppointmentListsAsync(model);
-
             return model;
         }
 
         public async Task<(bool Success, string Message)> BookAppointmentAsync(
             ReceptionistBookAppointmentViewModel model)
         {
-            if (!model.PatientId.HasValue)
-            {
-                return (false, "Please select a patient.");
-            }
-
-            if (!model.SpecializationId.HasValue)
-            {
-                return (false, "Please select a specialization.");
-            }
-
-            if (!model.DoctorId.HasValue)
-            {
-                return (false, "Please select a doctor.");
-            }
-
-            if (!model.AppointmentDate.HasValue)
-            {
-                return (false, "Please select an appointment date.");
-            }
+            if (!model.PatientId.HasValue) return (false, "Please select a patient.");
+            if (!model.SpecializationId.HasValue) return (false, "Please select a specialization.");
+            if (!model.DoctorId.HasValue) return (false, "Please select a doctor.");
+            if (!model.AppointmentDate.HasValue) return (false, "Please select an appointment date.");
 
             if (model.AppointmentDate.Value.Date < DateTime.Today)
             {
@@ -356,6 +340,142 @@ namespace MVCApp.Services
             return (true, "Appointment status updated successfully.", null);
         }
 
+        public async Task<ReceptionistPatientSearchViewModel> SearchPatientsAsync(string? searchText)
+        {
+            var model = new ReceptionistPatientSearchViewModel
+            {
+                SearchText = searchText
+            };
+
+            var query = _context.Patients
+                .Include(p => p.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.Trim();
+
+                query = query.Where(p =>
+                    p.User.FullName.Contains(search) ||
+                    p.User.Email!.Contains(search) ||
+                    p.CPRNumber.Contains(search) ||
+                    p.ReferenceNumber.Contains(search));
+            }
+
+            model.Patients = await query
+                .OrderBy(p => p.User.FullName)
+                .Select(p => new ReceptionistPatientSearchResultViewModel
+                {
+                    PatientId = p.Id,
+                    FullName = p.User.FullName,
+                    Email = p.User.Email ?? "Not provided",
+                    CPRNumber = p.CPRNumber,
+                    ReferenceNumber = p.ReferenceNumber,
+                    DateOfBirth = p.DateOfBirth.ToString("dd MMM yyyy"),
+                    PhoneNumber = p.User.PhoneNumber ?? "Not provided"
+                })
+                .ToListAsync();
+
+            return model;
+        }
+
+        public async Task<ReceptionistLiveQueueViewModel> GetLiveQueueAsync()
+        {
+            var today = DateTime.Today;
+
+            var queueItems = await _context.Appointments
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Status)
+                .Where(a =>
+                    a.AppointmentDate.Date == today &&
+                    (
+                        a.Status.Name == "Confirmed" ||
+                        a.Status.Name == "CheckedIn" ||
+                        a.Status.Name == "InProgress" ||
+                        a.Status.Name == "Completed"
+                    ))
+                .Select(a => new ReceptionistLiveQueueItemViewModel
+                {
+                    AppointmentId = a.Id,
+                    PatientName = a.Patient.User.FullName,
+                    CPRNumber = a.Patient.CPRNumber,
+                    DoctorName = a.Doctor.User.FullName,
+                    AppointmentDate = a.AppointmentDate,
+                    StartTime = a.StartTime.ToString("HH:mm"),
+                    EndTime = a.EndTime.ToString("HH:mm"),
+                    Status = a.Status.Name,
+                    Notes = a.Notes
+                })
+                .ToListAsync();
+
+            queueItems = queueItems
+                .OrderBy(q => GetStatusOrder(q.Status))
+                .ThenBy(q => q.StartTime)
+                .ToList();
+
+            return new ReceptionistLiveQueueViewModel
+            {
+                ConfirmedCount = queueItems.Count(q => q.Status == "Confirmed"),
+                CheckedInCount = queueItems.Count(q => q.Status == "CheckedIn"),
+                InProgressCount = queueItems.Count(q => q.Status == "InProgress"),
+                CompletedCount = queueItems.Count(q => q.Status == "Completed"),
+                QueueItems = queueItems
+            };
+        }
+
+        public async Task<(bool Success, string Message)> UpdateQueueStatusAsync(
+            int appointmentId,
+            string newStatus)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Status)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId);
+
+            if (appointment == null)
+            {
+                return (false, "Appointment was not found.");
+            }
+
+            var oldStatus = appointment.Status.Name;
+            var allowedStatuses = GetAllowedNextStatuses(oldStatus);
+
+            if (!allowedStatuses.Contains(newStatus))
+            {
+                return (false, "Invalid status update.");
+            }
+
+            var status = await _context.AppointmentStatuses
+                .FirstOrDefaultAsync(s => s.Name == newStatus);
+
+            if (status == null)
+            {
+                return (false, "Selected status was not found.");
+            }
+
+            appointment.StatusId = status.Id;
+            appointment.UpdatedAt = DateTime.UtcNow;
+
+            if (newStatus != "Cancelled")
+            {
+                appointment.CancellationReason = null;
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _notificationService.CreatePatientNotificationAsync(
+                appointment.PatientId,
+                "Appointment Status Updated",
+                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {oldStatus} to {newStatus}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
+            return (true, "Queue status updated successfully.");
+        }
+
         private async Task PopulateBookAppointmentListsAsync(ReceptionistBookAppointmentViewModel model)
         {
             model.Patients = await _context.Patients
@@ -525,145 +645,11 @@ namespace MVCApp.Services
             return currentStatus switch
             {
                 "Requested" => new List<string> { "Confirmed", "Cancelled" },
-                "Confirmed" => new List<string> { "CheckedIn", "Cancelled" },
-                "CheckedIn" => new List<string> { "InProgress" },
-                "InProgress" => new List<string> { "Completed", "Missed" },
+                "Confirmed" => new List<string> { "CheckedIn", "Cancelled", "Missed" },
+                "CheckedIn" => new List<string> { "InProgress", "Missed" },
+                "InProgress" => new List<string> { "Completed" },
                 _ => new List<string>()
             };
         }
-
-
-        public async Task<ReceptionistPatientSearchViewModel> SearchPatientsAsync(string? searchText)
-        {
-            var model = new ReceptionistPatientSearchViewModel
-            {
-                SearchText = searchText
-            };
-
-            var query = _context.Patients
-                .Include(p => p.User)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(searchText))
-            {
-                var search = searchText.Trim();
-
-                query = query.Where(p =>
-                    p.User.FullName.Contains(search) ||
-                    p.User.Email!.Contains(search) ||
-                    p.CPRNumber.Contains(search) ||
-                    p.ReferenceNumber.Contains(search));
-            }
-
-            model.Patients = await query
-                .OrderBy(p => p.User.FullName)
-                .Select(p => new ReceptionistPatientSearchResultViewModel
-                {
-                    PatientId = p.Id,
-                    FullName = p.User.FullName,
-                    Email = p.User.Email ?? "Not provided",
-                    CPRNumber = p.CPRNumber,
-                    ReferenceNumber = p.ReferenceNumber,
-                    DateOfBirth = p.DateOfBirth.ToString("dd MMM yyyy"),
-                    PhoneNumber = p.User.PhoneNumber ?? "Not provided"
-                })
-                .ToListAsync();
-
-            return model;
-        }
-
-        public async Task<ReceptionistLiveQueueViewModel> GetLiveQueueAsync()
-        {
-            var today = DateTime.Today;
-
-            var queueItems = await _context.Appointments
-                .Include(a => a.Patient).ThenInclude(p => p.User)
-                .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Include(a => a.Status)
-                .Where(a =>
-                    a.AppointmentDate.Date == today &&
-                    a.Status.Name != "Cancelled" &&
-                    a.Status.Name != "Missed")
-                .Select(a => new ReceptionistLiveQueueItemViewModel
-                {
-                    AppointmentId = a.Id,
-                    PatientName = a.Patient.User.FullName,
-                    CPRNumber = a.Patient.CPRNumber,
-                    DoctorName = a.Doctor.User.FullName,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime.ToString("HH:mm"),
-                    EndTime = a.EndTime.ToString("HH:mm"),
-                    Status = a.Status.Name,
-                    Notes = a.Notes
-                })
-                .ToListAsync();
-
-            queueItems = queueItems
-                .OrderBy(q => GetStatusOrder(q.Status))
-                .ThenBy(q => q.StartTime)
-                .ToList();
-
-            return new ReceptionistLiveQueueViewModel
-            {
-                ConfirmedCount = queueItems.Count(q => q.Status == "Confirmed"),
-                CheckedInCount = queueItems.Count(q => q.Status == "CheckedIn"),
-                InProgressCount = queueItems.Count(q => q.Status == "InProgress"),
-                CompletedCount = queueItems.Count(q => q.Status == "Completed"),
-                QueueItems = queueItems
-            };
-        }
-
-        public async Task<(bool Success, string Message)> UpdateQueueStatusAsync(
-            int appointmentId,
-            string newStatus)
-        {
-            var appointment = await _context.Appointments
-                .Include(a => a.Patient).ThenInclude(p => p.User)
-                .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Include(a => a.Status)
-                .FirstOrDefaultAsync(a => a.Id == appointmentId);
-
-            if (appointment == null)
-            {
-                return (false, "Appointment was not found.");
-            }
-
-            var oldStatus = appointment.Status.Name;
-            var allowedStatuses = GetAllowedNextStatuses(oldStatus);
-
-            if (!allowedStatuses.Contains(newStatus))
-            {
-                return (false, "Invalid status update.");
-            }
-
-            var status = await _context.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == newStatus);
-
-            if (status == null)
-            {
-                return (false, "Selected status was not found.");
-            }
-
-            appointment.StatusId = status.Id;
-            appointment.UpdatedAt = DateTime.UtcNow;
-
-            if (newStatus != "Cancelled")
-            {
-                appointment.CancellationReason = null;
-            }
-
-            await _context.SaveChangesAsync();
-
-            await _notificationService.CreatePatientNotificationAsync(
-                appointment.PatientId,
-                "Appointment Status Updated",
-                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {oldStatus} to {newStatus}.",
-                "Appointment",
-                appointment.Id,
-                "Appointment");
-
-            return (true, "Queue status updated successfully.");
-        }
     }
-
 }
