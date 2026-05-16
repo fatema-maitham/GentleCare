@@ -2337,7 +2337,7 @@ namespace MVCApp.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
 
-            if (user == null)
+            if (user == null || !user.IsActive)
             {
                 return null;
             }
@@ -2355,7 +2355,7 @@ namespace MVCApp.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
 
-            if (user == null)
+            if (user == null || !user.IsActive)
             {
                 return null;
             }
@@ -2370,28 +2370,45 @@ namespace MVCApp.Services
         }
 
         public async Task<bool> UpdateProfileAsync(
-            string userId,
-            EditClinicManagerProfileViewModel model,
-            string webRootPath)
+    string userId,
+    EditClinicManagerProfileViewModel model,
+    string webRootPath)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
-            if (user == null)
+            if (user == null || !user.IsActive)
             {
                 return false;
             }
 
-            user.FullName = model.FullName;
-            user.PhoneNumber = model.PhoneNumber;
+            user.FullName = model.FullName.Trim();
+            user.PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber)
+                ? null
+                : model.PhoneNumber.Trim();
 
-            await _userManager.SetEmailAsync(user, model.Email);
-            await _userManager.SetUserNameAsync(user, model.Email);
+            var email = model.Email.Trim();
+
+            if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailResult = await _userManager.SetEmailAsync(user, email);
+
+                if (!emailResult.Succeeded)
+                {
+                    return false;
+                }
+
+                var usernameResult = await _userManager.SetUserNameAsync(user, email);
+
+                if (!usernameResult.Succeeded)
+                {
+                    return false;
+                }
+            }
 
             if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
             {
-                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
-
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLowerInvariant();
 
                 if (!allowedExtensions.Contains(extension))
                 {
@@ -2405,22 +2422,36 @@ namespace MVCApp.Services
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                var fileName = $"manager-{user.Id}-{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadsFolder, fileName);
+                var oldImage = user.ProfilePicture;
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var newFileName = $"manager-{user.Id}-{Guid.NewGuid()}{extension}";
+                var newFilePath = Path.Combine(uploadsFolder, newFileName);
+
+                using (var stream = new FileStream(newFilePath, FileMode.Create))
                 {
                     await model.ProfilePictureFile.CopyToAsync(stream);
                 }
 
-                user.ProfilePicture = fileName;
+                if (!string.IsNullOrWhiteSpace(oldImage) &&
+                    oldImage != "default-manager.png" &&
+                    oldImage != "default-profile.png")
+                {
+                    var oldFileName = Path.GetFileName(oldImage);
+                    var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
+
+                    if (File.Exists(oldFilePath))
+                    {
+                        File.Delete(oldFilePath);
+                    }
+                }
+
+                user.ProfilePicture = newFileName;
             }
 
             var result = await _userManager.UpdateAsync(user);
 
             return result.Succeeded;
         }
-
         private async Task BroadcastAppointmentStatusChangedAsync(
     Appointment appointment,
     string oldStatusName,

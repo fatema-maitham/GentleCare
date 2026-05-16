@@ -1,5 +1,6 @@
 ﻿namespace MVCApp.ViewModels.ClinicManager
 {
+    // ViewModel used by the Clinic Manager Profile page.
     public class ClinicManagerProfileViewModel
     {
         public string FullName { get; set; } = string.Empty;

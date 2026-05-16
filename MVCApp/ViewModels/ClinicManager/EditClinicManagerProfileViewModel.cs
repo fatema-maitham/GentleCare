@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MVCApp.ViewModels.ClinicManager
 {
+    // ViewModel used by the Clinic Manager Edit Profile page.
     public class EditClinicManagerProfileViewModel
     {
         [Required]
