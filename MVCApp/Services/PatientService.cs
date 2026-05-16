@@ -338,9 +338,10 @@ namespace MVCApp.Services
             return model;
         }
 
+
         public async Task<(bool Success, string Message)> BookAppointmentAsync(
-            ClaimsPrincipal userPrincipal,
-            PatientBookAppointmentViewModel model)
+    ClaimsPrincipal userPrincipal,
+    PatientBookAppointmentViewModel model)
         {
             var patient = await GetCurrentPatientAsync(userPrincipal);
 
@@ -349,7 +350,10 @@ namespace MVCApp.Services
                 return (false, "Patient profile was not found.");
             }
 
-            if (model.DoctorId == null || model.AppointmentDate == null || string.IsNullOrWhiteSpace(model.StartTime))
+            if (model.SpecializationId == null ||
+                model.DoctorId == null ||
+                model.AppointmentDate == null ||
+                string.IsNullOrWhiteSpace(model.StartTime))
             {
                 return (false, "Please complete all required appointment details.");
             }
@@ -378,6 +382,14 @@ namespace MVCApp.Services
                 return (false, "Selected doctor was not found.");
             }
 
+            var doctorHasSpecialization = doctor.DoctorSpecializations
+                .Any(ds => ds.SpecializationId == model.SpecializationId.Value);
+
+            if (!doctorHasSpecialization)
+            {
+                return (false, "The selected doctor does not match the selected specialization.");
+            }
+
             var schedule = doctor.Schedules
                 .FirstOrDefault(s => s.DayOfWeek == appointmentDate.DayOfWeek);
 
@@ -391,6 +403,33 @@ namespace MVCApp.Services
             if (startTime < schedule.StartTime || endTime > schedule.EndTime)
             {
                 return (false, "The selected time is outside the doctor's working hours.");
+            }
+
+            var doctorOnLeave = doctor.Leaves.Any(l =>
+                appointmentDate >= l.StartDate.Date &&
+                appointmentDate <= l.EndDate.Date);
+
+            if (doctorOnLeave)
+            {
+                return (false, "The selected doctor is on leave on this date.");
+            }
+
+            var existingAppointments = await _context.Appointments
+                .Include(a => a.Status)
+                .Where(a =>
+                    a.DoctorId == doctor.Id &&
+                    a.AppointmentDate.Date == appointmentDate &&
+                    a.Status.Name != "Cancelled" &&
+                    a.Status.Name != "Missed")
+                .ToListAsync();
+
+            var hasConflict = existingAppointments.Any(a =>
+                a.StartTime < endTime &&
+                a.EndTime > startTime);
+
+            if (hasConflict)
+            {
+                return (false, "This time slot is already booked. Please select another available slot.");
             }
 
             var requestedStatus = await _context.AppointmentStatuses
@@ -409,16 +448,23 @@ namespace MVCApp.Services
                 AppointmentDate = appointmentDate,
                 StartTime = startTime,
                 EndTime = endTime,
-                Notes = model.Notes,
+                Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return (false, "This appointment could not be booked because the selected slot may no longer be available.");
+            }
 
             return (true, "Appointment request submitted successfully.");
         }
-
         public async Task<(bool Success, string Message)> CancelAppointmentAsync(
             ClaimsPrincipal userPrincipal,
             int appointmentId)
@@ -490,6 +536,7 @@ namespace MVCApp.Services
             var doctorsQuery = _context.Doctors
                 .Include(d => d.User)
                 .Include(d => d.DoctorSpecializations)
+                .Where(d => d.User.IsActive)
                 .AsQueryable();
 
             if (model.SpecializationId != null)
@@ -510,7 +557,9 @@ namespace MVCApp.Services
 
             model.AvailableSlotOptions = new List<SelectListItem>();
 
-            if (model.DoctorId == null || model.AppointmentDate == null)
+            if (model.SpecializationId == null ||
+                model.DoctorId == null ||
+                model.AppointmentDate == null)
             {
                 return;
             }
@@ -524,9 +573,28 @@ namespace MVCApp.Services
 
             var doctor = await _context.Doctors
                 .Include(d => d.Schedules)
+                .Include(d => d.Leaves)
+                .Include(d => d.DoctorSpecializations)
                 .FirstOrDefaultAsync(d => d.Id == model.DoctorId.Value);
 
             if (doctor == null)
+            {
+                return;
+            }
+
+            var doctorHasSpecialization = doctor.DoctorSpecializations
+                .Any(ds => ds.SpecializationId == model.SpecializationId.Value);
+
+            if (!doctorHasSpecialization)
+            {
+                return;
+            }
+
+            var doctorOnLeave = doctor.Leaves.Any(l =>
+                appointmentDate >= l.StartDate.Date &&
+                appointmentDate <= l.EndDate.Date);
+
+            if (doctorOnLeave)
             {
                 return;
             }
@@ -539,27 +607,38 @@ namespace MVCApp.Services
                 return;
             }
 
-            var bookedTimes = await _context.Appointments
+            var bookedAppointments = await _context.Appointments
                 .Include(a => a.Status)
                 .Where(a =>
                     a.DoctorId == model.DoctorId.Value &&
                     a.AppointmentDate.Date == appointmentDate &&
                     a.Status.Name != "Cancelled" &&
                     a.Status.Name != "Missed")
-                .Select(a => a.StartTime)
+                .Select(a => new
+                {
+                    a.StartTime,
+                    a.EndTime
+                })
                 .ToListAsync();
 
             var currentTime = schedule.StartTime;
 
             while (currentTime.AddMinutes(schedule.SlotDurationMinutes) <= schedule.EndTime)
             {
-                if (!bookedTimes.Contains(currentTime))
+                var slotStart = currentTime;
+                var slotEnd = currentTime.AddMinutes(schedule.SlotDurationMinutes);
+
+                var slotHasConflict = bookedAppointments.Any(a =>
+                    a.StartTime < slotEnd &&
+                    a.EndTime > slotStart);
+
+                if (!slotHasConflict)
                 {
                     model.AvailableSlotOptions.Add(new SelectListItem
                     {
-                        Value = currentTime.ToString("HH:mm"),
-                        Text = currentTime.ToString("HH:mm"),
-                        Selected = model.StartTime == currentTime.ToString("HH:mm")
+                        Value = slotStart.ToString("HH:mm"),
+                        Text = $"{slotStart:HH\\:mm} - {slotEnd:HH\\:mm}",
+                        Selected = model.StartTime == slotStart.ToString("HH:mm")
                     });
                 }
 
