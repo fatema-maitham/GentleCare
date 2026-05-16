@@ -55,17 +55,7 @@ Patients and receptionists can book appointments by selecting specialization, do
 
 The ERD represents the main GentleCare database structure, including users, roles, doctors, patients, appointments, schedules, leaves, specializations, visit records, prescriptions, and notifications.
 
-Add the ERD image to the repository using this path:
-
-```text
-MVCApp/wwwroot/images/gentlecare-erd.jpeg
-```
-
-Then display it in the README:
-
-```md
 ![GentleCare ERD](MVCApp/wwwroot/images/gentlecare-erd.jpeg)
-```
 
 ---
 
@@ -445,12 +435,11 @@ This update improves management visibility into clinic operations, appointment p
 
 | # | Advanced Feature | Description |
 |---|---|---|
-| 1 | Clinic Announcement System | Allows the Clinic Manager to send announcements to doctors, receptionists, patients, or all users. This improves communication across the clinic and reuses the notification system. |
-| 2 | Doctor Follow-Up Appointment Request | Allows doctors to create a follow-up appointment request after a completed visit. This supports continuity of care by connecting completed visits with future checkups. |
-| 3 | Manager Account Activation and Deactivation | Allows the Clinic Manager to activate or deactivate doctor, receptionist, and patient accounts without adding a separate Admin role. Inactive users are blocked from logging in. |
-| 4 | Advanced Clinic Reports Dashboard | Provides 8 operational reports for the Clinic Manager, including monthly performance, doctor utilization, specialization demand, busiest hours, doctor leave impact, missed appointment risk, cancellation reason analysis, and prescription volume. |
-| 5 | Real-Time Appointment Status Updates | Uses SignalR to broadcast appointment status changes to connected views, supporting live queue updates and real-time appointment tracking. |
-
+| 1 | Clinic Announcement System | Allows the Clinic Manager to send announcements to doctors, receptionists, patients, or all users for clinic-wide communication. |
+| 2 | Doctor Follow-Up Appointment Request | Allows doctors to request a follow-up appointment after a completed visit to support continuity of care. |
+| 3 | Manager Account Activation and Deactivation | Allows the Clinic Manager to activate or deactivate doctor, receptionist, and patient accounts. Inactive users cannot log in. |
+| 4 | Smart Rescheduling and Leave Impact Handling | Shows appointments affected by doctor leave or schedule changes, suggests replacement slots based on availability, conflicts, leave periods, and specializations, and re-validates the selected slot before rescheduling. |
+| 5 | Enhanced Clinic Reports Dashboard | Provides advanced reports including monthly performance, doctor utilization, specialization demand, busiest hours, doctor leave impact, missed appointment risk, cancellation reason analysis, and prescription volume. |
 ---
 
 ## Doctor MVC Features
