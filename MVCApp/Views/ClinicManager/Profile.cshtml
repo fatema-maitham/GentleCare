@@ -1,7 +1,11 @@
-﻿@model MVCApp.ViewModels.ClinicManager.ManageDoctorLeavesViewModel
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerProfileViewModel
 
 @{
-    ViewData["Title"] = "Manage Doctor Leaves";
+    ViewData["Title"] = "Manager Profile";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
+        ? Url.Content("~/images/default-profile.png")
+        : Url.Content("~/images/managers/" + Model.ProfilePicture);
 }
 
 
@@ -467,12 +471,7 @@
 </style>
 
 
-<div class="manager-page">
-    <div class="manager-top">
-        <a asp-controller="ClinicManager" asp-action="CreateDoctorLeave" asp-route-doctorId="@Model.DoctorId" class="btn-main">Add Leave</a>
-        <a asp-controller="ClinicManager" asp-action="AppointmentImpact" asp-route-doctorId="@Model.DoctorId" class="btn-light">Check Impact</a>
-    </div>
-
+<div class="profile-page">
     
 @if (TempData["Success"] != null)
 {
@@ -485,48 +484,23 @@
 }
 
 
-    <div class="manager-card">
-        <div class="card-head"><h2>Dr. @Model.DoctorName</h2></div>
-        <div class="info-grid">
-            <div class="info-box"><span>Email</span><strong>@Model.DoctorEmail</strong></div>
-            <div class="info-box"><span>License</span><strong>@Model.LicenseNumber</strong></div>
-            <div class="info-box"><span>Total Leaves</span><strong>@Model.TotalLeaves</strong></div>
-            <div class="info-box"><span>Current</span><strong>@Model.CurrentLeaves</strong></div>
-            <div class="info-box"><span>Upcoming</span><strong>@Model.UpcomingLeaves</strong></div>
-        </div>
-    </div>
-
-    <div class="manager-card">
-        @if (Model.HasLeaves)
-        {
-            <div class="manager-table-wrap">
-                <table class="manager-table">
-                    <thead><tr><th>Date</th><th>Reason</th><th>Status</th><th></th></tr></thead>
-                    <tbody>
-                        @foreach (var leave in Model.Leaves)
-                        {
-                            <tr>
-                                <td>@leave.LeaveDateText</td>
-                                <td>@leave.LeaveReason</td>
-                                <td><span class="status-pill">@leave.LeaveStatusText</span></td>
-                                <td>
-                                    <a asp-controller="ClinicManager" asp-action="EditDoctorLeave" asp-route-id="@leave.DoctorLeaveId" class="table-link">Edit</a>
-                                    <form asp-controller="ClinicManager" asp-action="DeleteDoctorLeave" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@leave.DoctorLeaveId" />
-                                        <input type="hidden" name="doctorId" value="@Model.DoctorId" />
-                                        <button type="submit" class="table-link" onclick="return confirm('Delete this leave?');">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="@profileImage" class="profile-img" alt="Profile picture" />
+            <div>
+                <h2>@Model.FullName</h2>
+                <span class="status-pill">Clinic Manager</span>
             </div>
-        }
-        else
-        {
-            <div class="empty-box">@Model.EmptyMessage</div>
-        }
+        </div>
+
+        <div class="profile-info">
+            <div class="info-row"><span>Full Name</span><strong>@Model.FullName</strong></div>
+            <div class="info-row"><span>Email</span><strong>@Model.Email</strong></div>
+            <div class="info-row"><span>Phone Number</span><strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added" : Model.PhoneNumber)</strong></div>
+        </div>
+
+        <div class="profile-actions">
+            <a asp-controller="ClinicManager" asp-action="EditProfile" class="btn-main">Edit Profile</a>
+        </div>
     </div>
 </div>

@@ -14,14 +14,16 @@ namespace MVCApp.Controllers
     {
         private readonly IClinicManagerService _clinicManagerService;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly IWebHostEnvironment _environment;
         public ClinicManagerController(
-            IClinicManagerService clinicManagerService,
-            UserManager<ApplicationUser> userManager)
-        {
-            _clinicManagerService = clinicManagerService;
-            _userManager = userManager;
-        }
+        IClinicManagerService clinicManagerService,
+        UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment environment)
+            {
+                _clinicManagerService = clinicManagerService;
+                _userManager = userManager;
+                _environment = environment;
+            }
 
         // =========================
         // Dashboard
@@ -701,6 +703,85 @@ namespace MVCApp.Controllers
             TempData["Success"] = "All notifications marked as read.";
 
             return RedirectToAction(nameof(Notifications));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            ViewData["Title"] = "Manager Profile";
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var model = await _clinicManagerService.GetProfileAsync(userId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Profile could not be found.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            ViewData["Title"] = "Edit Profile";
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var model = await _clinicManagerService.GetEditProfileAsync(userId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Profile could not be found.";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(EditClinicManagerProfileViewModel model)
+        {
+            ViewData["Title"] = "Edit Profile";
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var updated = await _clinicManagerService.UpdateProfileAsync(
+                userId,
+                model,
+                _environment.WebRootPath);
+
+            if (!updated)
+            {
+                TempData["Error"] = "Profile could not be updated.";
+                return View(model);
+            }
+
+            TempData["Success"] = "Profile updated successfully.";
+            return RedirectToAction(nameof(Profile));
         }
     }
 }
