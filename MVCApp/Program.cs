@@ -43,6 +43,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IClinicNotificationService, ClinicNotificationService>();
+builder.Services.AddScoped<IReceptionistService, ReceptionistService>();
 
 builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
 builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>();
