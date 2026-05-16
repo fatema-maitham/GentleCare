@@ -26,18 +26,66 @@ namespace WebAPI.Controllers
 
         // GET api/appointment/lookup
         // PUBLIC - no auth required
+        //[HttpGet("lookup")]
+        //public async Task<IActionResult> PublicLookup(
+        //    [FromQuery] string cprNumber,
+        //    [FromQuery] string referenceNumber)
+        //{
+        //    if (string.IsNullOrEmpty(cprNumber) ||
+        //        string.IsNullOrEmpty(referenceNumber))
+        //        return BadRequest(new
+        //        {
+        //            message =
+        //            "CPR number and reference number are required."
+        //        });
+
+        //    var patient = await _context.Patients
+        //        .FirstOrDefaultAsync(p =>
+        //            p.CPRNumber == cprNumber &&
+        //            p.ReferenceNumber == referenceNumber);
+
+        //    if (patient == null)
+        //        return NotFound(new { message = "Patient not found." });
+
+        //    var appointments = await _context.Appointments
+        //        .Include(a => a.Doctor).ThenInclude(d => d.User)
+        //        .Include(a => a.Status)
+        //        .Where(a => a.PatientId == patient.Id &&
+        //            a.AppointmentDate >= DateTime.Today)
+        //        .OrderBy(a => a.AppointmentDate)
+        //        .Select(a => new AppointmentLookupResponseDTO
+        //        {
+        //            AppointmentId = a.Id,
+        //            DoctorName = a.Doctor.User.FullName,
+        //            AppointmentDate = a.AppointmentDate,
+        //            StartTime = a.StartTime.ToString(),
+        //            Status = a.Status.Name
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(appointments);
+        //}
+
+
+
+        // GET api/appointment/lookup
+        // PUBLIC - no auth required
         [HttpGet("lookup")]
         public async Task<IActionResult> PublicLookup(
             [FromQuery] string cprNumber,
             [FromQuery] string referenceNumber)
         {
-            if (string.IsNullOrEmpty(cprNumber) ||
-                string.IsNullOrEmpty(referenceNumber))
+            if (string.IsNullOrWhiteSpace(cprNumber) ||
+                string.IsNullOrWhiteSpace(referenceNumber))
+            {
                 return BadRequest(new
                 {
-                    message =
-                    "CPR number and reference number are required."
+                    message = "CPR number and reference number are required."
                 });
+            }
+
+            cprNumber = cprNumber.Trim();
+            referenceNumber = referenceNumber.Trim();
 
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(p =>
@@ -45,27 +93,69 @@ namespace WebAPI.Controllers
                     p.ReferenceNumber == referenceNumber);
 
             if (patient == null)
+            {
                 return NotFound(new { message = "Patient not found." });
+            }
 
-            var appointments = await _context.Appointments
+            var upcomingStatuses = new List<string>
+    {
+        "Requested",
+        "Confirmed",
+        "CheckedIn",
+        "InProgress"
+    };
+
+            var upcomingAppointments = await _context.Appointments
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.DoctorSpecializations)
+                    .ThenInclude(ds => ds.Specialization)
                 .Include(a => a.Status)
-                .Where(a => a.PatientId == patient.Id &&
-                    a.AppointmentDate >= DateTime.Today)
+                .Where(a =>
+                    a.PatientId == patient.Id &&
+                    a.AppointmentDate.Date >= DateTime.Today &&
+                    upcomingStatuses.Contains(a.Status.Name))
                 .OrderBy(a => a.AppointmentDate)
+                .ThenBy(a => a.StartTime)
                 .Select(a => new AppointmentLookupResponseDTO
                 {
                     AppointmentId = a.Id,
                     DoctorName = a.Doctor.User.FullName,
                     AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime.ToString(),
-                    Status = a.Status.Name
+                    StartTime = a.StartTime.ToString("HH:mm"),
+                    EndTime = a.EndTime.ToString("HH:mm"),
+                    Status = a.Status.Name,
+                    SpecializationName = a.Doctor.DoctorSpecializations
+                        .Select(ds => ds.Specialization.Name)
+                        .FirstOrDefault() ?? "General Clinic",
+                    Notes = a.Notes
                 })
                 .ToListAsync();
 
-            return Ok(appointments);
-        }
+            var recentVisits = await _context.VisitRecords
+                .Include(v => v.Appointment)
+                    .ThenInclude(a => a.Doctor)
+                        .ThenInclude(d => d.User)
+                .Where(v => v.Appointment.PatientId == patient.Id)
+                .OrderByDescending(v => v.Appointment.AppointmentDate)
+                .Take(5)
+                .Select(v => new PublicVisitSummaryDTO
+                {
+                    VisitDate = v.Appointment.AppointmentDate,
+                    DoctorName = v.Appointment.Doctor.User.FullName,
+                    Diagnosis = v.Diagnosis,
+                    Treatment = v.Treatment,
+                    DoctorNotes = v.DoctorNotes
+                })
+                .ToListAsync();
 
+            var response = new PublicLookupResponseDTO
+            {
+                UpcomingAppointments = upcomingAppointments,
+                RecentVisits = recentVisits
+            };
+
+            return Ok(response);
+        }
         // GET api/appointment
         // Receptionist & ClinicManager only
         [HttpGet]

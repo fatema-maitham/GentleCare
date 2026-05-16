@@ -6,13 +6,42 @@
         public string ReferenceNumber { get; set; } = string.Empty;
     }
 
+    public class PublicLookupResponseDTO
+    {
+        public List<AppointmentLookupResponseDTO> UpcomingAppointments { get; set; } = new();
+        public List<PublicVisitSummaryDTO> RecentVisits { get; set; } = new();
+    }
+
     public class AppointmentLookupResponseDTO
     {
         public int AppointmentId { get; set; }
+
         public string DoctorName { get; set; } = string.Empty;
+
         public DateTime AppointmentDate { get; set; }
+
         public string StartTime { get; set; } = string.Empty;
+
+        public string EndTime { get; set; } = string.Empty;
+
         public string Status { get; set; } = string.Empty;
+
+        public string SpecializationName { get; set; } = "General Clinic";
+
+        public string? Notes { get; set; }
+    }
+
+    public class PublicVisitSummaryDTO
+    {
+        public DateTime VisitDate { get; set; }
+
+        public string DoctorName { get; set; } = string.Empty;
+
+        public string? Diagnosis { get; set; }
+
+        public string? Treatment { get; set; }
+
+        public string? DoctorNotes { get; set; }
     }
 
     public class UpdateAppointmentStatusDTO
