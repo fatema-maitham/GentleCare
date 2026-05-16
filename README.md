@@ -55,17 +55,7 @@ Patients and receptionists can book appointments by selecting specialization, do
 
 The ERD represents the main GentleCare database structure, including users, roles, doctors, patients, appointments, schedules, leaves, specializations, visit records, prescriptions, and notifications.
 
-Add the ERD image to the repository using this path:
-
-```text
-MVCApp/wwwroot/images/gentlecare-erd.jpeg
-```
-
-Then display it in the README:
-
-```md
 ![GentleCare ERD](MVCApp/wwwroot/images/gentlecare-erd.jpeg)
-```
 
 ---
 
@@ -98,9 +88,9 @@ Then display it in the README:
 ## Detailed Project Structure
 
 ```text
-HCARS/
+GentleCare/
 │
-├── HCARS.sln                                      // Visual Studio solution file
+├── GentleCare.sln                                 // Visual Studio solution file
 ├── README.md                                      // Project documentation
 ├── schema.sql                                     // SQL script for database schema
 ├── seed.sql                                       // SQL script for seeded test data
@@ -450,6 +440,30 @@ This update improves management visibility into clinic operations, appointment p
 | 3 | Manager Account Activation and Deactivation | Allows the Clinic Manager to activate or deactivate doctor, receptionist, and patient accounts. Inactive users cannot log in. |
 | 4 | Smart Rescheduling and Leave Impact Handling | Shows appointments affected by doctor leave or schedule changes, suggests replacement slots based on availability, conflicts, leave periods, and specializations, and re-validates the selected slot before rescheduling. |
 | 5 | Enhanced Clinic Reports Dashboard | Provides advanced reports including monthly performance, doctor utilization, specialization demand, busiest hours, doctor leave impact, missed appointment risk, cancellation reason analysis, and prescription volume. |
+
+---
+
+## Services Layer
+
+The MVC application uses a service layer to keep business logic separate from controllers and views. Services handle appointment workflows, dashboards, profiles, schedules, notifications, reports, announcements, and role-specific operations.
+
+| # | Service | Purpose |
+|---|---------|---------|
+| 1 | Account Service | Handles login, logout, registration, role-based access, and account-related logic. |
+| 2 | Patient Service | Handles patient dashboard, profile, appointment booking, appointment history, and patient-related data. |
+| 3 | Doctor Dashboard Service | Handles doctor dashboard data, profile details, schedules, appointments, notifications, and profile updates. |
+| 4 | Doctor Appointment Service | Handles doctor appointment lists, appointment details, status updates, and appointment workflow actions. |
+| 5 | Visit Record Service | Handles creating and viewing visit records for completed patient appointments. |
+| 6 | Prescription Service | Handles doctor prescriptions and prescription history linked to patient visits. |
+| 7 | Receptionist Service | Handles receptionist dashboard, queue management, patient check-in, appointment flow, and receptionist operations. |
+| 8 | Clinic Manager Doctor Service | Handles doctor listing, doctor details, doctor creation, doctor editing, and doctor account management. |
+| 9 | Clinic Manager Schedule Service | Handles doctor schedules, working hours, leave management, and schedule changes. |
+| 10 | Clinic Manager Report Service | Handles clinic reports such as appointment performance, doctor utilization, specialization demand, cancellation analysis, and prescription volume. |
+| 11 | Appointment Workflow Service | Controls valid appointment status transitions and prevents invalid workflow changes. |
+| 12 | Notification Service | Creates and manages notifications for patients, doctors, receptionists, and managers. |
+| 13 | Announcement Service | Handles clinic announcements sent by the Clinic Manager to selected roles or all users. |
+| 14 | Public Lookup Service | Allows public appointment lookup using CPR number and patient reference number without login. |
+
 ---
 
 ## Doctor MVC Features
@@ -661,7 +675,7 @@ The final system is designed to be deployed using Microsoft Azure.
 ## How to Run Locally
 
 1. Clone the repository.
-2. Open `HCARS.sln` in Visual Studio.
+2. Open `GentleCare.sln` in Visual Studio.
 3. Set the correct connection string in `appsettings.json`.
 4. Run database migrations or restore the provided SQL scripts.
 5. Start the WebAPI project.
