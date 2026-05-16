@@ -1,104 +1,242 @@
-﻿@{
+﻿@model MVCApp.ViewModels.Public.PublicAppointmentLookupViewModel
+
+@{
     ViewData["Title"] = "Public Lookup";
 }
 
+<section class="lookup-page">
+
+    <div class="lookup-card">
+        <div class="lookup-header">
+            <h1>Public Lookup</h1>
+        </div>
+
+        <form asp-controller="Public" asp-action="Lookup" method="post" class="lookup-form">
+            @Html.AntiForgeryToken()
+
+            <div class="lookup-field">
+                <label asp-for="CPRNumber">CPR Number</label>
+                <input asp-for="CPRNumber" placeholder="Enter CPR number" />
+            </div>
+
+            <div class="lookup-field">
+                <label asp-for="ReferenceNumber">Patient Reference Number</label>
+                <input asp-for="ReferenceNumber" placeholder="Enter reference number" />
+            </div>
+
+            <button type="submit" class="lookup-main-btn">Lookup</button>
+
+            <div class="lookup-links">
+                <a asp-controller="Account" asp-action="Login">Login</a>
+                <a asp-controller="Account" asp-action="Register">Register</a>
+            </div>
+        </form>
+
+        @if (Model.HasSearched && !string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="lookup-alert">
+                @Model.ErrorMessage
+            </div>
+        }
+    </div>
+
+    @if (Model.HasSearched && Model.UpcomingAppointments.Any())
+    {
+        <div class="lookup-results">
+            <h2>Upcoming Appointments</h2>
+
+            @foreach (var item in Model.UpcomingAppointments)
+            {
+                <div class="appointment-card">
+                    <div class="appointment-top">
+                        <div>
+                            <h3>Dr. @item.DoctorName</h3>
+                        </div>
+
+                        <span class="status-badge">@item.StatusName</span>
+                    </div>
+
+                    <div class="appointment-grid">
+                        <div class="info-box">
+                            <span class="info-label">Date</span>
+                            <strong>@item.AppointmentDate.ToString("dd MMM yyyy")</strong>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="info-label">Time</span>
+                            <strong>@item.StartTime.ToString("HH:mm")</strong>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="info-label">Appointment ID</span>
+                            <strong>#@item.AppointmentId</strong>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(item.Notes))
+                    {
+                        <div class="notes-box">
+                            <span>Notes</span>
+                            <p>@item.Notes</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.HasSearched && Model.RecentVisits.Any())
+    {
+        <div class="lookup-results">
+            <h2>Recent Visit Summary</h2>
+
+            @foreach (var visit in Model.RecentVisits)
+            {
+                <div class="appointment-card">
+                    <div class="appointment-top">
+                        <div>
+                            <span class="small-label">Doctor</span>
+                            <h3>Dr. @visit.DoctorName</h3>
+                            <p>@visit.VisitDate.ToString("dd MMM yyyy")</p>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(visit.Diagnosis))
+                    {
+                        <div class="notes-box">
+                            <span>Diagnosis</span>
+                            <p>@visit.Diagnosis</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(visit.Treatment))
+                    {
+                        <div class="notes-box">
+                            <span>Treatment</span>
+                            <p>@visit.Treatment</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(visit.DoctorNotes))
+                    {
+                        <div class="notes-box">
+                            <span>Doctor Notes</span>
+                            <p>@visit.DoctorNotes</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+</section>
+
 <style>
+    body {
+        background: #f1efed;
+    }
+
     .lookup-page {
+        min-height: calc(100vh - 90px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 42px 18px 70px;
+        gap: 28px;
+    }
+
+    .lookup-card,
+    .appointment-card {
+        width: 100%;
         max-width: 760px;
-        margin: 0 auto;
-        padding: 55px 0 70px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 24px;
     }
 
-    .lookup-top {
-        margin-bottom: 28px;
+    .lookup-card {
+        overflow: hidden;
     }
 
-        .lookup-top h1 {
+    .lookup-header {
+        padding: 26px 30px;
+        border-bottom: 1px solid #e9eeee;
+    }
+
+        .lookup-header h1 {
             margin: 0;
+            color: #075168;
             font-size: 32px;
             font-weight: 900;
-            color: #12262F;
+            text-align: center;
         }
 
-        .lookup-top p {
-            margin: 7px 0 0;
-            color: #687A80;
-            font-weight: 600;
+        .lookup-header p {
+            margin: 8px 0 0;
+            color: #66777d;
+            font-weight: 700;
             line-height: 1.6;
         }
 
     .lookup-form {
+        padding: 30px;
         display: grid;
-        gap: 24px;
+        gap: 18px;
     }
 
     .lookup-field {
         display: grid;
-        grid-template-columns: 210px 1fr;
-        gap: 18px;
-        align-items: start;
+        gap: 8px;
     }
 
         .lookup-field label {
-            padding-top: 13px;
-            color: #12262F;
+            color: #12262f;
             font-weight: 900;
         }
 
         .lookup-field input {
             width: 100%;
-            height: 50px;
-            border: 1px solid #D6DDDE;
-            border-radius: 14px;
-            padding: 0 15px;
+            height: 52px;
+            border: 1px solid #d6ddde;
+            border-radius: 15px;
+            padding: 0 16px;
+            color: #12262f;
+            font-weight: 800;
             outline: none;
-            background: #ffffff;
-            color: #12262F;
-            font-weight: 650;
         }
 
             .lookup-field input:focus {
-                border-color: #00779B;
-                box-shadow: 0 0 0 3px rgba(0, 119, 155, 0.14);
+                border-color: #075168;
+                box-shadow: 0 0 0 3px rgba(7, 81, 104, 0.13);
             }
 
-    .lookup-actions {
-        display: flex;
-        justify-content: center;
-        margin-top: 4px;
-    }
-
     .lookup-main-btn {
-        width: 414px;
-        max-width: 100%;
-        height: 50px;
+        width: 100%;
+        height: 54px;
         border: none;
-        border-radius: 14px;
+        border-radius: 15px;
         background: #075168;
         color: #ffffff;
         font-weight: 900;
+        font-size: 16px;
         cursor: pointer;
-        transition: 0.2s ease;
     }
 
         .lookup-main-btn:hover {
-            background: #00779B;
-            transform: translateY(-2px);
+            background: #00779b;
         }
 
     .lookup-links {
         display: flex;
         justify-content: center;
-        gap: 16px;
+        gap: 20px;
         flex-wrap: wrap;
-        margin-top: 18px;
-        padding-left: 0;
+        margin-top: 4px;
     }
 
         .lookup-links a {
             color: #075168;
-            font-weight: 850;
+            font-weight: 900;
             text-decoration: none;
         }
 
@@ -106,68 +244,137 @@
                 text-decoration: underline;
             }
 
-    @@media (max-width: 700px) {
-        .lookup-page {
-            padding: 35px 0 55px;
+    .lookup-alert {
+        margin: 0 30px 30px;
+        padding: 15px 17px;
+        border-radius: 15px;
+        background: #fff3cd;
+        color: #664d03;
+        font-weight: 800;
+    }
+
+    .lookup-results {
+        width: 100%;
+        max-width: 760px;
+    }
+
+        .lookup-results h2 {
+            margin: 0 0 16px;
+            color: #075168;
+            font-size: 27px;
+            font-weight: 900;
         }
 
-        .lookup-field {
+    .appointment-card {
+        padding: 26px 28px;
+        margin-bottom: 16px;
+    }
+
+    .appointment-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .small-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #66777d;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .appointment-card h3 {
+        margin: 0;
+        color: #12262f;
+        font-size: 24px;
+        font-weight: 900;
+    }
+
+    .status-badge {
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #d9e2e4;
+        color: #075168;
+        font-size: 13px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .appointment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .info-box {
+        background: #f1efed;
+        border-radius: 16px;
+        padding: 14px 16px;
+    }
+
+    .info-label {
+        display: block;
+        color: #66777d;
+        font-size: 13px;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .info-box strong {
+        color: #12262f;
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .notes-box {
+        margin-top: 16px;
+        background: #f8f8f7;
+        border: 1px solid #e5e9e9;
+        border-radius: 16px;
+        padding: 14px 16px;
+    }
+
+        .notes-box span {
+            display: block;
+            color: #075168;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .notes-box p {
+            margin: 0;
+            color: #52676e;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+    @@media (max-width: 640px) {
+        .lookup-card,
+        .appointment-card,
+        .lookup-results {
+            max-width: 100%;
+        }
+
+        .lookup-header,
+        .lookup-form {
+            padding: 22px;
+        }
+
+        .lookup-alert {
+            margin: 0 22px 22px;
+        }
+
+        .appointment-grid {
             grid-template-columns: 1fr;
-            gap: 7px;
         }
 
-            .lookup-field label {
-                padding-top: 0;
-            }
-
-        .lookup-main-btn {
-            width: 100%;
-        }
-
-        .lookup-links {
+        .appointment-top {
             flex-direction: column;
-            align-items: center;
         }
     }
 </style>
-
-<div class="lookup-page">
-    <div class="lookup-top">
-        <h1>Public Appointment Lookup</h1>
-        <p>
-            Patients can check appointment details without login using their CPR number
-            and patient reference number.
-        </p>
-    </div>
-
-    <form method="get" action="#" class="lookup-form">
-
-        <div class="lookup-field">
-            <label for="cprNumber">CPR Number</label>
-            <input id="cprNumber"
-                   name="cprNumber"
-                   type="text"
-                   placeholder="Enter CPR number" />
-        </div>
-
-        <div class="lookup-field">
-            <label for="referenceNumber">Patient Reference Number</label>
-            <input id="referenceNumber"
-                   name="referenceNumber"
-                   type="text"
-                   placeholder="Enter reference number" />
-        </div>
-
-        <div class="lookup-actions">
-            <button type="submit" class="lookup-main-btn">
-                Lookup
-            </button>
-        </div>
-
-        <div class="lookup-links">
-            <a asp-controller="Account" asp-action="Login">Login</a>
-            <a asp-controller="Account" asp-action="Register">Register</a>
-        </div>
-
-    </form>
-</div>

@@ -14,14 +14,16 @@ namespace MVCApp.Controllers
     {
         private readonly IClinicManagerService _clinicManagerService;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly IWebHostEnvironment _environment;
         public ClinicManagerController(
-            IClinicManagerService clinicManagerService,
-            UserManager<ApplicationUser> userManager)
-        {
-            _clinicManagerService = clinicManagerService;
-            _userManager = userManager;
-        }
+        IClinicManagerService clinicManagerService,
+        UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment environment)
+            {
+                _clinicManagerService = clinicManagerService;
+                _userManager = userManager;
+                _environment = environment;
+            }
 
         // =========================
         // Dashboard
@@ -479,6 +481,46 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(AppointmentImpact), new { doctorId = result.DoctorId });
         }
 
+        // POST: /ClinicManager/RescheduleImpactedAppointment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RescheduleImpactedAppointment(
+            int appointmentId,
+            int newDoctorId,
+            DateTime newDate,
+            string newStartTime,
+            string newEndTime)
+        {
+            if (!TimeOnly.TryParse(newStartTime, out var parsedStartTime) ||
+                !TimeOnly.TryParse(newEndTime, out var parsedEndTime))
+            {
+                TempData["Error"] = "Invalid suggested time selected.";
+                return RedirectToAction(nameof(Doctors));
+            }
+
+            var result = await _clinicManagerService.RescheduleImpactedAppointmentAsync(
+                appointmentId,
+                newDoctorId,
+                newDate,
+                parsedStartTime,
+                parsedEndTime);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+            }
+            else
+            {
+                TempData["Success"] = result.Message;
+            }
+
+            if (result.DoctorId.HasValue)
+            {
+                return RedirectToAction(nameof(AppointmentImpact), new { doctorId = result.DoctorId.Value });
+            }
+
+            return RedirectToAction(nameof(Doctors));
+        }
         // =========================
         // Clinic Appointment Management
         // =========================
@@ -640,6 +682,56 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        // GET: /ClinicManager/CreateAnnouncement
+        [HttpGet]
+        public async Task<IActionResult> CreateAnnouncement()
+        {
+            ViewData["Title"] = "Create Announcement";
+
+            var model = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+
+            return View(model);
+        }
+
+        // POST: /ClinicManager/CreateAnnouncement
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAnnouncement(ClinicAnnouncementViewModel model)
+        {
+            ViewData["Title"] = "Create Announcement";
+
+            if (!ModelState.IsValid)
+            {
+                var reloadModel = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+                model.AudienceOptions = reloadModel.AudienceOptions;
+
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _clinicManagerService.SendAnnouncementAsync(model, user.Id);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+
+                var reloadModel = await _clinicManagerService.GetCreateAnnouncementViewModelAsync();
+                model.AudienceOptions = reloadModel.AudienceOptions;
+
+                return View(model);
+            }
+
+            TempData["Success"] = result.Message;
+
+            return RedirectToAction(nameof(Notifications));
+        }
+
         // =========================
         // Notifications
         // =========================
@@ -701,6 +793,129 @@ namespace MVCApp.Controllers
             TempData["Success"] = "All notifications marked as read.";
 
             return RedirectToAction(nameof(Notifications));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            ViewData["Title"] = "Manager Profile";
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var model = await _clinicManagerService.GetProfileAsync(userId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Profile could not be found.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            ViewData["Title"] = "Edit Profile";
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var model = await _clinicManagerService.GetEditProfileAsync(userId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Profile could not be found.";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(EditClinicManagerProfileViewModel model)
+        {
+            ViewData["Title"] = "Edit Profile";
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var updated = await _clinicManagerService.UpdateProfileAsync(
+                userId,
+                model,
+                _environment.WebRootPath);
+
+            if (!updated)
+            {
+                TempData["Error"] = "Profile could not be updated.";
+                return View(model);
+            }
+
+            TempData["Success"] = "Profile updated successfully.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        // Shows doctors, receptionists, and patients so the manager can activate/deactivate accounts.
+        [HttpGet]
+        public async Task<IActionResult> UserAccounts(
+            string? searchTerm = null,
+            string? selectedRole = null,
+            bool? isActive = null)
+        {
+            ViewData["Title"] = "User Accounts";
+
+            var model = await _clinicManagerService.GetUserAccountsAsync(
+                searchTerm,
+                selectedRole,
+                isActive);
+
+            return View(model);
+        }
+
+        // Activates or deactivates a doctor, receptionist, or patient account.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleUserStatus(string userId)
+        {
+            var managerUserId = _userManager.GetUserId(User) ?? string.Empty;
+
+            var result = await _clinicManagerService.ToggleUserActiveStatusAsync(
+                userId,
+                managerUserId);
+
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(UserAccounts));
         }
     }
 }

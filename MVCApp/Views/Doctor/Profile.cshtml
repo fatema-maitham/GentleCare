@@ -3,24 +3,9 @@
 @{
     ViewData["Title"] = "Doctor Profile";
 
-    string profileImage;
-
-    if (string.IsNullOrWhiteSpace(Model.ProfilePicture))
-    {
-        profileImage = Url.Content("~/images/doctors/default-doctor.png");
-    }
-    else if (Model.ProfilePicture.StartsWith("/"))
-    {
-        profileImage = Url.Content("~" + Model.ProfilePicture);
-    }
-    else if (Model.ProfilePicture.Contains("/"))
-    {
-        profileImage = Url.Content("~/" + Model.ProfilePicture.TrimStart('/'));
-    }
-    else
-    {
-        profileImage = Url.Content("~/images/doctors/" + Model.ProfilePicture);
-    }
+    var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
+        ? Url.Content("~/images/doctors/default-doctor.png")
+        : Url.Content("~/images/doctors/" + System.IO.Path.GetFileName(Model.ProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
 <style>
@@ -40,31 +25,31 @@
 
     .doctor-profile-header {
         text-align: center;
-        margin-bottom: 28px;
+        margin-bottom: 26px;
     }
 
         .doctor-profile-header h1 {
             margin: 0;
             color: #075168;
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 900;
         }
 
         .doctor-profile-header p {
             margin: 8px 0 0;
-            color: #687a80;
+            color: #657b82;
             font-weight: 600;
         }
 
     .doctor-avatar-area {
         display: flex;
         justify-content: center;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
     }
 
     .doctor-avatar-img {
-        width: 135px;
-        height: 135px;
+        width: 145px;
+        height: 145px;
         border-radius: 50%;
         object-fit: cover;
         object-position: center;
@@ -80,21 +65,21 @@
 
         .doctor-name-block h2 {
             margin: 0;
-            color: #12262f;
-            font-size: 28px;
+            color: #071f2a;
+            font-size: 30px;
             font-weight: 900;
         }
 
-        .doctor-name-block span {
-            display: inline-block;
-            margin-top: 8px;
-            background: #e7f1f3;
-            color: #075168;
-            padding: 8px 16px;
-            border-radius: 999px;
-            font-weight: 850;
-            font-size: 14px;
-        }
+    .doctor-badge {
+        display: inline-block;
+        margin-top: 10px;
+        background: #e7f1f3;
+        color: #075168;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-weight: 850;
+        font-size: 14px;
+    }
 
     .doctor-info-list {
         display: grid;
@@ -113,13 +98,13 @@
     }
 
     .doctor-label {
-        color: #687a80;
+        color: #657b82;
         font-weight: 850;
     }
 
     .doctor-value {
-        color: #12262f;
-        font-weight: 750;
+        color: #071f2a;
+        font-weight: 800;
         word-break: break-word;
     }
 
@@ -185,11 +170,6 @@
 <div class="doctor-profile-page">
     <section class="doctor-profile-card">
 
-        <div class="doctor-profile-header">
-            <h1>Doctor Profile</h1>
-            <p>View your personal and medical profile information.</p>
-        </div>
-
         <div class="doctor-avatar-area">
             <img src="@profileImage"
                  alt="Doctor profile picture"
@@ -199,7 +179,7 @@
 
         <div class="doctor-name-block">
             <h2>@Model.FullName</h2>
-            <span>Doctor Account</span>
+            <span class="doctor-badge">Doctor Account</span>
         </div>
 
         <div class="doctor-info-list">
@@ -231,9 +211,7 @@
             <div class="doctor-info-row">
                 <div class="doctor-label">Bio</div>
                 <div class="doctor-value">
-                    @(string.IsNullOrWhiteSpace(Model.Bio)
-                                        ? "No bio added yet."
-                                        : Model.Bio)
+                    @(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio added yet." : Model.Bio)
                 </div>
             </div>
 

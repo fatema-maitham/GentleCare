@@ -98,6 +98,14 @@ namespace MVCApp.Services.Interfaces
             int appointmentId,
             string? reason);
 
+        // Reschedules an impacted appointment to one of the suggested available slots.
+        Task<(bool Success, string Message, int? DoctorId)> RescheduleImpactedAppointmentAsync(
+            int appointmentId,
+            int newDoctorId,
+            DateTime newDate,
+            TimeOnly newStartTime,
+            TimeOnly newEndTime);
+
 
         // =========================
         // Clinic Appointment Management
@@ -153,5 +161,47 @@ namespace MVCApp.Services.Interfaces
 
         // Marks all notifications as read.
         Task MarkAllNotificationsAsReadAsync(string userId);
+
+
+        // =========================
+        // Profile
+        // =========================
+
+        Task<ClinicManagerProfileViewModel?> GetProfileAsync(string userId);
+
+        Task<EditClinicManagerProfileViewModel?> GetEditProfileAsync(string userId);
+
+        Task<bool> UpdateProfileAsync(
+            string userId,
+            EditClinicManagerProfileViewModel model,
+            string webRootPath);
+
+
+        // =========================
+        // Announcements
+        // =========================
+
+        // Prepares the announcement form with audience options.
+        Task<ClinicAnnouncementViewModel> GetCreateAnnouncementViewModelAsync();
+
+        // Sends a clinic announcement to the selected audience.
+        Task<(bool Success, string Message, int SentCount)> SendAnnouncementAsync(
+            ClinicAnnouncementViewModel model,
+            string managerUserId);
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        // Gets doctor, receptionist, and patient accounts for activation/deactivation.
+        Task<ClinicManagerUserAccountsViewModel> GetUserAccountsAsync(
+            string? searchTerm,
+            string? selectedRole,
+            bool? isActive);
+
+        // Activates or deactivates a user account.
+        Task<(bool Success, string Message)> ToggleUserActiveStatusAsync(
+            string targetUserId,
+            string managerUserId);
     }
 }
