@@ -247,6 +247,7 @@ namespace MVCApp.Controllers
                     a.DoctorId == doctorId &&
                     a.AppointmentDate.Date == appointmentDate &&
                     a.Status.Name != "Cancelled" &&
+                    a.Status.Name != "Missed" &&
                     selectedStartTime < a.EndTime &&
                     a.StartTime < endTime);
 

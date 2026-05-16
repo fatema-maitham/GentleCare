@@ -1,910 +1,164 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Doctor;
-using WebAPI.Data;
 using WebAPI.Models;
 
 namespace MVCApp.Controllers
 {
     [Authorize(Roles = "Doctor")]
+    [Route("Doctor")]
     public class DoctorController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDoctorDashboardService _doctorDashboardService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
         public DoctorController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            IDoctorDashboardService doctorDashboardService,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment environment)
         {
-            _context = context;
+            _doctorDashboardService = doctorDashboardService;
             _userManager = userManager;
+            _environment = environment;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        [HttpGet("Dashboard")]
+        public async Task<IActionResult> Dashboard(DateTime? selectedDate = null)
         {
             ViewData["Title"] = "Doctor Dashboard";
 
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
+            var model = await _doctorDashboardService.GetDashboardAsync(GetCurrentUserId(), selectedDate);
+
+            if (model == null)
             {
                 TempData["Error"] = "Doctor profile was not found for the current user.";
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var today = DateTime.Today;
-
-            var todaysAppointments = await _context.Appointments
-                .AsNoTracking()
-                .Include(a => a.Status)
-                .Where(a => a.DoctorId == doctor.Id && a.AppointmentDate.Date == today)
-                .ToListAsync();
-
-            var upcomingAppointmentsCount = await _context.Appointments
-                .AsNoTracking()
-                .Include(a => a.Status)
-                .Where(a =>
-                    a.DoctorId == doctor.Id &&
-                    a.AppointmentDate.Date >= today &&
-                    a.Status.Name != "Completed" &&
-                    a.Status.Name != "Cancelled" &&
-                    a.Status.Name != "Missed")
-                .CountAsync();
-
-            var unreadNotificationsCount = await _context.Notifications
-                .AsNoTracking()
-                .Where(n => n.UserId == doctor.UserId && !n.IsRead)
-                .CountAsync();
-
-            var totalPatientsSeen = await _context.Appointments
-                .AsNoTracking()
-                .Include(a => a.Status)
-                .Where(a => a.DoctorId == doctor.Id && a.Status.Name == "Completed")
-                .Select(a => a.PatientId)
-                .Distinct()
-                .CountAsync();
-
-            var model = new DoctorDashboardViewModel
-            {
-                DoctorFullName = doctor.User.FullName,
-                TotalAppointmentsToday = todaysAppointments.Count,
-                ConfirmedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "Confirmed"),
-                CheckedInAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "CheckedIn"),
-                InProgressAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "InProgress"),
-                CompletedAppointmentsToday = todaysAppointments.Count(a => a.Status.Name == "Completed"),
-                UpcomingAppointmentsCount = upcomingAppointmentsCount,
-                UnreadNotificationsCount = unreadNotificationsCount,
-                TotalPatientsSeen = totalPatientsSeen
-            };
-
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Appointments(string? status = null, DateTime? date = null)
+        [HttpGet("Profile")]
+        public async Task<IActionResult> Profile()
         {
-            ViewData["Title"] = "My Appointments";
+            ViewData["Title"] = "My Profile";
 
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
+            var model = await _doctorDashboardService.GetProfileAsync(GetCurrentUserId());
+
+            if (model == null)
             {
                 TempData["Error"] = "Doctor profile was not found for the current user.";
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var query = _context.Appointments
-                .AsNoTracking()
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Status)
-                .Where(a => a.DoctorId == doctor.Id)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                query = query.Where(a => a.Status.Name == status);
-            }
-
-            if (date.HasValue)
-            {
-                var selectedDate = date.Value.Date;
-                query = query.Where(a => a.AppointmentDate.Date == selectedDate);
-            }
-
-            var appointments = await query
-                .OrderByDescending(a => a.AppointmentDate)
-                .ThenBy(a => a.StartTime)
-                .ToListAsync();
-
-            var statusOptions = await _context.AppointmentStatuses
-                .AsNoTracking()
-                .OrderBy(s => s.Id)
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Name,
-                    Text = FormatStatusName(s.Name)
-                })
-                .ToListAsync();
-
-            var model = new DoctorAppointmentsViewModel
-            {
-                DoctorFullName = doctor.User.FullName,
-                SelectedStatus = status,
-                SelectedDate = date,
-                StatusOptions = statusOptions,
-                Appointments = appointments.Select(a => new DoctorAppointmentListItemViewModel
-                {
-                    AppointmentId = a.Id,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    PatientId = a.PatientId,
-                    PatientFullName = a.Patient.User.FullName,
-                    PatientReferenceNumber = a.Patient.ReferenceNumber,
-                    StatusName = FormatStatusName(a.Status.Name),
-                    Notes = a.Notes
-                }).ToList()
-            };
-
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> AppointmentDetails(int id)
+        [HttpGet("EditProfile")]
+        public async Task<IActionResult> EditProfile()
         {
-            ViewData["Title"] = "Appointment Details";
+            ViewData["Title"] = "Edit Profile";
 
-            var appointment = await GetDoctorAppointmentAsync(id);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
+            var model = await _doctorDashboardService.GetEditProfileAsync(GetCurrentUserId());
 
-            var allowedNextStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
-
-            var model = new DoctorAppointmentDetailsViewModel
-            {
-                AppointmentId = appointment.Id,
-                AppointmentDate = appointment.AppointmentDate,
-                StartTime = appointment.StartTime,
-                EndTime = appointment.EndTime,
-                StatusName = FormatStatusName(appointment.Status.Name),
-                Notes = appointment.Notes,
-                CancellationReason = appointment.CancellationReason,
-                PatientId = appointment.PatientId,
-                PatientFullName = appointment.Patient.User.FullName,
-                PatientReferenceNumber = appointment.Patient.ReferenceNumber,
-                PatientCprNumber = appointment.Patient.CPRNumber,
-                DoctorNotes = appointment.VisitRecord?.DoctorNotes,
-                Diagnosis = appointment.VisitRecord?.Diagnosis,
-                Treatment = appointment.VisitRecord?.Treatment,
-                HasVisitRecord = appointment.VisitRecord != null,
-                CanCreateVisitRecord = appointment.VisitRecord == null && CanCreateVisitRecord(appointment.Status.Name),
-                CanEditVisitRecord = appointment.VisitRecord != null,
-                CanUpdateStatus = allowedNextStatuses.Any(),
-                AvailableNextStatuses = allowedNextStatuses,
-                Prescriptions = appointment.VisitRecord?.Prescriptions
-                    .Select(p => new PrescriptionInputViewModel
-                    {
-                        MedicationName = p.MedicationName,
-                        Dosage = p.Dosage,
-                        Frequency = p.Frequency,
-                        DurationDays = p.DurationDays,
-                        Instructions = p.Instructions
-                    })
-                    .ToList()
-                    ?? new List<PrescriptionInputViewModel>()
-            };
-
-            return View(model);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> UpdateStatus(int id)
-        {
-            ViewData["Title"] = "Update Appointment Status";
-
-            var appointment = await GetDoctorAppointmentAsync(id);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            var availableStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
-            if (!availableStatuses.Any())
-            {
-                TempData["Error"] = "This appointment cannot be updated by the doctor at its current status.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id });
-            }
-
-            var model = new UpdateAppointmentStatusViewModel
-            {
-                AppointmentId = appointment.Id,
-                CurrentStatusName = FormatStatusName(appointment.Status.Name),
-                NewStatusName = string.Empty,
-                AvailableStatuses = availableStatuses
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(UpdateAppointmentStatusViewModel model)
-        {
-            ViewData["Title"] = "Update Appointment Status";
-
-            var appointment = await GetDoctorAppointmentAsync(model.AppointmentId);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            var allowedStatuses = GetAllowedNextStatuses(appointment.Status.Name);
-
-            if (string.IsNullOrWhiteSpace(model.NewStatusName))
-            {
-                ModelState.AddModelError(nameof(model.NewStatusName), "Please select a new status.");
-            }
-            else if (!allowedStatuses.Contains(model.NewStatusName))
-            {
-                ModelState.AddModelError(nameof(model.NewStatusName), "Invalid status transition for doctor workflow.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                model.CurrentStatusName = FormatStatusName(appointment.Status.Name);
-                model.AvailableStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
-                return View(model);
-            }
-
-            var newStatus = await _context.AppointmentStatuses
-                .FirstOrDefaultAsync(s => s.Name == model.NewStatusName);
-
-            if (newStatus == null)
-            {
-                ModelState.AddModelError(nameof(model.NewStatusName), "Selected status does not exist.");
-                model.CurrentStatusName = FormatStatusName(appointment.Status.Name);
-                model.AvailableStatuses = BuildAllowedStatusSelectList(appointment.Status.Name);
-                return View(model);
-            }
-
-            appointment.StatusId = newStatus.Id;
-            appointment.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Appointment status updated successfully.";
-            return RedirectToAction(nameof(AppointmentDetails), new { id = appointment.Id });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> PatientHistory(int patientId)
-        {
-            ViewData["Title"] = "Patient History";
-
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
+            if (model == null)
             {
                 TempData["Error"] = "Doctor profile was not found for the current user.";
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var patient = await _context.Patients
-                .AsNoTracking()
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.Id == patientId);
-
-            if (patient == null)
-            {
-                return NotFound();
-            }
-
-            var hasRelationship = await _context.Appointments
-                .AsNoTracking()
-                .AnyAsync(a => a.DoctorId == doctor.Id && a.PatientId == patientId);
-
-            if (!hasRelationship)
-            {
-                return Forbid();
-            }
-
-            var visits = await _context.Appointments
-                .AsNoTracking()
-                .Include(a => a.Status)
-                .Include(a => a.VisitRecord)
-                    .ThenInclude(v => v.Prescriptions)
-                .Where(a =>
-                    a.DoctorId == doctor.Id &&
-                    a.PatientId == patientId &&
-                    a.VisitRecord != null)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ThenByDescending(a => a.StartTime)
-                .ToListAsync();
-
-            var model = new DoctorPatientHistoryViewModel
-            {
-                PatientId = patient.Id,
-                PatientFullName = patient.User.FullName,
-                CPRNumber = patient.CPRNumber,
-                ReferenceNumber = patient.ReferenceNumber,
-                DateOfBirth = patient.DateOfBirth,
-                BloodType = patient.BloodType,
-                Address = patient.Address,
-                EmergencyContactName = patient.EmergencyContactName,
-                EmergencyContactPhone = patient.EmergencyContactPhone,
-                Visits = visits.Select(a => new DoctorPatientVisitItemViewModel
-                {
-                    AppointmentId = a.Id,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    StatusName = FormatStatusName(a.Status.Name),
-                    DoctorNotes = a.VisitRecord!.DoctorNotes,
-                    Diagnosis = a.VisitRecord.Diagnosis,
-                    Treatment = a.VisitRecord.Treatment,
-                    PrescriptionCount = a.VisitRecord.Prescriptions.Count
-                }).ToList()
-            };
-
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CreateVisitRecord(int appointmentId)
-        {
-            ViewData["Title"] = "Create Visit Record";
-
-            var appointment = await GetDoctorAppointmentAsync(appointmentId);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            if (appointment.VisitRecord != null)
-            {
-                TempData["Error"] = "A visit record already exists for this appointment.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = appointmentId });
-            }
-
-            if (!CanCreateVisitRecord(appointment.Status.Name))
-            {
-                TempData["Error"] = "Visit record can only be created when the appointment is in progress or completed.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = appointmentId });
-            }
-
-            var model = new CreateVisitRecordViewModel
-            {
-                AppointmentId = appointment.Id,
-                PatientId = appointment.PatientId,
-                PatientFullName = appointment.Patient.User.FullName,
-                AppointmentDate = appointment.AppointmentDate,
-                StartTime = appointment.StartTime,
-                EndTime = appointment.EndTime,
-                Prescriptions = new List<PrescriptionInputViewModel>
-                {
-                    new PrescriptionInputViewModel()
-                }
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
+        [HttpPost("EditProfile")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateVisitRecord(CreateVisitRecordViewModel model)
+        public async Task<IActionResult> EditProfile(EditDoctorProfileViewModel model)
         {
-            ViewData["Title"] = "Create Visit Record";
-
-            var appointment = await GetDoctorAppointmentAsync(model.AppointmentId);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            if (appointment.VisitRecord != null)
-            {
-                TempData["Error"] = "A visit record already exists for this appointment.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = model.AppointmentId });
-            }
-
-            if (!CanCreateVisitRecord(appointment.Status.Name))
-            {
-                TempData["Error"] = "Visit record can only be created when the appointment is in progress or completed.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = model.AppointmentId });
-            }
-
-            ValidateVisitRecordInput(model.DoctorNotes, model.Diagnosis);
-
-            var cleanedPrescriptions = NormalizePrescriptionInputs(model.Prescriptions);
-            ValidatePrescriptionInputs(cleanedPrescriptions);
+            ViewData["Title"] = "Edit Profile";
 
             if (!ModelState.IsValid)
             {
-                PopulateVisitRecordCreateMeta(model, appointment);
-                model.Prescriptions = cleanedPrescriptions.Any()
-                    ? cleanedPrescriptions
-                    : new List<PrescriptionInputViewModel> { new PrescriptionInputViewModel() };
-
                 return View(model);
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var updated = await _doctorDashboardService.UpdateProfileAsync(
+                GetCurrentUserId(),
+                model,
+                _environment.WebRootPath);
 
-            try
+            if (!updated)
             {
-                var visitRecord = new VisitRecord
-                {
-                    AppointmentId = appointment.Id,
-                    DoctorNotes = model.DoctorNotes.Trim(),
-                    Diagnosis = model.Diagnosis.Trim(),
-                    Treatment = string.IsNullOrWhiteSpace(model.Treatment) ? null : model.Treatment.Trim(),
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.VisitRecords.Add(visitRecord);
-                await _context.SaveChangesAsync();
-
-                if (cleanedPrescriptions.Any())
-                {
-                    var prescriptions = cleanedPrescriptions.Select(p => new Prescription
-                    {
-                        VisitRecordId = visitRecord.Id,
-                        MedicationName = p.MedicationName.Trim(),
-                        Dosage = p.Dosage.Trim(),
-                        Frequency = p.Frequency.Trim(),
-                        DurationDays = p.DurationDays,
-                        Instructions = string.IsNullOrWhiteSpace(p.Instructions) ? null : p.Instructions.Trim(),
-                        CreatedAt = DateTime.UtcNow
-                    });
-
-                    await _context.Prescriptions.AddRangeAsync(prescriptions);
-                }
-
-                if (appointment.Status.Name != "Completed")
-                {
-                    var completedStatus = await _context.AppointmentStatuses
-                        .FirstAsync(s => s.Name == "Completed");
-
-                    appointment.StatusId = completedStatus.Id;
-                    appointment.UpdatedAt = DateTime.UtcNow;
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                TempData["Success"] = "Visit record created successfully.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = appointment.Id });
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                ModelState.AddModelError(string.Empty, "An error occurred while creating the visit record.");
-
-                PopulateVisitRecordCreateMeta(model, appointment);
-                model.Prescriptions = cleanedPrescriptions.Any()
-                    ? cleanedPrescriptions
-                    : new List<PrescriptionInputViewModel> { new PrescriptionInputViewModel() };
-
+                TempData["Error"] = "Profile could not be updated. Upload JPG, PNG, or WEBP only.";
                 return View(model);
             }
+
+            TempData["Success"] = "Profile updated successfully.";
+            return RedirectToAction(nameof(Profile));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> EditVisitRecord(int appointmentId)
+        [HttpGet("Schedule")]
+        public async Task<IActionResult> Schedule()
         {
-            ViewData["Title"] = "Edit Visit Record";
+            ViewData["Title"] = "My Schedule";
 
-            var appointment = await GetDoctorAppointmentAsync(appointmentId);
-            if (appointment == null)
+            var model = await _doctorDashboardService.GetScheduleAsync(GetCurrentUserId());
+
+            if (model == null)
             {
-                return NotFound();
+                TempData["Error"] = "Doctor profile was not found for the current user.";
+                return RedirectToAction("AccessDenied", "Account");
             }
-
-            if (appointment.VisitRecord == null)
-            {
-                TempData["Error"] = "No visit record exists for this appointment.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = appointmentId });
-            }
-
-            var model = new EditVisitRecordViewModel
-            {
-                AppointmentId = appointment.Id,
-                PatientId = appointment.PatientId,
-                PatientFullName = appointment.Patient.User.FullName,
-                AppointmentDate = appointment.AppointmentDate,
-                StartTime = appointment.StartTime,
-                EndTime = appointment.EndTime,
-                DoctorNotes = appointment.VisitRecord.DoctorNotes,
-                Diagnosis = appointment.VisitRecord.Diagnosis,
-                Treatment = appointment.VisitRecord.Treatment,
-                Prescriptions = appointment.VisitRecord.Prescriptions.Any()
-                    ? appointment.VisitRecord.Prescriptions.Select(p => new PrescriptionInputViewModel
-                    {
-                        MedicationName = p.MedicationName,
-                        Dosage = p.Dosage,
-                        Frequency = p.Frequency,
-                        DurationDays = p.DurationDays,
-                        Instructions = p.Instructions
-                    }).ToList()
-                    : new List<PrescriptionInputViewModel> { new PrescriptionInputViewModel() }
-            };
 
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditVisitRecord(EditVisitRecordViewModel model)
-        {
-            ViewData["Title"] = "Edit Visit Record";
-
-            var appointment = await GetDoctorAppointmentAsync(model.AppointmentId);
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            if (appointment.VisitRecord == null)
-            {
-                TempData["Error"] = "No visit record exists for this appointment.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = model.AppointmentId });
-            }
-
-            ValidateVisitRecordInput(model.DoctorNotes, model.Diagnosis);
-
-            var cleanedPrescriptions = NormalizePrescriptionInputs(model.Prescriptions);
-            ValidatePrescriptionInputs(cleanedPrescriptions);
-
-            if (!ModelState.IsValid)
-            {
-                PopulateVisitRecordEditMeta(model, appointment);
-                model.Prescriptions = cleanedPrescriptions.Any()
-                    ? cleanedPrescriptions
-                    : new List<PrescriptionInputViewModel> { new PrescriptionInputViewModel() };
-
-                return View(model);
-            }
-
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                appointment.VisitRecord.DoctorNotes = model.DoctorNotes.Trim();
-                appointment.VisitRecord.Diagnosis = model.Diagnosis.Trim();
-                appointment.VisitRecord.Treatment = string.IsNullOrWhiteSpace(model.Treatment)
-                    ? null
-                    : model.Treatment.Trim();
-
-                _context.Prescriptions.RemoveRange(appointment.VisitRecord.Prescriptions);
-
-                if (cleanedPrescriptions.Any())
-                {
-                    var newPrescriptions = cleanedPrescriptions.Select(p => new Prescription
-                    {
-                        VisitRecordId = appointment.VisitRecord.Id,
-                        MedicationName = p.MedicationName.Trim(),
-                        Dosage = p.Dosage.Trim(),
-                        Frequency = p.Frequency.Trim(),
-                        DurationDays = p.DurationDays,
-                        Instructions = string.IsNullOrWhiteSpace(p.Instructions) ? null : p.Instructions.Trim(),
-                        CreatedAt = DateTime.UtcNow
-                    });
-
-                    await _context.Prescriptions.AddRangeAsync(newPrescriptions);
-                }
-
-                appointment.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                TempData["Success"] = "Visit record updated successfully.";
-                return RedirectToAction(nameof(AppointmentDetails), new { id = appointment.Id });
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the visit record.");
-
-                PopulateVisitRecordEditMeta(model, appointment);
-                model.Prescriptions = cleanedPrescriptions.Any()
-                    ? cleanedPrescriptions
-                    : new List<PrescriptionInputViewModel> { new PrescriptionInputViewModel() };
-
-                return View(model);
-            }
-        }
-
-        [HttpGet]
+        [HttpGet("Notifications")]
         public async Task<IActionResult> Notifications()
         {
             ViewData["Title"] = "My Notifications";
 
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
+            var model = await _doctorDashboardService.GetNotificationsAsync(GetCurrentUserId());
+
+            if (model == null)
             {
                 TempData["Error"] = "Doctor profile was not found for the current user.";
                 return RedirectToAction("AccessDenied", "Account");
             }
-
-            var notifications = await _context.Notifications
-                .AsNoTracking()
-                .Where(n => n.UserId == doctor.UserId)
-                .OrderByDescending(n => n.CreatedAt)
-                .ToListAsync();
-
-            var model = new DoctorNotificationsViewModel
-            {
-                UnreadCount = notifications.Count(n => !n.IsRead),
-                Notifications = notifications
-            };
 
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("MarkNotificationAsRead")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationAsRead(int id)
         {
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
+            var updated = await _doctorDashboardService.MarkNotificationAsReadAsync(GetCurrentUserId(), id);
 
-            var notification = await _context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == doctor.UserId);
-
-            if (notification == null)
+            if (!updated)
             {
                 return NotFound();
             }
-
-            notification.IsRead = true;
-            await _context.SaveChangesAsync();
 
             TempData["Success"] = "Notification marked as read.";
             return RedirectToAction(nameof(Notifications));
         }
 
-        [HttpPost]
+        [HttpPost("MarkAllNotificationsAsRead")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllNotificationsAsRead()
         {
-            var doctor = await GetCurrentDoctorWithUserAsync();
-            if (doctor == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            var unreadNotifications = await _context.Notifications
-                .Where(n => n.UserId == doctor.UserId && !n.IsRead)
-                .ToListAsync();
-
-            if (unreadNotifications.Any())
-            {
-                foreach (var notification in unreadNotifications)
-                {
-                    notification.IsRead = true;
-                }
-
-                await _context.SaveChangesAsync();
-            }
+            await _doctorDashboardService.MarkAllNotificationsAsReadAsync(GetCurrentUserId());
 
             TempData["Success"] = "All notifications marked as read.";
             return RedirectToAction(nameof(Notifications));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Profile()
+        private string GetCurrentUserId()
         {
-            ViewData["Title"] = "My Profile";
-
-            var doctor = await _context.Doctors
-                .AsNoTracking()
-                .Include(d => d.User)
-                .Include(d => d.DoctorSpecializations)
-                    .ThenInclude(ds => ds.Specialization)
-                .FirstOrDefaultAsync(d => d.UserId == _userManager.GetUserId(User));
-
-            if (doctor == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            var model = new DoctorProfileViewModel
-            {
-                DoctorId = doctor.Id,
-                FullName = doctor.User.FullName,
-                Email = doctor.User.Email ?? string.Empty,
-                LicenseNumber = doctor.LicenseNumber,
-                Bio = doctor.Bio,
-                Specializations = doctor.DoctorSpecializations
-                    .Select(ds => ds.Specialization.Name)
-                    .OrderBy(name => name)
-                    .ToList()
-            };
-
-            return View(model);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Schedule()
-        {
-            ViewData["Title"] = "My Schedule";
-
-            var doctor = await _context.Doctors
-                .AsNoTracking()
-                .Include(d => d.User)
-                .Include(d => d.Schedules)
-                .Include(d => d.Leaves)
-                .FirstOrDefaultAsync(d => d.UserId == _userManager.GetUserId(User));
-
-            if (doctor == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            var model = new DoctorScheduleViewModel
-            {
-                DoctorFullName = doctor.User.FullName,
-                Schedules = doctor.Schedules
-                    .OrderBy(s => s.DayOfWeek)
-                    .ThenBy(s => s.StartTime)
-                    .ToList(),
-                Leaves = doctor.Leaves.ToList()
-            };
-
-            return View(model);
-        }
-
-        private async Task<Doctor?> GetCurrentDoctorWithUserAsync()
-        {
-            var userId = _userManager.GetUserId(User);
-
-            return await _context.Doctors
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.UserId == userId);
-        }
-
-        private async Task<Appointment?> GetDoctorAppointmentAsync(int appointmentId)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            return await _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                .Include(a => a.Status)
-                .Include(a => a.VisitRecord)
-                    .ThenInclude(v => v.Prescriptions)
-                .FirstOrDefaultAsync(a => a.Id == appointmentId && a.Doctor.UserId == userId);
-        }
-
-        private static List<string> GetAllowedNextStatuses(string currentStatusName)
-        {
-            return currentStatusName switch
-            {
-                "Confirmed" => new List<string> { "CheckedIn", "Missed" },
-                "CheckedIn" => new List<string> { "InProgress", "Missed" },
-                "InProgress" => new List<string> { "Completed" },
-                _ => new List<string>()
-            };
-        }
-
-        private static List<SelectListItem> BuildAllowedStatusSelectList(string currentStatusName)
-        {
-            return GetAllowedNextStatuses(currentStatusName)
-                .Select(status => new SelectListItem
-                {
-                    Value = status,
-                    Text = FormatStatusName(status)
-                })
-                .ToList();
-        }
-
-        private static bool CanCreateVisitRecord(string currentStatusName)
-        {
-            return currentStatusName == "InProgress" || currentStatusName == "Completed";
-        }
-
-        private void ValidateVisitRecordInput(string? doctorNotes, string? diagnosis)
-        {
-            if (string.IsNullOrWhiteSpace(doctorNotes))
-            {
-                ModelState.AddModelError(nameof(CreateVisitRecordViewModel.DoctorNotes), "Doctor notes are required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(diagnosis))
-            {
-                ModelState.AddModelError(nameof(CreateVisitRecordViewModel.Diagnosis), "Diagnosis is required.");
-            }
-        }
-
-        private void ValidatePrescriptionInputs(List<PrescriptionInputViewModel> prescriptions)
-        {
-            for (int i = 0; i < prescriptions.Count; i++)
-            {
-                var item = prescriptions[i];
-
-                if (string.IsNullOrWhiteSpace(item.MedicationName))
-                {
-                    ModelState.AddModelError($"Prescriptions[{i}].MedicationName", "Medication name is required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(item.Dosage))
-                {
-                    ModelState.AddModelError($"Prescriptions[{i}].Dosage", "Dosage is required.");
-                }
-
-                if (string.IsNullOrWhiteSpace(item.Frequency))
-                {
-                    ModelState.AddModelError($"Prescriptions[{i}].Frequency", "Frequency is required.");
-                }
-
-                if (item.DurationDays <= 0)
-                {
-                    ModelState.AddModelError($"Prescriptions[{i}].DurationDays", "Duration must be greater than 0.");
-                }
-            }
-        }
-
-        private static List<PrescriptionInputViewModel> NormalizePrescriptionInputs(
-            IEnumerable<PrescriptionInputViewModel>? prescriptions)
-        {
-            if (prescriptions == null)
-            {
-                return new List<PrescriptionInputViewModel>();
-            }
-
-            return prescriptions
-                .Where(p =>
-                    !string.IsNullOrWhiteSpace(p.MedicationName) ||
-                    !string.IsNullOrWhiteSpace(p.Dosage) ||
-                    !string.IsNullOrWhiteSpace(p.Frequency) ||
-                    p.DurationDays > 0 ||
-                    !string.IsNullOrWhiteSpace(p.Instructions))
-                .ToList();
-        }
-
-        private static void PopulateVisitRecordCreateMeta(
-            CreateVisitRecordViewModel model,
-            Appointment appointment)
-        {
-            model.PatientId = appointment.PatientId;
-            model.PatientFullName = appointment.Patient.User.FullName;
-            model.AppointmentDate = appointment.AppointmentDate;
-            model.StartTime = appointment.StartTime;
-            model.EndTime = appointment.EndTime;
-        }
-
-        private static void PopulateVisitRecordEditMeta(
-            EditVisitRecordViewModel model,
-            Appointment appointment)
-        {
-            model.PatientId = appointment.PatientId;
-            model.PatientFullName = appointment.Patient.User.FullName;
-            model.AppointmentDate = appointment.AppointmentDate;
-            model.StartTime = appointment.StartTime;
-            model.EndTime = appointment.EndTime;
-        }
-
-        private static string FormatStatusName(string statusName)
-        {
-            return statusName switch
-            {
-                "CheckedIn" => "Checked In",
-                "InProgress" => "In Progress",
-                _ => statusName
-            };
+            return _userManager.GetUserId(User) ?? string.Empty;
         }
     }
 }
