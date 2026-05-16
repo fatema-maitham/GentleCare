@@ -90,6 +90,16 @@ namespace MVCApp.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Notifications()
+        {
+            var model = await _patientService.GetNotificationsAsync(User);
+
+            await _patientService.MarkAllNotificationsAsReadAsync(User);
+
+            return View((object)model);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> BookAppointment(
             int? specializationId = null,
             int? doctorId = null,

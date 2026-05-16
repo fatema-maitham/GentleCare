@@ -175,6 +175,7 @@ namespace MVCApp.Controllers
             }
 
             var roleResult = await _userManager.AddToRoleAsync(user, "Patient");
+
             if (!roleResult.Succeeded)
             {
                 await _userManager.DeleteAsync(user);
@@ -206,6 +207,18 @@ namespace MVCApp.Controllers
             try
             {
                 _context.Patients.Add(patient);
+                await _context.SaveChangesAsync();
+
+                var notification = new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Welcome to GentleCare",
+                    Message = "Your account has been created successfully.",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Notifications.Add(notification);
                 await _context.SaveChangesAsync();
             }
             catch

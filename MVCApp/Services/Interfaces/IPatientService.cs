@@ -19,6 +19,10 @@ namespace MVCApp.Services.Interfaces
 
         Task<List<PatientHistoryViewModel>> GetHistoryAsync(ClaimsPrincipal user);
 
+        Task<List<PatientNotificationViewModel>> GetNotificationsAsync(ClaimsPrincipal user);
+
+        Task MarkAllNotificationsAsReadAsync(ClaimsPrincipal user);
+
         Task<PatientBookAppointmentViewModel?> GetBookAppointmentModelAsync(
             ClaimsPrincipal user,
             int? specializationId = null,
