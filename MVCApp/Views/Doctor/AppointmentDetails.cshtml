@@ -129,22 +129,22 @@
 
                 @if (Model.CanCreateVisitRecord)
                 {
-                    <a asp-controller="VisitRecord"
-                       asp-action="CreateVisitRecord"
-                       asp-route-id="@Model.AppointmentId"
-                       class="details-btn details-btn-success">
-                        Create Visit Record
-                    </a>
+<a asp-controller="VisitRecord"
+   asp-action="CreateVisitRecord"
+   asp-route-appointmentId="@Model.AppointmentId"
+   class="details-btn details-btn-success">
+    Create Visit Record
+</a>
                 }
 
                 @if (Model.CanEditVisitRecord)
                 {
-                    <a asp-controller="VisitRecord"
-                       asp-action="EditVisitRecord"
-                       asp-route-id="@Model.AppointmentId"
-                       class="details-btn details-btn-success">
-                        Edit Visit Record
-                    </a>
+<a asp-controller="VisitRecord"
+   asp-action="EditVisitRecord"
+   asp-route-appointmentId="@Model.AppointmentId"
+   class="details-btn details-btn-success">
+    Edit Visit Record
+</a>
                 }
 
                 @if (Model.CanCreateFollowUpRequest)

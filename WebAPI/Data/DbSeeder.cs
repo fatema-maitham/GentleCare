@@ -182,20 +182,22 @@ public static class DbSeeder
     {
         var statuses = new[]
         {
-            new { Name = "Requested", Description = "Appointment has been requested and is waiting for confirmation." },
-            new { Name = "Confirmed", Description = "Appointment has been confirmed." },
-            new { Name = "CheckedIn", Description = "Patient has checked in and is waiting." },
-            new { Name = "InProgress", Description = "Doctor is currently seeing the patient." },
-            new { Name = "Completed", Description = "Appointment has been completed." },
-            new { Name = "Cancelled", Description = "Appointment has been cancelled." },
-            new { Name = "Missed", Description = "Patient missed the appointment." }
-        };
+        new { Name = "Requested", Description = "Appointment has been requested and is waiting for confirmation." },
+        new { Name = "Confirmed", Description = "Appointment has been confirmed." },
+        new { Name = "CheckedIn", Description = "Patient has checked in and is waiting." },
+        new { Name = "InProgress", Description = "Doctor is currently seeing the patient." },
+        new { Name = "Completed", Description = "Appointment has been completed." },
+        new { Name = "Cancelled", Description = "Appointment has been cancelled." },
+        new { Name = "Missed", Description = "Patient missed the appointment." }
+    };
 
         foreach (var status in statuses)
         {
-            var existing = await context.AppointmentStatuses.FirstOrDefaultAsync(s => s.Name == status.Name);
+            var exists = await context.AppointmentStatuses
+                .AsNoTracking()
+                .AnyAsync(s => s.Name == status.Name);
 
-            if (existing == null)
+            if (!exists)
             {
                 context.AppointmentStatuses.Add(new AppointmentStatusLookup
                 {
@@ -203,24 +205,24 @@ public static class DbSeeder
                     Description = status.Description
                 });
             }
-            else
-            {
-                existing.Description = status.Description;
-            }
         }
 
         var notificationTypes = new[]
         {
-            "Appointment",
-            "Prescription",
-            "General",
-            "Announcement",
-            "FollowUp"
-        };
+        "Appointment",
+        "Prescription",
+        "General",
+        "Announcement",
+        "FollowUp"
+    };
 
         foreach (var type in notificationTypes)
         {
-            if (!await context.NotificationTypes.AnyAsync(t => t.Name == type))
+            var exists = await context.NotificationTypes
+                .AsNoTracking()
+                .AnyAsync(t => t.Name == type);
+
+            if (!exists)
             {
                 context.NotificationTypes.Add(new NotificationType
                 {

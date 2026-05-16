@@ -4,330 +4,132 @@
     ViewData["Title"] = "Manager Profile";
 
     var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
-        ? Url.Content("~/images/default-profile.png")
-        : Url.Content("~/images/managers/" + Model.ProfilePicture);
+        ? Url.Content("~/images/managers/default-manager.png")
+        : Url.Content("~/images/managers/" + System.IO.Path.GetFileName(Model.ProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
-
 <style>
-    :root {
-        --gc-main: #075168;
-        --gc-main-dark: #043C4D;
-        --gc-text: #12262F;
-        --gc-muted: #687A80;
-        --gc-border: #D6DDDE;
-        --gc-soft: #F7FAFA;
-        --gc-bg: #F1EFED;
-        --gc-danger: #B42318;
-        --gc-success: #157347;
-    }
-
-    .manager-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 22px 0 56px;
+    .manager-profile-page {
+        max-width: 760px;
+        margin: 28px auto 55px;
+        padding: 0 18px;
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
-    .manager-top {
+    .manager-profile-card {
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 24px;
+        padding: 34px;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    .manager-avatar-area {
         display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 20px;
     }
 
-    .manager-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 18px;
+    .manager-avatar-img {
+        width: 135px;
+        height: 135px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ffffff;
+        border: 5px solid #e7f1f3;
     }
 
-    .manager-stat,
-    .manager-card {
-        background: #fff;
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(7, 81, 104, 0.06);
+    .manager-name-block {
+        text-align: center;
+        margin-bottom: 30px;
     }
 
-    .manager-stat {
-        padding: 18px;
-    }
+        .manager-name-block h2 {
+            margin: 0;
+            color: #12262f;
+            font-size: 30px;
+            font-weight: 900;
+        }
 
-    .manager-stat span {
-        display: block;
-        color: var(--gc-muted);
+    .manager-badge {
+        display: inline-flex;
+        margin-top: 10px;
+        padding: 7px 13px;
+        border-radius: 999px;
+        background: #e7f1f3;
+        color: #075168;
         font-size: 13px;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-
-    .manager-stat strong {
-        display: block;
-        color: var(--gc-main);
-        font-size: 30px;
-        font-weight: 900;
-        line-height: 1;
-    }
-
-    .manager-card {
-        padding: 22px;
-        margin-bottom: 18px;
-    }
-
-    .card-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
-    }
-
-    .card-head h2 {
-        margin: 0;
-        color: var(--gc-text);
-        font-size: 20px;
         font-weight: 900;
     }
 
-    .muted {
-        color: var(--gc-muted);
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    .info-grid {
+    .manager-info-list {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
+        gap: 0;
+        border-top: 1px solid #e5ecee;
     }
 
-    .info-box {
-        background: var(--gc-soft);
-        border: 1px solid #E2E8EA;
-        border-radius: 14px;
-        padding: 14px;
+    .manager-info-row {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 20px;
+        padding: 16px 0;
+        border-bottom: 1px solid #eef2f3;
+        align-items: start;
     }
 
-    .info-box span {
-        display: block;
-        color: var(--gc-muted);
-        font-size: 13px;
-        font-weight: 800;
-        margin-bottom: 6px;
-    }
-
-    .info-box strong {
-        display: block;
-        color: var(--gc-text);
-        font-size: 15px;
+    .manager-label {
+        color: #687a80;
         font-weight: 900;
+    }
+
+    .manager-value {
+        color: #001a27;
+        font-weight: 850;
         word-break: break-word;
     }
 
-    .manager-table-wrap {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .manager-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 760px;
-    }
-
-    .manager-table th {
-        text-align: left;
-        padding: 13px 12px;
-        color: var(--gc-muted);
-        font-size: 13px;
-        font-weight: 900;
-        border-bottom: 1px solid #E5ECEE;
-        background: #FAFCFC;
-        white-space: nowrap;
-    }
-
-    .manager-table td {
-        padding: 14px 12px;
-        color: var(--gc-text);
-        font-size: 14px;
-        font-weight: 650;
-        border-bottom: 1px solid #EEF2F3;
-        vertical-align: top;
-    }
-
-    .manager-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    .filter-form,
-    .manager-form {
-        display: grid;
-        gap: 16px;
-    }
-
-    .filter-form {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        align-items: end;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
-    .form-group {
+    .manager-profile-actions {
         display: flex;
-        flex-direction: column;
-        gap: 7px;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 28px;
     }
 
-    .form-group.full {
-        grid-column: 1 / -1;
-    }
-
-    .form-group label {
-        color: var(--gc-text);
-        font-size: 14px;
-        font-weight: 900;
-    }
-
-    .form-control,
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        min-height: 44px;
-        border: 1px solid #B9CBD0;
-        border-radius: 12px;
-        padding: 10px 12px;
-        color: var(--gc-text);
-        background: #fff;
-        font-size: 15px;
-        font-weight: 650;
-        outline: none;
-    }
-
-    .form-group textarea {
-        min-height: 120px;
-        resize: vertical;
-    }
-
-    .form-control:focus,
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        border-color: var(--gc-main);
-        box-shadow: 0 0 0 3px rgba(7, 81, 104, 0.12);
-    }
-
-    .check-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .check-item {
-        border: 1px solid #E2E8EA;
-        background: #FAFCFC;
+    .manager-btn {
+        border: none;
         border-radius: 14px;
-        padding: 12px;
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        font-weight: 800;
-        color: var(--gc-text);
-    }
-
-    .check-item small {
-        display: block;
-        color: var(--gc-muted);
-        font-weight: 650;
-        margin-top: 3px;
-    }
-
-    .actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .btn-main,
-    .btn-light,
-    .btn-danger,
-    .table-link {
-        border: 0;
-        border-radius: 12px;
-        padding: 10px 14px;
+        padding: 12px 20px;
         font-weight: 900;
-        font-size: 14px;
         text-decoration: none;
-        cursor: pointer;
+        transition: 0.2s ease;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 40px;
     }
 
-    .btn-main {
-        background: var(--gc-main);
-        color: #fff;
+    .manager-btn-primary {
+        background: #075168;
+        color: #ffffff;
     }
 
-    .btn-main:hover {
-        background: var(--gc-main-dark);
-        color: #fff;
+        .manager-btn-primary:hover {
+            background: #00779b;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+    .manager-btn-secondary {
+        background: #e7f1f3;
+        color: #075168;
     }
 
-    .btn-light {
-        background: #F1EFED;
-        color: var(--gc-text);
-        border: 1px solid var(--gc-border);
-    }
+        .manager-btn-secondary:hover {
+            background: #dce8ea;
+            color: #075168;
+            transform: translateY(-2px);
+        }
 
-    .btn-danger {
-        background: #FFF1F0;
-        color: var(--gc-danger);
-        border: 1px solid #F3B8B2;
-    }
-
-    .table-link {
-        background: #EEF6F8;
-        color: var(--gc-main);
-        padding: 7px 10px;
-        min-height: 32px;
-        margin: 2px;
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 999px;
-        padding: 6px 10px;
-        background: #EAF4F6;
-        color: var(--gc-main);
-        font-size: 12px;
-        font-weight: 900;
-        white-space: nowrap;
-    }
-
-    .empty-box {
-        background: #FAFCFC;
-        border: 1px dashed #B9CBD0;
-        border-radius: 16px;
-        padding: 22px;
-        color: var(--gc-muted);
-        font-weight: 800;
-        text-align: center;
-    }
-
-    .alert {
+    .manager-alert {
         border-radius: 14px;
         padding: 13px 15px;
         margin-bottom: 16px;
@@ -335,172 +137,92 @@
         border: 1px solid transparent;
     }
 
-    .alert-success {
-        background: #ECFDF3;
-        color: var(--gc-success);
-        border-color: #B7E4C7;
+    .manager-alert-success {
+        background: #ecfdf3;
+        color: #157347;
+        border-color: #b7e4c7;
     }
 
-    .alert-danger {
-        background: #FFF1F0;
-        color: var(--gc-danger);
-        border-color: #F3B8B2;
+    .manager-alert-danger {
+        background: #fff1f0;
+        color: #b42318;
+        border-color: #f3b8b2;
     }
 
-    .text-danger {
-        color: var(--gc-danger);
-        font-size: 13px;
-        font-weight: 800;
-    }
+    @@media (max-width: 700px) {
+        .manager-profile-card {
+            padding: 24px;
+        }
 
-    .profile-page {
-        max-width: 760px;
-        margin: 40px auto;
-        padding: 20px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .profile-card {
-        background: #fff;
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
-        padding: 28px;
-        box-shadow: 0 8px 20px rgba(7, 81, 104, 0.06);
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        padding-bottom: 22px;
-        border-bottom: 1px solid #E5ECEE;
-    }
-
-    .profile-image-wrapper {
-        position: relative;
-        width: 96px;
-        height: 96px;
-        flex-shrink: 0;
-    }
-
-    .profile-img {
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #D9E2E4;
-    }
-
-    .camera-btn {
-        position: absolute;
-        right: -2px;
-        bottom: 2px;
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: var(--gc-main);
-        color: #fff;
-        border: 3px solid #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 15px;
-    }
-
-    .profile-header h2 {
-        margin: 0;
-        color: var(--gc-text);
-        font-weight: 900;
-    }
-
-    .profile-info {
-        margin-top: 24px;
-        display: grid;
-        gap: 14px;
-    }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        padding: 14px 0;
-        border-bottom: 1px solid #EEF2F3;
-    }
-
-    .info-row span {
-        color: var(--gc-muted);
-        font-weight: 800;
-    }
-
-    .info-row strong {
-        color: var(--gc-text);
-        text-align: right;
-        font-weight: 900;
-    }
-
-    .profile-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 28px;
-        flex-wrap: wrap;
-    }
-
-    .d-none {
-        display: none;
-    }
-
-    @@media (max-width: 900px) {
-        .manager-grid,
-        .info-grid,
-        .form-grid,
-        .filter-form,
-        .check-list {
+        .manager-info-row {
             grid-template-columns: 1fr;
+            gap: 6px;
         }
 
-        .manager-page {
-            padding-left: 12px;
-            padding-right: 12px;
+        .manager-profile-actions {
+            flex-direction: column;
         }
 
-        .profile-header {
-            align-items: flex-start;
+        .manager-btn {
+            width: 100%;
+            text-align: center;
         }
     }
 </style>
 
+<div class="manager-profile-page">
 
-<div class="profile-page">
-    
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    @if (TempData["Success"] != null)
+    {
+        <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+    }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+    @if (TempData["Error"] != null)
+    {
+        <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+    }
 
+    <section class="manager-profile-card">
 
-    <div class="profile-card">
-        <div class="profile-header">
-            <img src="@profileImage" class="profile-img" alt="Profile picture" />
-            <div>
-                <h2>@Model.FullName</h2>
-                <span class="status-pill">Clinic Manager</span>
+        <div class="manager-avatar-area">
+            <img src="@profileImage"
+                 alt="Clinic manager profile picture"
+                 class="manager-avatar-img"
+                 onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
+        </div>
+
+        <div class="manager-name-block">
+            <h2>@Model.FullName</h2>
+            <span class="manager-badge">Clinic Manager Account</span>
+        </div>
+
+        <div class="manager-info-list">
+            <div class="manager-info-row">
+                <div class="manager-label">Full Name</div>
+                <div class="manager-value">@Model.FullName</div>
+            </div>
+
+            <div class="manager-info-row">
+                <div class="manager-label">Email</div>
+                <div class="manager-value">@Model.Email</div>
+            </div>
+
+            <div class="manager-info-row">
+                <div class="manager-label">Phone Number</div>
+                <div class="manager-value">
+                    @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added yet." : Model.PhoneNumber)
+                </div>
             </div>
         </div>
 
-        <div class="profile-info">
-            <div class="info-row"><span>Full Name</span><strong>@Model.FullName</strong></div>
-            <div class="info-row"><span>Email</span><strong>@Model.Email</strong></div>
-            <div class="info-row"><span>Phone Number</span><strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added" : Model.PhoneNumber)</strong></div>
+        <div class="manager-profile-actions">
+
+            <a asp-controller="ClinicManager"
+               asp-action="EditProfile"
+               class="manager-btn manager-btn-primary">
+                Edit Profile
+            </a>
         </div>
 
-        <div class="profile-actions">
-            <a asp-controller="ClinicManager" asp-action="EditProfile" class="btn-main">Edit Profile</a>
-        </div>
-    </div>
+    </section>
 </div>

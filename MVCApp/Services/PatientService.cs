@@ -269,6 +269,50 @@ namespace MVCApp.Services
                 .ToListAsync();
         }
 
+        public async Task<List<PatientNotificationViewModel>> GetNotificationsAsync(ClaimsPrincipal userPrincipal)
+        {
+            var patient = await GetCurrentPatientAsync(userPrincipal);
+
+            if (patient == null)
+            {
+                return new List<PatientNotificationViewModel>();
+            }
+
+            return await _context.Notifications
+                .Where(n => n.UserId == patient.UserId)
+                .OrderByDescending(n => n.CreatedAt)
+                .Select(n => new PatientNotificationViewModel
+                {
+                    NotificationId = n.Id,
+                    Title = n.Title,
+                    Message = n.Message,
+                    CreatedAt = n.CreatedAt,
+                    IsRead = n.IsRead
+                })
+                .ToListAsync();
+        }
+
+        public async Task MarkAllNotificationsAsReadAsync(ClaimsPrincipal userPrincipal)
+        {
+            var patient = await GetCurrentPatientAsync(userPrincipal);
+
+            if (patient == null)
+            {
+                return;
+            }
+
+            var unreadNotifications = await _context.Notifications
+                .Where(n => n.UserId == patient.UserId && !n.IsRead)
+                .ToListAsync();
+
+            foreach (var notification in unreadNotifications)
+            {
+                notification.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<PatientBookAppointmentViewModel?> GetBookAppointmentModelAsync(
             ClaimsPrincipal userPrincipal,
             int? specializationId = null,
@@ -523,4 +567,4 @@ namespace MVCApp.Services
             }
         }
     }
-    }
+}
