@@ -70,9 +70,9 @@
                     <span asp-validation-for="FullName"></span>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group readonly-field">
                     <label asp-for="Email"></label>
-                    <input asp-for="Email" />
+                    <input asp-for="Email" readonly />
                     <span asp-validation-for="Email"></span>
                 </div>
 
@@ -211,8 +211,8 @@
         object-fit: cover !important;
         display: block !important;
         overflow: hidden !important;
-
     }
+
     .upload-icon {
         position: absolute;
         right: 2px;
