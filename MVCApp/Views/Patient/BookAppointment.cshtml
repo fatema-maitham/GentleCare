@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Book Appointment";
+
+    var todayText = DateTime.Today.ToString("yyyy-MM-dd");
+    var selectedDateIsPast = Model.AppointmentDate.HasValue &&
+                             Model.AppointmentDate.Value.Date < DateTime.Today;
 }
 
 <section class="book-page">
@@ -59,6 +63,7 @@
                     <label asp-for="AppointmentDate"></label>
                     <input asp-for="AppointmentDate"
                            type="date"
+                           min="@todayText"
                            class="form-control auto-submit" />
                     <span asp-validation-for="AppointmentDate" class="field-error"></span>
                 </div>
@@ -85,14 +90,21 @@
                 <label asp-for="StartTime"></label>
                 <select asp-for="StartTime"
                         asp-items="Model.AvailableSlotOptions"
-                        class="form-control time-select">
+                        class="form-control time-select"
+                        disabled="@(selectedDateIsPast ? "disabled" : null)">
                     <option value="">Select available time</option>
                 </select>
                 <span asp-validation-for="StartTime" class="field-error"></span>
 
                 @if (Model.DoctorId != null && Model.AppointmentDate != null)
                 {
-                    if (Model.AvailableSlotOptions != null && Model.AvailableSlotOptions.Any())
+                    if (selectedDateIsPast)
+                    {
+                        <div class="booking-warning">
+                            You cannot book an appointment in the past. Please choose today or a future date.
+                        </div>
+                    }
+                    else if (Model.AvailableSlotOptions != null && Model.AvailableSlotOptions.Any())
                     {
                         <div class="booking-note">
                             Only available slots are shown. Already booked times are hidden to prevent double booking.
@@ -122,7 +134,9 @@
             </div>
 
             <div class="actions">
-                <button type="submit" class="gc-btn-primary">
+                <button type="submit"
+                        class="gc-btn-primary"
+                        disabled="@(selectedDateIsPast ? "disabled" : null)">
                     Request Appointment
                 </button>
             </div>
@@ -139,6 +153,12 @@
             const specialization = document.getElementById("SpecializationId");
             const doctor = document.getElementById("DoctorId");
             const date = document.getElementById("AppointmentDate");
+
+            const today = new Date().toISOString().split("T")[0];
+
+            if (date) {
+                date.setAttribute("min", today);
+            }
 
             function submitAvailabilityForm() {
                 if (specialization.value || doctor.value || date.value) {
@@ -261,9 +281,19 @@
             box-shadow: 0 0 0 4px rgba(99,127,163,0.15);
         }
 
+        .form-control:disabled {
+            background: #edf2f5;
+            cursor: not-allowed;
+            color: #7a8b95;
+        }
+
     .time-select {
         cursor: pointer;
     }
+
+        .time-select:disabled {
+            cursor: not-allowed;
+        }
 
     .textarea {
         min-height: 115px;
@@ -289,6 +319,12 @@
             transform: translateY(-3px);
             color: white;
             background: #71999f;
+        }
+
+        .gc-btn-primary:disabled {
+            background: #a7b4bf;
+            cursor: not-allowed;
+            transform: none;
         }
 
     .actions {
