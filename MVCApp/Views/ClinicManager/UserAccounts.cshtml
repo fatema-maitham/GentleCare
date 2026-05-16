@@ -1,0 +1,336 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerUserAccountsViewModel
+
+@{
+    ViewData["Title"] = "User Accounts";
+}
+
+<div class="accounts-page">
+    <div class="accounts-header">
+        <h1>User Accounts</h1>
+        <p>Activate or deactivate doctor, receptionist, and patient accounts.</p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="accounts-card">
+        <div class="accounts-card-header">
+            <h4>Search and Filter</h4>
+        </div>
+
+        <form asp-action="UserAccounts" method="get" class="accounts-filter">
+            <div class="form-group">
+                <label>Search</label>
+                <input asp-for="SearchTerm" placeholder="Name, email, or role" />
+            </div>
+
+            <div class="form-group">
+                <label>Role</label>
+                <select asp-for="SelectedRole" asp-items="Model.RoleOptions"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select asp-for="IsActive" asp-items="Model.StatusOptions"></select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="primary-btn">Apply</button>
+                <a asp-action="UserAccounts" class="secondary-btn">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="accounts-card">
+        <div class="accounts-card-header accounts-header-row">
+            <h4>Accounts</h4>
+            <span>@Model.Users.Count account(s)</span>
+        </div>
+
+        @if (Model.Users.Any())
+        {
+            <div class="accounts-table-wrap">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="action-col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@user.FullName</strong>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>@user.RoleName</td>
+                                <td>
+                                    <span class="status-badge @(user.IsActive ? "active" : "inactive")">
+                                        @user.StatusText
+                                    </span>
+                                </td>
+                                <td>@user.CreatedAtDisplay</td>
+                                <td class="action-col">
+                                    <form asp-action="ToggleUserStatus" method="post"
+                                          onsubmit="return confirm('Are you sure you want to change this account status?');">
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+
+                                        @if (user.IsActive)
+                                        {
+                                            <button type="submit" class="danger-btn">
+                                                Deactivate
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="success-btn">
+                                                Activate
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">
+                No user accounts found.
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .accounts-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 30px 20px 56px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
+
+    .accounts-header {
+        margin-bottom: 24px;
+    }
+
+        .accounts-header h1 {
+            margin: 0;
+            color: #12262F;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .accounts-header p {
+            margin: 8px 0 0;
+            color: #687A80;
+            font-weight: 700;
+        }
+
+    .accounts-card {
+        background: #ffffff;
+        border: 1px solid #D6DDDE;
+        border-radius: 22px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .accounts-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #E9EEEE;
+    }
+
+        .accounts-card-header h4 {
+            margin: 0;
+            color: #075168;
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+    .accounts-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+        .accounts-header-row span {
+            color: #687A80;
+            font-weight: 800;
+        }
+
+    .accounts-filter {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 16px;
+        padding: 24px;
+        align-items: end;
+    }
+
+    .form-group {
+        display: grid;
+        gap: 7px;
+    }
+
+        .form-group label {
+            color: #12262F;
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            border: 1px solid #D6DDDE;
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: #12262F;
+            background: #ffffff;
+            font-weight: 700;
+            outline: none;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                border-color: #00779B;
+                box-shadow: 0 0 0 4px rgba(0, 119, 155, 0.14);
+            }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .danger-btn,
+    .success-btn {
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-weight: 900;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .primary-btn {
+        background: #075168;
+        color: #ffffff;
+    }
+
+    .secondary-btn {
+        background: #E7F1F3;
+        color: #075168;
+        border: 1px solid #C9DBDF;
+    }
+
+    .danger-btn {
+        background: #B42318;
+        color: #ffffff;
+    }
+
+    .success-btn {
+        background: #4C825C;
+        color: #ffffff;
+    }
+
+    .accounts-table-wrap {
+        overflow-x: auto;
+    }
+
+    .accounts-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .accounts-table th {
+            background: #F8FAFA;
+            color: #12262F;
+            padding: 15px 18px;
+            font-weight: 900;
+            border-bottom: 1px solid #D6DDDE;
+            text-align: left;
+        }
+
+        .accounts-table td {
+            padding: 17px 18px;
+            border-bottom: 1px solid #EDF1F2;
+            color: #12262F;
+            font-weight: 650;
+            vertical-align: middle;
+        }
+
+    .action-col {
+        text-align: right;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+        .status-badge.active {
+            background: rgba(76, 130, 92, 0.12);
+            color: #2F6B3F;
+            border: 1px solid rgba(76, 130, 92, 0.22);
+        }
+
+        .status-badge.inactive {
+            background: rgba(180, 35, 24, 0.10);
+            color: #B42318;
+            border: 1px solid rgba(180, 35, 24, 0.18);
+        }
+
+    .empty-box {
+        margin: 24px;
+        padding: 16px;
+        border-radius: 16px;
+        background: #E7F1F3;
+        color: #075168;
+        font-weight: 850;
+    }
+
+    @@media (max-width: 900px) {
+        .accounts-filter {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            justify-content: stretch;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>

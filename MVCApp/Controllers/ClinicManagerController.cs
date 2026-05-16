@@ -833,5 +833,49 @@ namespace MVCApp.Controllers
             TempData["Success"] = "Profile updated successfully.";
             return RedirectToAction(nameof(Profile));
         }
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        // Shows doctors, receptionists, and patients so the manager can activate/deactivate accounts.
+        [HttpGet]
+        public async Task<IActionResult> UserAccounts(
+            string? searchTerm = null,
+            string? selectedRole = null,
+            bool? isActive = null)
+        {
+            ViewData["Title"] = "User Accounts";
+
+            var model = await _clinicManagerService.GetUserAccountsAsync(
+                searchTerm,
+                selectedRole,
+                isActive);
+
+            return View(model);
+        }
+
+        // Activates or deactivates a doctor, receptionist, or patient account.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleUserStatus(string userId)
+        {
+            var managerUserId = _userManager.GetUserId(User) ?? string.Empty;
+
+            var result = await _clinicManagerService.ToggleUserActiveStatusAsync(
+                userId,
+                managerUserId);
+
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(UserAccounts));
+        }
     }
 }

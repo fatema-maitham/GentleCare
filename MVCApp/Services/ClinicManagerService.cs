@@ -473,6 +473,155 @@ namespace MVCApp.Services
             return (true, "Doctor updated successfully.");
         }
 
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        public async Task<ClinicManagerUserAccountsViewModel> GetUserAccountsAsync(
+            string? searchTerm,
+            string? selectedRole,
+            bool? isActive)
+        {
+            var model = new ClinicManagerUserAccountsViewModel
+            {
+                SearchTerm = searchTerm,
+                SelectedRole = selectedRole,
+                IsActive = isActive,
+                RoleOptions = GetUserAccountRoleOptions(),
+                StatusOptions = GetUserAccountStatusOptions()
+            };
+
+            var allowedRoles = new List<string>
+    {
+        "Doctor",
+        "Receptionist",
+        "Patient"
+    };
+
+            var rolesToLoad = string.IsNullOrWhiteSpace(selectedRole)
+                ? allowedRoles
+                : allowedRoles
+                    .Where(r => r.Equals(selectedRole, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            var users = new List<ClinicManagerUserAccountItemViewModel>();
+
+            foreach (var roleName in rolesToLoad)
+            {
+                var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+                if (!roleExists)
+                {
+                    continue;
+                }
+
+                var roleUsers = await _userManager.GetUsersInRoleAsync(roleName);
+
+                users.AddRange(roleUsers.Select(user => new ClinicManagerUserAccountItemViewModel
+                {
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email ?? string.Empty,
+                    RoleName = roleName,
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt
+                }));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var search = searchTerm.Trim().ToLower();
+
+                users = users
+                    .Where(u =>
+                        u.FullName.ToLower().Contains(search) ||
+                        u.Email.ToLower().Contains(search) ||
+                        u.RoleName.ToLower().Contains(search))
+                    .ToList();
+            }
+
+            if (isActive.HasValue)
+            {
+                users = users
+                    .Where(u => u.IsActive == isActive.Value)
+                    .ToList();
+            }
+
+            model.Users = users
+                .GroupBy(u => u.UserId)
+                .Select(g => g.First())
+                .OrderBy(u => u.RoleName)
+                .ThenBy(u => u.FullName)
+                .ToList();
+
+            return model;
+        }
+
+        public async Task<(bool Success, string Message)> ToggleUserActiveStatusAsync(
+            string targetUserId,
+            string managerUserId)
+        {
+            if (string.IsNullOrWhiteSpace(targetUserId))
+            {
+                return (false, "User account was not selected.");
+            }
+
+            var user = await _userManager.FindByIdAsync(targetUserId);
+
+            if (user == null)
+            {
+                return (false, "User account was not found.");
+            }
+
+            if (user.Id == managerUserId)
+            {
+                return (false, "You cannot deactivate your own account.");
+            }
+
+            var isClinicManager = await _userManager.IsInRoleAsync(user, "ClinicManager");
+
+            if (isClinicManager)
+            {
+                return (false, "Clinic Manager accounts cannot be changed from this page.");
+            }
+
+            user.IsActive = !user.IsActive;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return (false, "Unable to update user account status.");
+            }
+
+            var statusText = user.IsActive ? "activated" : "deactivated";
+
+            return (true, $"{user.FullName} has been {statusText} successfully.");
+        }
+
+        private static List<SelectListItem> GetUserAccountRoleOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Value = "", Text = "All roles" },
+        new SelectListItem { Value = "Doctor", Text = "Doctors" },
+        new SelectListItem { Value = "Receptionist", Text = "Receptionists" },
+        new SelectListItem { Value = "Patient", Text = "Patients" }
+    };
+        }
+
+        private static List<SelectListItem> GetUserAccountStatusOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Value = "", Text = "All statuses" },
+        new SelectListItem { Value = "true", Text = "Active only" },
+        new SelectListItem { Value = "false", Text = "Inactive only" }
+    };
+        }
+
+
         // =========================
         // Doctor Schedule Management
         // =========================
