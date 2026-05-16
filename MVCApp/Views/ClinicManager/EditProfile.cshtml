@@ -11,7 +11,13 @@
 <div class="profile-page">
     <div class="profile-card">
         <div class="profile-header">
-            <img src="@profileImage" class="profile-img" alt="Profile picture" />
+            <div class="profile-image-wrapper">
+                <img src="@profileImage" class="profile-img" alt="Profile picture" />
+
+                <label for="ProfilePictureFile" class="camera-btn" title="Change profile picture">
+                    <i class="bi bi-camera-fill"></i>
+                </label>
+            </div>
 
             <div>
                 <h2>Edit Profile</h2>
@@ -29,6 +35,14 @@
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            <input asp-for="ProfilePictureFile"
+                   id="ProfilePictureFile"
+                   type="file"
+                   class="d-none"
+                   accept=".jpg,.jpeg,.png,.webp" />
+
+            <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
+
             <div class="form-group">
                 <label asp-for="FullName"></label>
                 <input asp-for="FullName" class="form-control" />
@@ -45,12 +59,6 @@
                 <label asp-for="PhoneNumber"></label>
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ProfilePictureFile"></label>
-                <input asp-for="ProfilePictureFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
-                <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
             </div>
 
             <div class="profile-actions">
@@ -88,6 +96,13 @@
         border-bottom: 1px solid #e5e7eb;
     }
 
+    .profile-image-wrapper {
+        position: relative;
+        width: 96px;
+        height: 96px;
+        flex-shrink: 0;
+    }
+
     .profile-img {
         width: 96px;
         height: 96px;
@@ -95,6 +110,28 @@
         object-fit: cover;
         border: 3px solid #d9e2e4;
     }
+
+    .camera-btn {
+        position: absolute;
+        right: -2px;
+        bottom: 2px;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #00688C;
+        color: #fff;
+        border: 3px solid #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s ease;
+        font-size: 15px;
+    }
+
+        .camera-btn:hover {
+            background: #06485F;
+        }
 
     .profile-header h2 {
         margin: 0;
