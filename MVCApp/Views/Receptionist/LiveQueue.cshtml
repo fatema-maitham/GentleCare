@@ -9,7 +9,7 @@
 
         <div class="page-header-custom">
             <h1>Live Queue</h1>
-            <p>Monitor today’s patient flow from arrival to completion.</p>
+            <p>Monitor today’s patient flow from arrival to doctor consultation.</p>
         </div>
 
         @if (TempData["Success"] != null)
@@ -91,8 +91,8 @@
                                 <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="Cancelled" />
-                                    <button type="submit" class="gc-btn-light small">Cancel</button>
+                                    <input type="hidden" name="newStatus" value="Missed" />
+                                    <button type="submit" class="gc-btn-light small">Mark Missed</button>
                                 </form>
                             }
 
@@ -106,21 +106,9 @@
                                 </form>
                             }
 
-                            @if (item.Status == "InProgress")
+                            @if (item.Status == "Completed")
                             {
-                                <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="Completed" />
-                                    <button type="submit" class="gc-btn-primary small">Complete</button>
-                                </form>
-
-                                <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="Missed" />
-                                    <button type="submit" class="gc-btn-light small">Mark Missed</button>
-                                </form>
+                                <span class="helper-text completed-text">Visit completed.</span>
                             }
                         </div>
                     </div>
@@ -130,6 +118,29 @@
 
     </div>
 </section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/appointment")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("QueueUpdated", function () {
+            window.location.reload();
+        });
+
+        connection.start()
+            .then(function () {
+                return connection.invoke("JoinGroup", "ReceptionistQueue");
+            })
+            .catch(function (err) {
+                console.error("SignalR connection error:", err.toString());
+            });
+    </script>
+}
 
 <style>
     .queue-page {
@@ -309,6 +320,18 @@
             font-size: 14px;
         }
 
+    .helper-text {
+        color: #6b7a87;
+        font-weight: 800;
+        font-size: 13px;
+        text-align: right;
+        max-width: 160px;
+    }
+
+    .completed-text {
+        color: #166534;
+    }
+
     .success-message {
         background: #e8f7ef;
         color: #1d6b42;
@@ -356,6 +379,10 @@
         .queue-actions {
             align-items: flex-start;
             margin-top: 16px;
+        }
+
+        .helper-text {
+            text-align: left;
         }
     }
 
