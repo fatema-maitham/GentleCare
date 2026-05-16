@@ -158,27 +158,60 @@ namespace MVCApp.Controllers
         }
 
         // Opens the follow-up request form for a completed appointment.
-        [HttpGet("CreateFollowUpRequest/{id:int}")]
-        public async Task<IActionResult> CreateFollowUpRequest(int id)
+        // Absolute route fixes HTTP 405 for:
+        // /Doctor/CreateFollowUpRequest/23
+        [HttpGet("/Doctor/CreateFollowUpRequest/{appointmentId:int}")]
+        public async Task<IActionResult> CreateFollowUpRequest(int appointmentId)
         {
             ViewData["Title"] = "Create Follow-Up Request";
 
             var model = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
                 GetCurrentUserId(),
-                id);
+                appointmentId);
 
             if (model == null)
             {
                 TempData["Error"] = "Follow-up request can only be created for completed appointments.";
 
-                return RedirectToAction(nameof(AppointmentDetails), new { id });
+                return RedirectToAction(
+                    nameof(AppointmentDetails),
+                    new { id = appointmentId });
+            }
+
+            return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
+        }
+
+        // Also supports:
+        // /Doctor/CreateFollowUpRequest?appointmentId=23
+        [HttpGet("/Doctor/CreateFollowUpRequest")]
+        public async Task<IActionResult> CreateFollowUpRequestByQuery(int appointmentId)
+        {
+            ViewData["Title"] = "Create Follow-Up Request";
+
+            if (appointmentId <= 0)
+            {
+                TempData["Error"] = "Appointment was not selected.";
+                return RedirectToAction(nameof(Appointments));
+            }
+
+            var model = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
+                GetCurrentUserId(),
+                appointmentId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Follow-up request can only be created for completed appointments.";
+
+                return RedirectToAction(
+                    nameof(AppointmentDetails),
+                    new { id = appointmentId });
             }
 
             return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
         }
 
         // Saves the follow-up request as a new requested appointment.
-        [HttpPost("CreateFollowUpRequest")]
+        [HttpPost("/Doctor/CreateFollowUpRequest")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFollowUpRequest(CreateFollowUpRequestViewModel model)
         {
@@ -208,10 +241,12 @@ namespace MVCApp.Controllers
 
             TempData["Success"] = "Follow-up appointment request created successfully.";
 
-            return RedirectToAction(nameof(AppointmentDetails), new { id = result.NewAppointmentId });
+            return RedirectToAction(
+                nameof(AppointmentDetails),
+                new { id = result.NewAppointmentId });
         }
 
-        // Reloads readonly display fields when the form is returned because of validation errors.
+        // Reloads readonly display fields when validation fails.
         private async Task ReloadFollowUpDisplayDataAsync(CreateFollowUpRequestViewModel model)
         {
             var freshModel = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
