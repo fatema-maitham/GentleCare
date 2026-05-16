@@ -119,9 +119,11 @@ namespace MVCApp.Services
                 Treatment = appointment.VisitRecord?.Treatment,
 
                 HasVisitRecord = appointment.VisitRecord != null,
+
                 CanCreateVisitRecord = appointment.VisitRecord == null && CanCreateVisitRecord(currentStatus),
                 CanEditVisitRecord = appointment.VisitRecord != null,
                 CanUpdateStatus = allowedNextStatuses.Any(),
+                CanCreateFollowUpRequest = currentStatus == "Completed",
                 AvailableNextStatuses = allowedNextStatuses,
 
                 Prescriptions = appointment.VisitRecord?.Prescriptions
@@ -276,6 +278,160 @@ namespace MVCApp.Services
             };
         }
 
+        public async Task<CreateFollowUpRequestViewModel?> GetCreateFollowUpRequestAsync(
+    string userId,
+    int appointmentId)
+        {
+            var appointment = await GetDoctorAppointmentAsync(userId, appointmentId, asTracking: false);
+
+            if (appointment == null)
+            {
+                return null;
+            }
+
+            if (appointment.Status.Name != "Completed")
+            {
+                return null;
+            }
+
+            return new CreateFollowUpRequestViewModel
+            {
+                OriginalAppointmentId = appointment.Id,
+                PatientId = appointment.PatientId,
+                PatientFullName = appointment.Patient.User.FullName,
+                DoctorId = appointment.DoctorId,
+                DoctorFullName = appointment.Doctor.User.FullName,
+                OriginalAppointmentDate = appointment.AppointmentDate,
+                RecommendedDate = DateTime.Today.AddDays(14),
+                StartTime = new TimeOnly(9, 0)
+            };
+        }
+
+        public async Task<(bool Success, string? ErrorMessage, int? NewAppointmentId)> CreateFollowUpRequestAsync(
+            string userId,
+            CreateFollowUpRequestViewModel model)
+        {
+            var originalAppointment = await GetDoctorAppointmentAsync(
+                userId,
+                model.OriginalAppointmentId,
+                asTracking: false);
+
+            if (originalAppointment == null)
+            {
+                return (false, "Original appointment was not found.", null);
+            }
+
+            if (originalAppointment.Status.Name != "Completed")
+            {
+                return (false, "Follow-up requests can only be created after the appointment is completed.", null);
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Reason))
+            {
+                return (false, "Follow-up reason is required.", null);
+            }
+
+            var recommendedDate = model.RecommendedDate.Date;
+
+            if (recommendedDate < DateTime.Today)
+            {
+                return (false, "Recommended date cannot be in the past.", null);
+            }
+
+            var doctorId = originalAppointment.DoctorId;
+            var patientId = originalAppointment.PatientId;
+
+            var schedule = await _context.DoctorSchedules
+                .AsNoTracking()
+                .Where(s =>
+                    s.DoctorId == doctorId &&
+                    s.DayOfWeek == recommendedDate.DayOfWeek &&
+                    s.StartTime <= model.StartTime &&
+                    s.EndTime > model.StartTime)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
+
+            if (schedule == null)
+            {
+                return (false, "The selected time is outside the doctor's working schedule.", null);
+            }
+
+            var endTime = model.StartTime.AddMinutes(schedule.SlotDurationMinutes);
+
+            if (endTime > schedule.EndTime)
+            {
+                return (false, "The selected time does not fit inside the doctor's schedule.", null);
+            }
+
+            var isOnLeave = await _context.DoctorLeaves
+                .AsNoTracking()
+                .AnyAsync(l =>
+                    l.DoctorId == doctorId &&
+                    recommendedDate >= l.StartDate.Date &&
+                    recommendedDate <= l.EndDate.Date);
+
+            if (isOnLeave)
+            {
+                return (false, "The doctor is on leave on the selected date.", null);
+            }
+
+            var blockedStatuses = new[] { "Requested", "Confirmed", "CheckedIn", "InProgress", "Completed" };
+
+            var hasDoctorConflict = await _context.Appointments
+                .AsNoTracking()
+                .AnyAsync(a =>
+                    a.DoctorId == doctorId &&
+                    a.AppointmentDate.Date == recommendedDate &&
+                    blockedStatuses.Contains(a.Status.Name) &&
+                    a.StartTime < endTime &&
+                    model.StartTime < a.EndTime);
+
+            if (hasDoctorConflict)
+            {
+                return (false, "The selected time conflicts with another appointment for this doctor.", null);
+            }
+
+            var requestedStatus = await _context.AppointmentStatuses
+                .FirstOrDefaultAsync(s => s.Name == "Requested");
+
+            if (requestedStatus == null)
+            {
+                return (false, "Requested appointment status was not found.", null);
+            }
+
+            var followUpAppointment = new Appointment
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                StatusId = requestedStatus.Id,
+                AppointmentDate = recommendedDate,
+                StartTime = model.StartTime,
+                EndTime = endTime,
+                Notes = $"Follow-up request from appointment #{originalAppointment.Id}: {model.Reason.Trim()}",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Appointments.Add(followUpAppointment);
+            await _context.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationAsync(
+                originalAppointment.Patient.UserId,
+                "Follow-Up Appointment Requested",
+                $"Dr. {originalAppointment.Doctor.User.FullName} requested a follow-up appointment on {recommendedDate:dd MMM yyyy} at {model.StartTime:HH\\:mm}.",
+                "Appointment",
+                followUpAppointment.Id,
+                nameof(Appointment));
+
+            await _notificationService.CreateNotificationAsync(
+                originalAppointment.Doctor.UserId,
+                "Follow-Up Request Created",
+                $"Follow-up request was created for {originalAppointment.Patient.User.FullName} on {recommendedDate:dd MMM yyyy}.",
+                "Appointment",
+                followUpAppointment.Id,
+                nameof(Appointment));
+
+            return (true, null, followUpAppointment.Id);
+        }
         private async Task<Doctor?> GetCurrentDoctorAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId)) return null;
