@@ -1579,5 +1579,93 @@ namespace MVCApp.Services
 
             return Math.Round((double)value / total * 100, 1);
         }
+
+        public async Task<ClinicManagerProfileViewModel?> GetProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new ClinicManagerProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<EditClinicManagerProfileViewModel?> GetEditProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new EditClinicManagerProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                CurrentProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<bool> UpdateProfileAsync(
+            string userId,
+            EditClinicManagerProfileViewModel model,
+            string webRootPath)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.FullName = model.FullName;
+            user.PhoneNumber = model.PhoneNumber;
+
+            await _userManager.SetEmailAsync(user, model.Email);
+            await _userManager.SetUserNameAsync(user, model.Email);
+
+            if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
+            {
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLower();
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return false;
+                }
+
+                var uploadsFolder = Path.Combine(webRootPath, "images", "managers");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = $"manager-{user.Id}-{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProfilePictureFile.CopyToAsync(stream);
+                }
+
+                user.ProfilePicture = fileName;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
     }
 }

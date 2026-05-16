@@ -153,5 +153,15 @@ namespace MVCApp.Services.Interfaces
 
         // Marks all notifications as read.
         Task MarkAllNotificationsAsReadAsync(string userId);
+
+        Task<ClinicManagerProfileViewModel?> GetProfileAsync(string userId);
+
+        Task<EditClinicManagerProfileViewModel?> GetEditProfileAsync(string userId);
+
+        Task<bool> UpdateProfileAsync(
+            string userId,
+            EditClinicManagerProfileViewModel model,
+            string webRootPath);
+
     }
 }
