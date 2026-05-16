@@ -55,17 +55,7 @@ Patients and receptionists can book appointments by selecting specialization, do
 
 The ERD represents the main GentleCare database structure, including users, roles, doctors, patients, appointments, schedules, leaves, specializations, visit records, prescriptions, and notifications.
 
-Add the ERD image to the repository using this path:
-
-```text
-MVCApp/wwwroot/images/gentlecare-erd.jpeg
-```
-
-Then display it in the README:
-
-```md
 ![GentleCare ERD](MVCApp/wwwroot/images/gentlecare-erd.jpeg)
-```
 
 ---
 
