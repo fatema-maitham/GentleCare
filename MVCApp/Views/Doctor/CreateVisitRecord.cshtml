@@ -52,9 +52,7 @@
     </div>
 
     <!-- Visit record form -->
-    <form asp-controller="VisitRecord"
-          asp-action="CreateVisitRecord"
-          method="post">
+    <form action="/Doctor/CreateVisitRecord" method="post">
 
         @Html.AntiForgeryToken()
 

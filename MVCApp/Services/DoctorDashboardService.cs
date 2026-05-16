@@ -113,8 +113,6 @@ namespace MVCApp.Services
             if (doctor == null)
                 return null;
 
-            var profilePicture = doctor.User.ProfilePicture;
-
             return new DoctorProfileViewModel
             {
                 DoctorId = doctor.Id,
@@ -122,7 +120,7 @@ namespace MVCApp.Services
                 Email = doctor.User.Email ?? "",
                 LicenseNumber = doctor.LicenseNumber,
                 Bio = doctor.Bio,
-                ProfilePicture = profilePicture,
+                ProfilePicture = doctor.User.ProfilePicture,
 
                 Specializations = doctor.DoctorSpecializations
                     .Select(ds => ds.Specialization.Name)
@@ -139,8 +137,6 @@ namespace MVCApp.Services
             if (doctor == null)
                 return null;
 
-            var profilePicture = doctor.User.ProfilePicture;
-
             return new EditDoctorProfileViewModel
             {
                 DoctorId = doctor.Id,
@@ -148,7 +144,7 @@ namespace MVCApp.Services
                 Email = doctor.User.Email ?? "",
                 LicenseNumber = doctor.LicenseNumber,
                 Bio = doctor.Bio,
-                CurrentProfilePicture = profilePicture
+                CurrentProfilePicture = doctor.User.ProfilePicture
             };
         }
 

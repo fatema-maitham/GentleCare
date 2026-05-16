@@ -30,6 +30,7 @@ namespace MVCApp.Controllers
             ViewData["Title"] = "Create Visit Record";
 
             var model = await _visitRecordService.GetCreateVisitRecordAsync(GetCurrentUserId(), appointmentId);
+
             if (model == null)
             {
                 TempData["Error"] = "Visit record cannot be created for this appointment.";
@@ -40,11 +41,19 @@ namespace MVCApp.Controllers
         }
 
         // Saves the new visit record and optional prescriptions.
-        [HttpPost("CreateVisitRecord")]
+        // This accepts both:
+        // /Doctor/CreateVisitRecord
+        // /Doctor/CreateVisitRecord/21
+        [HttpPost("CreateVisitRecord/{appointmentId:int?}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateVisitRecord(CreateVisitRecordViewModel model)
+        public async Task<IActionResult> CreateVisitRecord(int? appointmentId, CreateVisitRecordViewModel model)
         {
             ViewData["Title"] = "Create Visit Record";
+
+            if (appointmentId.HasValue && model.AppointmentId == 0)
+            {
+                model.AppointmentId = appointmentId.Value;
+            }
 
             if (!ModelState.IsValid)
             {
@@ -53,14 +62,19 @@ namespace MVCApp.Controllers
             }
 
             var result = await _visitRecordService.CreateVisitRecordAsync(GetCurrentUserId(), model);
+
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unable to create visit record.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.ErrorMessage ?? "Unable to create visit record.");
+
                 await RefillCreateVisitRecordMetaAsync(model);
                 return View("~/Views/Doctor/CreateVisitRecord.cshtml", model);
             }
 
             TempData["Success"] = "Visit record created successfully.";
+
             return RedirectToAction("AppointmentDetails", "DoctorAppointment", new { id = result.AppointmentId });
         }
 
@@ -71,6 +85,7 @@ namespace MVCApp.Controllers
             ViewData["Title"] = "Edit Visit Record";
 
             var model = await _visitRecordService.GetEditVisitRecordAsync(GetCurrentUserId(), appointmentId);
+
             if (model == null)
             {
                 TempData["Error"] = "No visit record exists for this appointment.";
@@ -81,11 +96,19 @@ namespace MVCApp.Controllers
         }
 
         // Saves edited visit record and prescriptions.
-        [HttpPost("EditVisitRecord")]
+        // This accepts both:
+        // /Doctor/EditVisitRecord
+        // /Doctor/EditVisitRecord/21
+        [HttpPost("EditVisitRecord/{appointmentId:int?}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditVisitRecord(EditVisitRecordViewModel model)
+        public async Task<IActionResult> EditVisitRecord(int? appointmentId, EditVisitRecordViewModel model)
         {
             ViewData["Title"] = "Edit Visit Record";
+
+            if (appointmentId.HasValue && model.AppointmentId == 0)
+            {
+                model.AppointmentId = appointmentId.Value;
+            }
 
             if (!ModelState.IsValid)
             {
@@ -94,20 +117,28 @@ namespace MVCApp.Controllers
             }
 
             var result = await _visitRecordService.EditVisitRecordAsync(GetCurrentUserId(), model);
+
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unable to update visit record.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.ErrorMessage ?? "Unable to update visit record.");
+
                 await RefillEditVisitRecordMetaAsync(model);
                 return View("~/Views/Doctor/EditVisitRecord.cshtml", model);
             }
 
             TempData["Success"] = "Visit record updated successfully.";
+
             return RedirectToAction("AppointmentDetails", "DoctorAppointment", new { id = result.AppointmentId });
         }
 
         private async Task RefillCreateVisitRecordMetaAsync(CreateVisitRecordViewModel model)
         {
-            var freshModel = await _visitRecordService.GetCreateVisitRecordAsync(GetCurrentUserId(), model.AppointmentId);
+            var freshModel = await _visitRecordService.GetCreateVisitRecordAsync(
+                GetCurrentUserId(),
+                model.AppointmentId);
+
             if (freshModel == null)
             {
                 return;
@@ -118,11 +149,19 @@ namespace MVCApp.Controllers
             model.AppointmentDate = freshModel.AppointmentDate;
             model.StartTime = freshModel.StartTime;
             model.EndTime = freshModel.EndTime;
+
+            if (model.Prescriptions == null || model.Prescriptions.Count == 0)
+            {
+                model.Prescriptions = freshModel.Prescriptions;
+            }
         }
 
         private async Task RefillEditVisitRecordMetaAsync(EditVisitRecordViewModel model)
         {
-            var freshModel = await _visitRecordService.GetEditVisitRecordAsync(GetCurrentUserId(), model.AppointmentId);
+            var freshModel = await _visitRecordService.GetEditVisitRecordAsync(
+                GetCurrentUserId(),
+                model.AppointmentId);
+
             if (freshModel == null)
             {
                 return;
@@ -133,6 +172,11 @@ namespace MVCApp.Controllers
             model.AppointmentDate = freshModel.AppointmentDate;
             model.StartTime = freshModel.StartTime;
             model.EndTime = freshModel.EndTime;
+
+            if (model.Prescriptions == null || model.Prescriptions.Count == 0)
+            {
+                model.Prescriptions = freshModel.Prescriptions;
+            }
         }
 
         private string GetCurrentUserId()
