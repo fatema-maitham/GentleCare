@@ -1393,8 +1393,15 @@ namespace MVCApp.Services
             var appointments = await _context.Appointments
                 .AsNoTracking()
                 .Include(a => a.Status)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.DoctorSpecializations)
+                        .ThenInclude(ds => ds.Specialization)
+                .Include(a => a.VisitRecord)
+                    .ThenInclude(v => v!.Prescriptions)
                 .Where(a => a.AppointmentDate.Date >= start && a.AppointmentDate.Date <= end)
                 .ToListAsync();
 
@@ -1402,12 +1409,189 @@ namespace MVCApp.Services
                 .AsNoTracking()
                 .Include(d => d.User)
                 .Include(d => d.Leaves)
+                .Include(d => d.DoctorSpecializations)
+                    .ThenInclude(ds => ds.Specialization)
                 .ToListAsync();
 
             var totalAppointments = appointments.Count;
             var completed = appointments.Count(a => a.Status.Name == StatusNames.Completed);
             var cancelled = appointments.Count(a => a.Status.Name == StatusNames.Cancelled);
             var missed = appointments.Count(a => a.Status.Name == StatusNames.Missed);
+
+            var doctorReports = appointments
+                .GroupBy(a => new
+                {
+                    a.DoctorId,
+                    a.Doctor.User.FullName,
+                    a.Doctor.User.Email,
+                    a.Doctor.LicenseNumber
+                })
+                .Select(g =>
+                {
+                    var doctorTotal = g.Count();
+                    var doctorCompleted = g.Count(a => a.Status.Name == StatusNames.Completed);
+                    var doctorCancelled = g.Count(a => a.Status.Name == StatusNames.Cancelled);
+                    var doctorMissed = g.Count(a => a.Status.Name == StatusNames.Missed);
+
+                    return new ClinicReportItemViewModel
+                    {
+                        DoctorId = g.Key.DoctorId,
+                        DoctorName = g.Key.FullName,
+                        DoctorEmail = g.Key.Email ?? string.Empty,
+                        LicenseNumber = g.Key.LicenseNumber,
+                        TotalAppointments = doctorTotal,
+                        CompletedAppointments = doctorCompleted,
+                        CancelledAppointments = doctorCancelled,
+                        MissedAppointments = doctorMissed,
+                        RemainingAppointments = doctorTotal - doctorCompleted - doctorCancelled - doctorMissed,
+                        CompletionRate = CalculateRate(doctorCompleted, doctorTotal),
+                        CancellationRate = CalculateRate(doctorCancelled, doctorTotal),
+                        MissedRate = CalculateRate(doctorMissed, doctorTotal),
+                        UtilizationRate = CalculateRate(doctorTotal, totalAppointments)
+                    };
+                })
+                .OrderByDescending(r => r.TotalAppointments)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var specializationDemandReports = appointments
+                .SelectMany(a => a.Doctor.DoctorSpecializations.Select(ds => new
+                {
+                    SpecializationName = ds.Specialization.Name,
+                    a.DoctorId
+                }))
+                .GroupBy(x => x.SpecializationName)
+                .Select(g => new SpecializationDemandReportViewModel
+                {
+                    SpecializationName = g.Key,
+                    AppointmentCount = g.Count(),
+                    DoctorCount = g.Select(x => x.DoctorId).Distinct().Count(),
+                    DemandRate = CalculateRate(g.Count(), totalAppointments)
+                })
+                .OrderByDescending(r => r.AppointmentCount)
+                .ThenBy(r => r.SpecializationName)
+                .ToList();
+
+            var busiestHourReports = appointments
+                .GroupBy(a => a.StartTime.Hour)
+                .Select(g => new BusiestHourReportViewModel
+                {
+                    Hour = g.Key,
+                    TimeSlot = $"{g.Key:00}:00 - {g.Key:00}:59",
+                    AppointmentCount = g.Count(),
+                    AppointmentRate = CalculateRate(g.Count(), totalAppointments)
+                })
+                .OrderByDescending(r => r.AppointmentCount)
+                .ThenBy(r => r.Hour)
+                .ToList();
+
+            var doctorLeaveImpactReports = doctors
+                .SelectMany(doctor => doctor.Leaves
+                    .Where(leave => leave.StartDate.Date <= end && leave.EndDate.Date >= start)
+                    .Select(leave =>
+                    {
+                        var leaveStart = leave.StartDate.Date < start ? start : leave.StartDate.Date;
+                        var leaveEnd = leave.EndDate.Date > end ? end : leave.EndDate.Date;
+
+                        var affectedAppointments = appointments.Count(a =>
+                            a.DoctorId == doctor.Id &&
+                            a.AppointmentDate.Date >= leaveStart &&
+                            a.AppointmentDate.Date <= leaveEnd &&
+                            a.Status.Name != StatusNames.Cancelled);
+
+                        return new DoctorLeaveImpactReportViewModel
+                        {
+                            DoctorName = doctor.User.FullName,
+                            LeaveStartDate = leave.StartDate,
+                            LeaveEndDate = leave.EndDate,
+                            Reason = string.IsNullOrWhiteSpace(leave.Reason) ? "No reason recorded" : leave.Reason,
+                            AffectedAppointments = affectedAppointments
+                        };
+                    }))
+                .OrderByDescending(r => r.AffectedAppointments)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var missedAppointmentRiskReports = appointments
+                .Where(a => a.Status.Name == StatusNames.Missed)
+                .GroupBy(a => new
+                {
+                    a.PatientId,
+                    a.Patient.User.FullName,
+                    a.Patient.CPRNumber
+                })
+                .Select(g =>
+                {
+                    var patientTotalAppointments = appointments.Count(a => a.PatientId == g.Key.PatientId);
+                    var missedCount = g.Count();
+
+                    return new MissedAppointmentRiskReportViewModel
+                    {
+                        PatientId = g.Key.PatientId,
+                        PatientName = g.Key.FullName,
+                        CPRNumber = g.Key.CPRNumber,
+                        TotalAppointments = patientTotalAppointments,
+                        MissedAppointments = missedCount,
+                        LastMissedDate = g.Max(a => a.AppointmentDate),
+                        MissedRate = CalculateRate(missedCount, patientTotalAppointments)
+                    };
+                })
+                .OrderByDescending(r => r.MissedAppointments)
+                .ThenByDescending(r => r.MissedRate)
+                .ThenBy(r => r.PatientName)
+                .ToList();
+
+            var cancellationReasonReports = appointments
+                .Where(a => a.Status.Name == StatusNames.Cancelled)
+                .GroupBy(a => string.IsNullOrWhiteSpace(a.CancellationReason)
+                    ? "No reason recorded"
+                    : a.CancellationReason.Trim())
+                .Select(g => new CancellationReasonReportViewModel
+                {
+                    Reason = g.Key,
+                    Count = g.Count(),
+                    Rate = CalculateRate(g.Count(), cancelled)
+                })
+                .OrderByDescending(r => r.Count)
+                .ThenBy(r => r.Reason)
+                .ToList();
+
+            var prescriptionVolumeReports = appointments
+                .Where(a => a.VisitRecord != null)
+                .GroupBy(a => new
+                {
+                    a.DoctorId,
+                    a.Doctor.User.FullName,
+                    Specializations = string.Join(", ",
+                        a.Doctor.DoctorSpecializations
+                            .Select(ds => ds.Specialization.Name)
+                            .Distinct()
+                            .OrderBy(name => name))
+                })
+                .Select(g =>
+                {
+                    var visitRecords = g.Count(a => a.VisitRecord != null);
+                    var prescriptionCount = g.Sum(a => a.VisitRecord?.Prescriptions.Count ?? 0);
+
+                    return new PrescriptionVolumeReportViewModel
+                    {
+                        DoctorId = g.Key.DoctorId,
+                        DoctorName = g.Key.FullName,
+                        Specializations = string.IsNullOrWhiteSpace(g.Key.Specializations)
+                            ? "No specialization"
+                            : g.Key.Specializations,
+                        VisitRecords = visitRecords,
+                        PrescriptionCount = prescriptionCount,
+                        PrescriptionRate = CalculateRate(prescriptionCount, visitRecords)
+                    };
+                })
+                .OrderByDescending(r => r.PrescriptionCount)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var busiestDoctor = doctorReports.FirstOrDefault();
+            var busiestSpecialization = specializationDemandReports.FirstOrDefault();
+            var busiestHour = busiestHourReports.FirstOrDefault();
 
             return new ClinicReportViewModel
             {
@@ -1433,41 +1617,20 @@ namespace MVCApp.Services
                 CancellationRate = CalculateRate(cancelled, totalAppointments),
                 MissedRate = CalculateRate(missed, totalAppointments),
 
-                DoctorReports = appointments
-                    .GroupBy(a => new
-                    {
-                        a.DoctorId,
-                        a.Doctor.User.FullName,
-                        a.Doctor.User.Email,
-                        a.Doctor.LicenseNumber
-                    })
-                    .Select(g =>
-                    {
-                        var doctorTotal = g.Count();
-                        var doctorCompleted = g.Count(a => a.Status.Name == StatusNames.Completed);
-                        var doctorCancelled = g.Count(a => a.Status.Name == StatusNames.Cancelled);
-                        var doctorMissed = g.Count(a => a.Status.Name == StatusNames.Missed);
+                BusiestDoctorName = busiestDoctor == null ? "None" : $"Dr. {busiestDoctor.DoctorName}",
+                BusiestSpecializationName = busiestSpecialization?.SpecializationName ?? "None",
+                BusiestHourText = busiestHour?.TimeSlot ?? "None",
 
-                        return new ClinicReportItemViewModel
-                        {
-                            DoctorId = g.Key.DoctorId,
-                            DoctorName = g.Key.FullName,
-                            DoctorEmail = g.Key.Email ?? string.Empty,
-                            LicenseNumber = g.Key.LicenseNumber,
-                            TotalAppointments = doctorTotal,
-                            CompletedAppointments = doctorCompleted,
-                            CancelledAppointments = doctorCancelled,
-                            MissedAppointments = doctorMissed,
-                            RemainingAppointments = doctorTotal - doctorCompleted - doctorCancelled - doctorMissed,
-                            CompletionRate = CalculateRate(doctorCompleted, doctorTotal),
-                            CancellationRate = CalculateRate(doctorCancelled, doctorTotal),
-                            MissedRate = CalculateRate(doctorMissed, doctorTotal)
-                        };
-                    })
-                    .OrderByDescending(r => r.TotalAppointments)
-                    .ToList()
+                DoctorReports = doctorReports,
+                SpecializationDemandReports = specializationDemandReports,
+                BusiestHourReports = busiestHourReports,
+                DoctorLeaveImpactReports = doctorLeaveImpactReports,
+                MissedAppointmentRiskReports = missedAppointmentRiskReports,
+                CancellationReasonReports = cancellationReasonReports,
+                PrescriptionVolumeReports = prescriptionVolumeReports
             };
         }
+
 
         // =========================
         // Notifications

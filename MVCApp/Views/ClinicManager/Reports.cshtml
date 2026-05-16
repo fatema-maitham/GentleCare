@@ -5,11 +5,10 @@
 }
 
 <div class="reports-page">
-
     <div class="reports-header">
         <div>
             <h1>Clinic Reports</h1>
-            <p>Operational reports for clinic performance, doctor workload, and appointment outcomes.</p>
+            <p>Operational reports for clinic performance, doctor workload, demand, attendance, leave impact, cancellations, and prescriptions.</p>
         </div>
     </div>
 
@@ -32,22 +31,16 @@
         <form asp-controller="ClinicManager" asp-action="Reports" method="get" class="filter-form">
             <div class="form-group">
                 <label for="fromDate">From Date</label>
-                <input type="date"
-                       id="fromDate"
-                       name="fromDate"
-                       value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+                <input type="date" id="fromDate" name="fromDate" value="@Model.FromDate.ToString("yyyy-MM-dd")" />
             </div>
 
             <div class="form-group">
                 <label for="toDate">To Date</label>
-                <input type="date"
-                       id="toDate"
-                       name="toDate"
-                       value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+                <input type="date" id="toDate" name="toDate" value="@Model.ToDate.ToString("yyyy-MM-dd")" />
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn-main">Generate Report</button>
+                <button type="submit" class="btn-main">Generate</button>
                 <a asp-action="Reports" class="btn-light">Reset</a>
             </div>
         </form>
@@ -56,68 +49,30 @@
     <div class="report-card">
         <div class="report-card-header">
             <h2>Monthly Clinic Performance Report</h2>
-            <span>Clinic activity summary</span>
+            <span>Overall clinic activity</span>
         </div>
 
         <div class="summary-grid">
-            <div class="summary-box">
-                <span>Total Appointments</span>
-                <strong>@Model.TotalAppointments</strong>
-            </div>
-
-            <div class="summary-box">
-                <span>Completed Visits</span>
-                <strong>@Model.CompletedAppointments</strong>
-            </div>
-
-            <div class="summary-box">
-                <span>Cancelled</span>
-                <strong>@Model.CancelledAppointments</strong>
-            </div>
-
-            <div class="summary-box">
-                <span>Missed</span>
-                <strong>@Model.MissedAppointments</strong>
-            </div>
+            <div class="summary-box"><span>Total Appointments</span><strong>@Model.TotalAppointments</strong></div>
+            <div class="summary-box"><span>Completed</span><strong>@Model.CompletedAppointments</strong></div>
+            <div class="summary-box"><span>Cancelled</span><strong>@Model.CancelledAppointments</strong></div>
+            <div class="summary-box"><span>Missed</span><strong>@Model.MissedAppointments</strong></div>
         </div>
 
-        <div class="rate-grid">
-            <div class="rate-box">
-                <span>Completion Rate</span>
-                <strong>@Model.CompletionRate.ToString("0.##")%</strong>
-            </div>
-
-            <div class="rate-box">
-                <span>Cancellation Rate</span>
-                <strong>@Model.CancellationRate.ToString("0.##")%</strong>
-            </div>
-
-            <div class="rate-box">
-                <span>Total Doctors</span>
-                <strong>@Model.TotalDoctors</strong>
-            </div>
-
-            <div class="rate-box">
-                <span>Active Doctors</span>
-                <strong>@Model.ActiveDoctors</strong>
-            </div>
-
-            <div class="rate-box">
-                <span>Doctors With Appointments</span>
-                <strong>@Model.DoctorsWithAppointments</strong>
-            </div>
-
-            <div class="rate-box">
-                <span>Doctors On Leave</span>
-                <strong>@Model.DoctorsOnLeave</strong>
-            </div>
+        <div class="mini-grid">
+            <div class="mini-box"><span>Completion Rate</span><strong>@Model.CompletionRate.ToString("0.##")%</strong></div>
+            <div class="mini-box"><span>Cancellation Rate</span><strong>@Model.CancellationRate.ToString("0.##")%</strong></div>
+            <div class="mini-box"><span>Missed Rate</span><strong>@Model.MissedRate.ToString("0.##")%</strong></div>
+            <div class="mini-box"><span>Busiest Doctor</span><strong>@Model.BusiestDoctorName</strong></div>
+            <div class="mini-box"><span>Busiest Specialization</span><strong>@Model.BusiestSpecializationName</strong></div>
+            <div class="mini-box"><span>Busiest Hour</span><strong>@Model.BusiestHourText</strong></div>
         </div>
     </div>
 
     <div class="report-card">
         <div class="report-card-header">
             <h2>Doctor Utilization Report</h2>
-            <span>Workload and performance</span>
+            <span>Doctor workload and performance</span>
         </div>
 
         @if (Model.HasDoctorReports)
@@ -132,11 +87,11 @@
                             <th>Cancelled</th>
                             <th>Missed</th>
                             <th>Remaining</th>
-                            <th>Completion Rate</th>
+                            <th>Completion</th>
+                            <th>Utilization</th>
                             <th>Workload</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         @foreach (var item in Model.DoctorReports)
                         {
@@ -151,9 +106,8 @@
                                 <td>@item.MissedAppointments</td>
                                 <td>@item.RemainingAppointments</td>
                                 <td>@item.CompletionRate.ToString("0.##")%</td>
-                                <td>
-                                    <span class="pill">@item.WorkloadLevel</span>
-                                </td>
+                                <td>@item.UtilizationRate.ToString("0.##")%</td>
+                                <td><span class="pill">@item.WorkloadLevel</span></td>
                             </tr>
                         }
                     </tbody>
@@ -166,55 +120,241 @@
         }
     </div>
 
-    <div class="report-card">
-        <div class="report-card-header">
-            <h2>Available Report Types</h2>
-            <span>Manager reporting scope</span>
+    <div class="two-column-grid">
+        <div class="report-card">
+            <div class="report-card-header">
+                <h2>Specialization Demand Report</h2>
+                <span>Most requested services</span>
+            </div>
+
+            @if (Model.HasSpecializationDemandReports)
+            {
+                <div class="table-wrap">
+                    <table class="reports-table compact">
+                        <thead>
+                            <tr>
+                                <th>Specialization</th>
+                                <th>Appointments</th>
+                                <th>Doctors</th>
+                                <th>Demand</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SpecializationDemandReports)
+                            {
+                                <tr>
+                                    <td><strong>@item.SpecializationName</strong></td>
+                                    <td>@item.AppointmentCount</td>
+                                    <td>@item.DoctorCount</td>
+                                    <td>@item.DemandRate.ToString("0.##")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">No specialization demand data found.</div>
+            }
         </div>
 
-        <div class="report-type-grid">
-            <div class="report-type">
-                <strong>Doctor Utilization Report</strong>
-                <p>Displays doctor workload statistics, completed visits, cancellations, missed appointments, and utilization percentage.</p>
+        <div class="report-card">
+            <div class="report-card-header">
+                <h2>Busiest Hours Report</h2>
+                <span>Most crowded time slots</span>
             </div>
 
-            <div class="report-type">
-                <strong>Monthly Clinic Performance Report</strong>
-                <p>Summarizes total appointments, completion rate, cancellation rate, and overall clinic activity.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Specialization Demand Report</strong>
-                <p>Shows which medical specializations are most requested by patients for resource planning.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Busiest Hours Report</strong>
-                <p>Identifies the most crowded appointment time slots during the day to improve scheduling.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Doctor Leave Impact Report</strong>
-                <p>Displays appointments affected by doctor leave periods and operational schedule changes.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Missed Appointment Risk Report</strong>
-                <p>Highlights patients with repeated missed appointments to reduce no-shows.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Cancellation Reason Analysis Report</strong>
-                <p>Analyzes common cancellation reasons to identify appointment scheduling issues.</p>
-            </div>
-
-            <div class="report-type">
-                <strong>Prescription Volume Report</strong>
-                <p>Shows prescription activity by doctor or specialization to monitor treatment workload.</p>
-            </div>
+            @if (Model.HasBusiestHourReports)
+            {
+                <div class="table-wrap">
+                    <table class="reports-table compact">
+                        <thead>
+                            <tr>
+                                <th>Time Slot</th>
+                                <th>Appointments</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.BusiestHourReports)
+                            {
+                                <tr>
+                                    <td><strong>@item.TimeSlot</strong></td>
+                                    <td>@item.AppointmentCount</td>
+                                    <td>@item.AppointmentRate.ToString("0.##")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">No busiest hour data found.</div>
+            }
         </div>
     </div>
 
+    <div class="report-card">
+        <div class="report-card-header">
+            <h2>Doctor Leave Impact Report</h2>
+            <span>Appointments affected by leave periods</span>
+        </div>
+
+        @if (Model.HasDoctorLeaveImpactReports)
+        {
+            <div class="table-wrap">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Leave Period</th>
+                            <th>Reason</th>
+                            <th>Affected Appointments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.DoctorLeaveImpactReports)
+                        {
+                            <tr>
+                                <td><strong>Dr. @item.DoctorName</strong></td>
+                                <td>@item.LeavePeriodText</td>
+                                <td>@item.Reason</td>
+                                <td>@item.AffectedAppointments</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">No doctor leave impact data found for this period.</div>
+        }
+    </div>
+
+    <div class="report-card">
+        <div class="report-card-header">
+            <h2>Missed Appointment Risk Report</h2>
+            <span>Patients with missed appointments</span>
+        </div>
+
+        @if (Model.HasMissedAppointmentRiskReports)
+        {
+            <div class="table-wrap">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>CPR</th>
+                            <th>Total Appointments</th>
+                            <th>Missed</th>
+                            <th>Missed Rate</th>
+                            <th>Last Missed</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MissedAppointmentRiskReports)
+                        {
+                            <tr>
+                                <td><strong>@item.PatientName</strong></td>
+                                <td>@item.CPRNumber</td>
+                                <td>@item.TotalAppointments</td>
+                                <td>@item.MissedAppointments</td>
+                                <td>@item.MissedRate.ToString("0.##")%</td>
+                                <td>@item.LastMissedDateDisplay</td>
+                                <td><span class="pill danger">@item.RiskLevel</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-box">No missed appointment risk data found.</div>
+        }
+    </div>
+
+    <div class="two-column-grid">
+        <div class="report-card">
+            <div class="report-card-header">
+                <h2>Cancellation Reason Analysis Report</h2>
+                <span>Common cancellation reasons</span>
+            </div>
+
+            @if (Model.HasCancellationReasonReports)
+            {
+                <div class="table-wrap">
+                    <table class="reports-table compact">
+                        <thead>
+                            <tr>
+                                <th>Reason</th>
+                                <th>Count</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CancellationReasonReports)
+                            {
+                                <tr>
+                                    <td><strong>@item.Reason</strong></td>
+                                    <td>@item.Count</td>
+                                    <td>@item.Rate.ToString("0.##")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">No cancellation reason data found.</div>
+            }
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-header">
+                <h2>Prescription Volume Report</h2>
+                <span>Treatment workload by doctor</span>
+            </div>
+
+            @if (Model.HasPrescriptionVolumeReports)
+            {
+                <div class="table-wrap">
+                    <table class="reports-table compact">
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Specializations</th>
+                                <th>Visits</th>
+                                <th>Prescriptions</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PrescriptionVolumeReports)
+                            {
+                                <tr>
+                                    <td><strong>Dr. @item.DoctorName</strong></td>
+                                    <td>@item.Specializations</td>
+                                    <td>@item.VisitRecords</td>
+                                    <td>@item.PrescriptionCount</td>
+                                    <td>@item.PrescriptionRate.ToString("0.##")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">No prescription volume data found.</div>
+            }
+        </div>
+    </div>
 </div>
 
 <style>
@@ -226,10 +366,6 @@
     }
 
     .reports-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 18px;
         margin-bottom: 24px;
     }
 
@@ -343,11 +479,6 @@
         color: #ffffff;
     }
 
-        .btn-main:hover {
-            background: #043C4D;
-            color: #ffffff;
-        }
-
     .btn-light {
         background: #F1EFED;
         color: #12262F;
@@ -369,7 +500,7 @@
     }
 
         .summary-box span,
-        .rate-box span {
+        .mini-box span {
             display: block;
             color: #687A80;
             font-size: 13px;
@@ -385,25 +516,31 @@
             line-height: 1;
         }
 
-    .rate-grid {
+    .mini-grid {
         padding: 0 24px 24px;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
     }
 
-    .rate-box {
+    .mini-box {
         background: #ffffff;
         border: 1px solid #E2E8EA;
         border-radius: 16px;
         padding: 15px;
     }
 
-        .rate-box strong {
+        .mini-box strong {
             color: #12262F;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
         }
+
+    .two-column-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
 
     .table-wrap {
         width: 100%;
@@ -415,6 +552,10 @@
         border-collapse: collapse;
         min-width: 850px;
     }
+
+        .reports-table.compact {
+            min-width: 520px;
+        }
 
         .reports-table th {
             background: #F8FAFA;
@@ -463,34 +604,10 @@
         white-space: nowrap;
     }
 
-    .report-type-grid {
-        padding: 24px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .report-type {
-        background: #F7FAFA;
-        border: 1px solid #E2E8EA;
-        border-radius: 17px;
-        padding: 16px;
-    }
-
-        .report-type strong {
-            display: block;
-            color: #12262F;
-            font-size: 15px;
-            font-weight: 900;
-            margin-bottom: 6px;
-        }
-
-        .report-type p {
-            margin: 0;
-            color: #687A80;
-            line-height: 1.55;
-            font-size: 13px;
-            font-weight: 700;
+        .pill.danger {
+            background: #FFF1F0;
+            color: #B42318;
+            border-color: #F3B8B2;
         }
 
     .empty-box {
@@ -526,15 +643,12 @@
     @@media (max-width: 950px) {
         .filter-form,
         .summary-grid,
-        .rate-grid,
-        .report-type-grid {
+        .mini-grid,
+        .two-column-grid {
             grid-template-columns: 1fr;
         }
 
-        .filter-actions {
-            width: 100%;
-        }
-
+        .filter-actions,
         .btn-main,
         .btn-light {
             width: 100%;
