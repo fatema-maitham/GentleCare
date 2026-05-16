@@ -27,6 +27,8 @@
 
         public double MissedRate { get; set; }
 
+        public double UtilizationRate { get; set; }
+
         public string WorkloadLevel
         {
             get
