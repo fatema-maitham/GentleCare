@@ -34,11 +34,13 @@
                 <a asp-controller="Doctor" asp-action="Profile" class="@Active("Doctor", "Profile")">Profile</a>
             }
 
-            if (User.IsInRole("Receptionist"))
+            @if (User.IsInRole("Receptionist"))
             {
                 <a asp-controller="Receptionist" asp-action="Index" class="@Active("Receptionist", "Index")">Dashboard</a>
                 <a asp-controller="Receptionist" asp-action="BookAppointment" class="@Active("Receptionist", "BookAppointment")">Book Appointment</a>
                 <a asp-controller="Receptionist" asp-action="Appointments" class="@Active("Receptionist", "Appointments")">Appointments</a>
+                <a asp-controller="Receptionist" asp-action="PatientSearch" class="@Active("Receptionist", "PatientSearch")">Patient Search</a>
+                <a asp-controller="Receptionist" asp-action="LiveQueue" class="@Active("Receptionist", "LiveQueue")">Live Queue</a>
             }
 
             if (User.IsInRole("ClinicManager"))
