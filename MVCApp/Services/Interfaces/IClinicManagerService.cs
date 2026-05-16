@@ -98,6 +98,14 @@ namespace MVCApp.Services.Interfaces
             int appointmentId,
             string? reason);
 
+        // Reschedules an impacted appointment to one of the suggested available slots.
+        Task<(bool Success, string Message, int? DoctorId)> RescheduleImpactedAppointmentAsync(
+            int appointmentId,
+            int newDoctorId,
+            DateTime newDate,
+            TimeOnly newStartTime,
+            TimeOnly newEndTime);
+
 
         // =========================
         // Clinic Appointment Management

@@ -524,7 +524,18 @@
         {
             <div class="manager-table-wrap">
                 <table class="manager-table">
-                    <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Status</th><th>Impact</th><th>Reason</th><th></th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Status</th>
+                            <th>Impact</th>
+                            <th>Reason</th>
+                            <th>Suggested Reschedule Slots</th>
+                            <th></th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @foreach (var appointment in Model.ImpactedAppointments)
                         {
@@ -535,8 +546,54 @@
                                 <td><span class="status-pill">@appointment.StatusName</span></td>
                                 <td>@appointment.ImpactType</td>
                                 <td>@appointment.ImpactReason</td>
+
+                                <td>
+                                    @if (appointment.HasSuggestions)
+                                    {
+                                        <div style="display:grid; gap:8px; min-width:260px;">
+                                            @foreach (var suggestion in appointment.RescheduleSuggestions)
+                                            {
+                                                <div style="border:1px solid #E2E8EA; border-radius:12px; padding:10px; background:#FAFCFC;">
+                                                    <div style="font-weight:900; color:#12262F;">
+                                                        Dr. @suggestion.DoctorName
+                                                    </div>
+
+                                                    <div class="muted" style="font-size:13px;">
+                                                        @suggestion.DateText, @suggestion.TimeText
+                                                    </div>
+
+                                                    <div style="margin-top:4px;">
+                                                        <span class="status-pill">@suggestion.SpecializationMatchText</span>
+                                                    </div>
+
+                                                    <form asp-controller="ClinicManager" asp-action="RescheduleImpactedAppointment" method="post" style="margin-top:8px;">
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden" name="appointmentId" value="@appointment.AppointmentId" />
+                                                        <input type="hidden" name="newDoctorId" value="@suggestion.DoctorId" />
+                                                        <input type="hidden" name="newDate" value="@suggestion.NewDate.ToString("yyyy-MM-dd")" />
+                                                        <input type="hidden" name="newStartTime" value="@suggestion.NewStartTime.ToString("HH:mm")" />
+                                                        <input type="hidden" name="newEndTime" value="@suggestion.NewEndTime.ToString("HH:mm")" />
+
+                                                        <button type="submit"
+                                                                class="table-link"
+                                                                onclick="return confirm('Reschedule this appointment to the suggested slot?');">
+                                                            Reschedule
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="muted">No available suggestions found.</span>
+                                    }
+                                </td>
+
                                 <td>
                                     <a asp-controller="ClinicManager" asp-action="AppointmentDetails" asp-route-id="@appointment.AppointmentId" class="table-link">Details</a>
+
                                     @if (appointment.CanCancel)
                                     {
                                         <form asp-controller="ClinicManager" asp-action="CancelImpactedAppointment" method="post" style="display:inline;">

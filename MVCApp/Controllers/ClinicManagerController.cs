@@ -481,6 +481,46 @@ namespace MVCApp.Controllers
             return RedirectToAction(nameof(AppointmentImpact), new { doctorId = result.DoctorId });
         }
 
+        // POST: /ClinicManager/RescheduleImpactedAppointment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RescheduleImpactedAppointment(
+            int appointmentId,
+            int newDoctorId,
+            DateTime newDate,
+            string newStartTime,
+            string newEndTime)
+        {
+            if (!TimeOnly.TryParse(newStartTime, out var parsedStartTime) ||
+                !TimeOnly.TryParse(newEndTime, out var parsedEndTime))
+            {
+                TempData["Error"] = "Invalid suggested time selected.";
+                return RedirectToAction(nameof(Doctors));
+            }
+
+            var result = await _clinicManagerService.RescheduleImpactedAppointmentAsync(
+                appointmentId,
+                newDoctorId,
+                newDate,
+                parsedStartTime,
+                parsedEndTime);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+            }
+            else
+            {
+                TempData["Success"] = result.Message;
+            }
+
+            if (result.DoctorId.HasValue)
+            {
+                return RedirectToAction(nameof(AppointmentImpact), new { doctorId = result.DoctorId.Value });
+            }
+
+            return RedirectToAction(nameof(Doctors));
+        }
         // =========================
         // Clinic Appointment Management
         // =========================
