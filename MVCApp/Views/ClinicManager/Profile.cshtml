@@ -1,0 +1,142 @@
+﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerProfileViewModel
+
+@{
+    ViewData["Title"] = "Manager Profile";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
+        ? Url.Content("~/images/default-profile.png")
+        : Url.Content("~/images/managers/" + Model.ProfilePicture);
+}
+
+<div class="profile-page">
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="@profileImage" class="profile-img" alt="Profile picture" />
+
+            <div>
+                <h2>@Model.FullName</h2>
+                <p>Clinic Manager Account</p>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-row">
+                <span>Full Name</span>
+                <strong>@Model.FullName</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Email</span>
+                <strong>@Model.Email</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Phone Number</span>
+                <strong>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added" : Model.PhoneNumber)</strong>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a asp-controller="ClinicManager" asp-action="EditProfile" class="btn-main">
+                Edit Profile
+            </a>
+
+            <a asp-controller="ClinicManager" asp-action="Dashboard" class="btn-light">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-page {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background: #fff;
+        border: 1px solid #d9e2e4;
+        border-radius: 18px;
+        padding: 28px;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .profile-img {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #d9e2e4;
+    }
+
+    .profile-header h2 {
+        margin: 0;
+        color: #12262F;
+        font-weight: 900;
+    }
+
+    .profile-header p {
+        margin: 6px 0 0;
+        color: #00688C;
+        font-weight: 700;
+    }
+
+    .profile-info {
+        margin-top: 24px;
+        display: grid;
+        gap: 14px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 14px 0;
+        border-bottom: 1px solid #f0f2f3;
+    }
+
+        .info-row span {
+            color: #687A80;
+            font-weight: 700;
+        }
+
+        .info-row strong {
+            color: #12262F;
+            text-align: right;
+        }
+
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+    }
+
+    .btn-main,
+    .btn-light {
+        text-decoration: none;
+        border-radius: 12px;
+        padding: 11px 18px;
+        font-weight: 800;
+    }
+
+    .btn-main {
+        background: #00688C;
+        color: #fff;
+    }
+
+    .btn-light {
+        background: #f1efed;
+        color: #12262F;
+        border: 1px solid #d9e2e4;
+    }
+</style>
