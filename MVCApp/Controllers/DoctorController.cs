@@ -41,6 +41,63 @@ namespace MVCApp.Controllers
             return View(model);
         }
 
+        [HttpGet("Schedule")]
+        public async Task<IActionResult> Schedule()
+        {
+            ViewData["Title"] = "My Schedule";
+
+            var model = await _doctorDashboardService.GetScheduleAsync(GetCurrentUserId());
+
+            if (model == null)
+            {
+                TempData["Error"] = "Doctor profile was not found for the current user.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            return View(model);
+        }
+
+        [HttpGet("Notifications")]
+        public async Task<IActionResult> Notifications()
+        {
+            ViewData["Title"] = "My Notifications";
+
+            var model = await _doctorDashboardService.GetNotificationsAsync(GetCurrentUserId());
+
+            if (model == null)
+            {
+                TempData["Error"] = "Doctor profile was not found for the current user.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost("MarkNotificationAsRead")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkNotificationAsRead(int id)
+        {
+            var updated = await _doctorDashboardService.MarkNotificationAsReadAsync(GetCurrentUserId(), id);
+
+            if (!updated)
+            {
+                return NotFound();
+            }
+
+            TempData["Success"] = "Notification marked as read.";
+            return RedirectToAction(nameof(Notifications));
+        }
+
+        [HttpPost("MarkAllNotificationsAsRead")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllNotificationsAsRead()
+        {
+            await _doctorDashboardService.MarkAllNotificationsAsReadAsync(GetCurrentUserId());
+
+            TempData["Success"] = "All notifications marked as read.";
+            return RedirectToAction(nameof(Notifications));
+        }
+
         [HttpGet("Profile")]
         public async Task<IActionResult> Profile()
         {
@@ -97,63 +154,6 @@ namespace MVCApp.Controllers
 
             TempData["Success"] = "Profile updated successfully.";
             return RedirectToAction(nameof(Profile));
-        }
-
-        [HttpGet("Schedule")]
-        public async Task<IActionResult> Schedule()
-        {
-            ViewData["Title"] = "My Schedule";
-
-            var model = await _doctorDashboardService.GetScheduleAsync(GetCurrentUserId());
-
-            if (model == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            return View(model);
-        }
-
-        [HttpGet("Notifications")]
-        public async Task<IActionResult> Notifications()
-        {
-            ViewData["Title"] = "My Notifications";
-
-            var model = await _doctorDashboardService.GetNotificationsAsync(GetCurrentUserId());
-
-            if (model == null)
-            {
-                TempData["Error"] = "Doctor profile was not found for the current user.";
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            return View(model);
-        }
-
-        [HttpPost("MarkNotificationAsRead")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkNotificationAsRead(int id)
-        {
-            var updated = await _doctorDashboardService.MarkNotificationAsReadAsync(GetCurrentUserId(), id);
-
-            if (!updated)
-            {
-                return NotFound();
-            }
-
-            TempData["Success"] = "Notification marked as read.";
-            return RedirectToAction(nameof(Notifications));
-        }
-
-        [HttpPost("MarkAllNotificationsAsRead")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkAllNotificationsAsRead()
-        {
-            await _doctorDashboardService.MarkAllNotificationsAsReadAsync(GetCurrentUserId());
-
-            TempData["Success"] = "All notifications marked as read.";
-            return RedirectToAction(nameof(Notifications));
         }
 
         private string GetCurrentUserId()
