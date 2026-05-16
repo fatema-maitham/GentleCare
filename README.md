@@ -88,9 +88,9 @@ The ERD represents the main GentleCare database structure, including users, role
 ## Detailed Project Structure
 
 ```text
-HCARS/
+GentleCare/
 │
-├── HCARS.sln                                      // Visual Studio solution file
+├── GentleCare.sln                                 // Visual Studio solution file
 ├── README.md                                      // Project documentation
 ├── schema.sql                                     // SQL script for database schema
 ├── seed.sql                                       // SQL script for seeded test data
@@ -675,7 +675,7 @@ The final system is designed to be deployed using Microsoft Azure.
 ## How to Run Locally
 
 1. Clone the repository.
-2. Open `HCARS.sln` in Visual Studio.
+2. Open `GentleCare.sln` in Visual Studio.
 3. Set the correct connection string in `appsettings.json`.
 4. Run database migrations or restore the provided SQL scripts.
 5. Start the WebAPI project.
