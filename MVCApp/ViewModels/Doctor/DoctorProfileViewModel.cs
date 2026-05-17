@@ -18,5 +18,7 @@
 
         // Display helper for the view.
         public bool HasSpecializations => Specializations.Any();
+
+        public string? ProfilePicture { get; set; }
     }
 }

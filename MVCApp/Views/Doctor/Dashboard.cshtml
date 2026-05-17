@@ -6,28 +6,27 @@
 
 <style>
     :root {
-        --gc-blue: #0A4D8F;
-        --gc-blue-dark: #083B70;
-        --gc-nav: #6E88AA;
-        --gc-green: #5FAF8F;
-        --gc-green-dark: #4C9A7C;
-        --gc-green-soft: #E8F5EF;
-        --gc-text: #10233F;
-        --gc-muted: #66758A;
-        --gc-border: #DCE6F2;
-        --gc-page: #F4F8FC;
-        --gc-white: #FFFFFF;
+        --gc-main: #075168;
+        --gc-main-dark: #043C4D;
+        --gc-accent: #00779B;
+        --gc-soft-accent: #E7F1F3;
+        --gc-bg: #F4F1EE;
+        --gc-card: #FFFFFF;
+        --gc-text: #12262F;
+        --gc-muted: #687A80;
+        --gc-border: #D6DDDE;
+        --gc-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
     }
 
     body {
-        background: var(--gc-page) !important;
+        background: var(--gc-bg) !important;
         font-family: "Inter", "Segoe UI", Arial, sans-serif !important;
     }
 
     .doctor-dashboard-page {
         max-width: 1140px;
         margin: 0 auto;
-        padding: 10px 0 42px;
+        padding: 4px 0 42px;
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }
 
@@ -39,12 +38,12 @@
     }
 
     .dashboard-stat {
-        background: var(--gc-white);
+        background: var(--gc-card);
         border: 1px solid var(--gc-border);
         border-radius: 18px;
         padding: 22px;
-        min-height: 118px;
-        box-shadow: 0 10px 26px rgba(10, 77, 143, 0.07);
+        min-height: 116px;
+        box-shadow: var(--gc-shadow);
         position: relative;
         overflow: hidden;
         transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
@@ -55,13 +54,13 @@
             position: absolute;
             inset: 0 auto 0 0;
             width: 5px;
-            background: var(--gc-green);
+            background: var(--gc-main);
         }
 
         .dashboard-stat:hover {
-            transform: translateY(-5px);
-            border-color: #B7D9C8;
-            box-shadow: 0 16px 34px rgba(10, 77, 143, 0.12);
+            transform: translateY(-4px);
+            border-color: #B9CBD0;
+            box-shadow: 0 14px 30px rgba(7, 81, 104, 0.13);
         }
 
     .dashboard-number {
@@ -69,7 +68,7 @@
         font-size: 40px;
         font-weight: 900;
         line-height: 1;
-        color: var(--gc-blue);
+        color: var(--gc-main);
         margin-bottom: 12px;
         letter-spacing: -1px;
     }
@@ -77,7 +76,7 @@
     .dashboard-stat-title {
         margin: 0;
         font-size: 15px;
-        font-weight: 900;
+        font-weight: 800;
         color: var(--gc-text);
         line-height: 1.35;
     }
@@ -89,24 +88,24 @@
     }
 
     .dashboard-card {
-        background: var(--gc-white);
+        background: var(--gc-card);
         border: 1px solid var(--gc-border);
         border-radius: 20px;
-        box-shadow: 0 10px 26px rgba(10, 77, 143, 0.07);
+        box-shadow: var(--gc-shadow);
         overflow: hidden;
     }
 
     .dashboard-card-header {
         padding: 18px 22px;
-        border-bottom: 1px solid #E8EEF6;
-        background: var(--gc-white);
+        border-bottom: 1px solid #E9EEEE;
+        background: var(--gc-card);
     }
 
         .dashboard-card-header h4 {
             margin: 0;
             font-size: 19px;
             font-weight: 900;
-            color: var(--gc-blue);
+            color: var(--gc-main);
             letter-spacing: -0.2px;
         }
 
@@ -129,7 +128,7 @@
 
     .calendar-nav {
         text-decoration: none;
-        color: var(--gc-blue);
+        color: var(--gc-main);
         font-size: 28px;
         font-weight: 900;
         width: 38px;
@@ -142,8 +141,8 @@
     }
 
         .calendar-nav:hover {
-            background: var(--gc-green-soft);
-            color: var(--gc-green-dark);
+            background: var(--gc-soft-accent);
+            color: var(--gc-accent);
             transform: translateY(-1px);
         }
 
@@ -208,8 +207,8 @@
     }
 
         .calendar-day:hover {
-            background: #F1F8F5;
-            color: var(--gc-green-dark);
+            background: var(--gc-soft-accent);
+            color: var(--gc-accent);
             transform: translateY(-1px);
         }
 
@@ -227,9 +226,9 @@
     }
 
     .calendar-day.selected .calendar-day-number {
-        background: var(--gc-blue);
-        color: var(--gc-white);
-        box-shadow: 0 8px 18px rgba(10, 77, 143, 0.24);
+        background: var(--gc-main);
+        color: #FFFFFF;
+        box-shadow: 0 8px 18px rgba(7, 81, 104, 0.24);
     }
 
     .calendar-dot {
@@ -238,7 +237,7 @@
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background: var(--gc-green);
+        background: var(--gc-accent);
     }
 
     .appointments-list {
@@ -252,12 +251,12 @@
         gap: 18px;
         align-items: center;
         padding: 18px 22px;
-        border-bottom: 1px solid #EDF2F8;
+        border-bottom: 1px solid #EDF1F2;
         transition: background-color 0.18s ease;
     }
 
         .appointment-row:hover {
-            background: #FBFDFC;
+            background: #FAFCFC;
         }
 
         .appointment-row:last-child {
@@ -267,7 +266,7 @@
     .appointment-time {
         font-size: 15px;
         font-weight: 900;
-        color: var(--gc-blue);
+        color: var(--gc-main);
         white-space: nowrap;
     }
 
@@ -293,9 +292,9 @@
         display: inline-block;
         padding: 5px 10px;
         border-radius: 999px;
-        background: var(--gc-green-soft);
-        color: #2F6E58;
-        border: 1px solid #B7D9C8;
+        background: var(--gc-soft-accent);
+        color: var(--gc-main);
+        border: 1px solid #C9DBDF;
         font-size: 12px;
         font-weight: 900;
     }
@@ -310,7 +309,7 @@
         margin: 0;
         font-size: 14px;
         line-height: 1.45;
-        color: #41526A;
+        color: #41565D;
     }
 
     .appointment-action {
@@ -320,32 +319,31 @@
     .appointment-btn {
         display: inline-block;
         text-decoration: none;
-        background: var(--gc-green);
-        color: var(--gc-white);
+        background: var(--gc-main);
+        color: #FFFFFF;
         padding: 10px 15px;
         border-radius: 12px;
         font-size: 13px;
         font-weight: 900;
         border: none;
-        box-shadow: 0 8px 18px rgba(95, 175, 143, 0.22);
-        transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        transition: background-color 0.18s ease, transform 0.18s ease;
     }
 
         .appointment-btn:hover {
-            background: var(--gc-green-dark);
-            color: var(--gc-white);
+            background: var(--gc-accent);
+            color: #FFFFFF;
             transform: translateY(-1px);
-            box-shadow: 0 10px 22px rgba(95, 175, 143, 0.28);
         }
 
     .empty-day-message {
         margin: 18px 22px 22px;
         padding: 14px 16px;
         border-radius: 12px;
-        background: #F7FBFF;
-        border: 1px solid #DCE9F7;
+        background: var(--gc-soft-accent);
+        border: 1px solid #C9DBDF;
         color: var(--gc-muted);
         font-size: 14px;
+        font-weight: 700;
     }
 
     @@media (max-width: 980px) {

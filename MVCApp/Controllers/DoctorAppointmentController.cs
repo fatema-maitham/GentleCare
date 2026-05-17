@@ -7,7 +7,6 @@ using WebAPI.Models;
 
 namespace MVCApp.Controllers
 {
-    // Handles Doctor appointment pages: list, details, status update, and patient history.
     [Authorize(Roles = "Doctor")]
     [Route("Doctor")]
     public class DoctorAppointmentController : Controller
@@ -23,13 +22,20 @@ namespace MVCApp.Controllers
             _userManager = userManager;
         }
 
-        // Lists only the logged-in doctor's appointments.
         [HttpGet("Appointments")]
-        public async Task<IActionResult> Appointments(string? searchTerm = null, string? status = null, DateTime? date = null)
+        public async Task<IActionResult> Appointments(
+            string? searchTerm = null,
+            string? status = null,
+            DateTime? date = null)
         {
             ViewData["Title"] = "My Appointments";
 
-            var model = await _doctorAppointmentService.GetAppointmentsAsync(GetCurrentUserId(), searchTerm, status, date);
+            var model = await _doctorAppointmentService.GetAppointmentsAsync(
+                GetCurrentUserId(),
+                searchTerm,
+                status,
+                date);
+
             if (model == null)
             {
                 TempData["Error"] = "Doctor profile was not found for the current user.";
@@ -39,13 +45,15 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/Appointments.cshtml", model);
         }
 
-        // Shows full appointment details.
         [HttpGet("AppointmentDetails/{id:int}")]
         public async Task<IActionResult> AppointmentDetails(int id)
         {
             ViewData["Title"] = "Appointment Details";
 
-            var model = await _doctorAppointmentService.GetAppointmentDetailsAsync(GetCurrentUserId(), id);
+            var model = await _doctorAppointmentService.GetAppointmentDetailsAsync(
+                GetCurrentUserId(),
+                id);
+
             if (model == null)
             {
                 return NotFound();
@@ -54,13 +62,15 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/AppointmentDetails.cshtml", model);
         }
 
-        // Opens update-status page with valid next statuses only.
         [HttpGet("UpdateStatus/{id:int}")]
         public async Task<IActionResult> UpdateStatus(int id)
         {
             ViewData["Title"] = "Update Appointment Status";
 
-            var model = await _doctorAppointmentService.GetUpdateStatusModelAsync(GetCurrentUserId(), id);
+            var model = await _doctorAppointmentService.GetUpdateStatusModelAsync(
+                GetCurrentUserId(),
+                id);
+
             if (model == null)
             {
                 return NotFound();
@@ -75,16 +85,23 @@ namespace MVCApp.Controllers
             return View("~/Views/Doctor/UpdateStatus.cshtml", model);
         }
 
-        // Saves appointment status update.
-        [HttpPost("UpdateStatus")]
+        [HttpPost("UpdateStatus/{id:int?}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(UpdateAppointmentStatusViewModel model)
+        public async Task<IActionResult> UpdateStatus(int? id, UpdateAppointmentStatusViewModel model)
         {
             ViewData["Title"] = "Update Appointment Status";
 
+            if (id.HasValue && model.AppointmentId == 0)
+            {
+                model.AppointmentId = id.Value;
+            }
+
             if (!ModelState.IsValid)
             {
-                var freshModel = await _doctorAppointmentService.GetUpdateStatusModelAsync(GetCurrentUserId(), model.AppointmentId);
+                var freshModel = await _doctorAppointmentService.GetUpdateStatusModelAsync(
+                    GetCurrentUserId(),
+                    model.AppointmentId);
+
                 if (freshModel != null)
                 {
                     model.CurrentStatusName = freshModel.CurrentStatusName;
@@ -94,12 +111,20 @@ namespace MVCApp.Controllers
                 return View("~/Views/Doctor/UpdateStatus.cshtml", model);
             }
 
-            var result = await _doctorAppointmentService.UpdateStatusAsync(GetCurrentUserId(), model);
+            var result = await _doctorAppointmentService.UpdateStatusAsync(
+                GetCurrentUserId(),
+                model);
+
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unable to update appointment status.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.ErrorMessage ?? "Unable to update appointment status.");
 
-                var freshModel = await _doctorAppointmentService.GetUpdateStatusModelAsync(GetCurrentUserId(), model.AppointmentId);
+                var freshModel = await _doctorAppointmentService.GetUpdateStatusModelAsync(
+                    GetCurrentUserId(),
+                    model.AppointmentId);
+
                 if (freshModel != null)
                 {
                     model.CurrentStatusName = freshModel.CurrentStatusName;
@@ -110,22 +135,95 @@ namespace MVCApp.Controllers
             }
 
             TempData["Success"] = "Appointment status updated successfully.";
+
             return RedirectToAction(nameof(AppointmentDetails), new { id = model.AppointmentId });
         }
 
-        // Shows visit history for a patient linked to the logged-in doctor.
         [HttpGet("PatientHistory/{patientId:int}")]
         public async Task<IActionResult> PatientHistory(int patientId)
         {
             ViewData["Title"] = "Patient History";
 
-            var model = await _doctorAppointmentService.GetPatientHistoryAsync(GetCurrentUserId(), patientId);
+            var model = await _doctorAppointmentService.GetPatientHistoryAsync(
+                GetCurrentUserId(),
+                patientId);
+
             if (model == null)
             {
                 return NotFound();
             }
 
             return View("~/Views/Doctor/PatientHistory.cshtml", model);
+        }
+
+        // GET page for follow-up request.
+        // URL: /Doctor/FollowUpRequest/23
+        [HttpGet("FollowUpRequest/{appointmentId:int}")]
+        public async Task<IActionResult> FollowUpRequest(int appointmentId)
+        {
+            ViewData["Title"] = "Create Follow-Up Request";
+
+            var model = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
+                GetCurrentUserId(),
+                appointmentId);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Follow-up request can only be created for completed appointments.";
+                return RedirectToAction(nameof(AppointmentDetails), new { id = appointmentId });
+            }
+
+            return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
+        }
+
+        // POST saves the follow-up request.
+        [HttpPost("CreateFollowUpRequest")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateFollowUpRequest(CreateFollowUpRequestViewModel model)
+        {
+            ViewData["Title"] = "Create Follow-Up Request";
+
+            if (!ModelState.IsValid)
+            {
+                await ReloadFollowUpDisplayDataAsync(model);
+                return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
+            }
+
+            var result = await _doctorAppointmentService.CreateFollowUpRequestAsync(
+                GetCurrentUserId(),
+                model);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.ErrorMessage ?? "Unable to create follow-up request.");
+
+                await ReloadFollowUpDisplayDataAsync(model);
+                return View("~/Views/Doctor/CreateFollowUpRequest.cshtml", model);
+            }
+
+            TempData["Success"] = "Follow-up appointment request created successfully.";
+
+            return RedirectToAction(nameof(AppointmentDetails), new { id = result.NewAppointmentId });
+        }
+
+        private async Task ReloadFollowUpDisplayDataAsync(CreateFollowUpRequestViewModel model)
+        {
+            var freshModel = await _doctorAppointmentService.GetCreateFollowUpRequestAsync(
+                GetCurrentUserId(),
+                model.OriginalAppointmentId);
+
+            if (freshModel == null)
+            {
+                return;
+            }
+
+            model.PatientId = freshModel.PatientId;
+            model.PatientFullName = freshModel.PatientFullName;
+            model.DoctorId = freshModel.DoctorId;
+            model.DoctorFullName = freshModel.DoctorFullName;
+            model.OriginalAppointmentDate = freshModel.OriginalAppointmentDate;
         }
 
         private string GetCurrentUserId()

@@ -1,0 +1,395 @@
+﻿@model MVCApp.ViewModels.Patient.PatientBookAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Book Appointment";
+
+    var todayText = DateTime.Today.ToString("yyyy-MM-dd");
+    var selectedDateIsPast = Model.AppointmentDate.HasValue &&
+                             Model.AppointmentDate.Value.Date < DateTime.Today;
+}
+
+<section class="book-page">
+    <div class="book-card">
+
+        <div class="book-header">
+            <h1>Book Appointment</h1>
+            <p>Select a specialization, doctor, date, and available time.</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="success-message">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="error-message">@TempData["ErrorMessage"]</div>
+        }
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <form asp-controller="Patient"
+              asp-action="BookAppointment"
+              method="get"
+              class="section-box"
+              id="availabilityForm">
+
+            <div class="section-title">
+                <h2>Find a Slot</h2>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="SpecializationId">Specialization</label>
+                    <select asp-for="SpecializationId"
+                            asp-items="Model.SpecializationOptions"
+                            class="form-control auto-submit">
+                        <option value="">Select specialization</option>
+                    </select>
+                    <span asp-validation-for="SpecializationId" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DoctorId">Doctor</label>
+                    <select asp-for="DoctorId"
+                            asp-items="Model.DoctorOptions"
+                            class="form-control auto-submit">
+                        <option value="">Select doctor</option>
+                    </select>
+                    <span asp-validation-for="DoctorId" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AppointmentDate">Appointment Date</label>
+                    <input asp-for="AppointmentDate"
+                           type="date"
+                           min="@todayText"
+                           class="form-control auto-submit" />
+                    <span asp-validation-for="AppointmentDate" class="field-error"></span>
+                </div>
+            </div>
+        </form>
+
+        <form asp-controller="Patient"
+              asp-action="BookAppointment"
+              method="post"
+              class="section-box">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="SpecializationId" />
+            <input type="hidden" asp-for="DoctorId" />
+            <input type="hidden" asp-for="AppointmentDate" />
+
+            <div class="section-title">
+                <h2>Appointment Details</h2>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StartTime">Start Time</label>
+                <select asp-for="StartTime"
+                        asp-items="Model.AvailableSlotOptions"
+                        class="form-control time-select"
+                        disabled="@(selectedDateIsPast ? "disabled" : null)">
+                    <option value="">Select available time</option>
+                </select>
+                <span asp-validation-for="StartTime" class="field-error"></span>
+
+                @if (Model.DoctorId != null && Model.AppointmentDate != null)
+                {
+                    if (selectedDateIsPast)
+                    {
+                        <div class="booking-warning">
+                            Please choose today or a future date.
+                        </div>
+                    }
+                    else if (Model.AvailableSlotOptions == null || !Model.AvailableSlotOptions.Any())
+                    {
+                        <div class="booking-warning">
+                            No available slots for this doctor on the selected date.
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="booking-note">
+                        Select a specialization, doctor, and date to view available times.
+                    </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Notes">Notes</label>
+                <textarea asp-for="Notes"
+                          class="form-control textarea"
+                          placeholder="Optional notes for the clinic"></textarea>
+                <span asp-validation-for="Notes" class="field-error"></span>
+            </div>
+
+            <div class="actions">
+                <button type="submit"
+                        class="gc-btn-primary"
+                        disabled="@(selectedDateIsPast ? "disabled" : null)">
+                    Request Appointment
+                </button>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("availabilityForm");
+            const specialization = document.getElementById("SpecializationId");
+            const doctor = document.getElementById("DoctorId");
+            const date = document.getElementById("AppointmentDate");
+
+            const today = new Date().toISOString().split("T")[0];
+
+            if (date) {
+                date.setAttribute("min", today);
+            }
+
+            function submitAvailabilityForm() {
+                if (specialization.value || doctor.value || date.value) {
+                    form.submit();
+                }
+            }
+
+            if (specialization) {
+                specialization.addEventListener("change", function () {
+                    if (doctor) {
+                        doctor.value = "";
+                    }
+
+                    submitAvailabilityForm();
+                });
+            }
+
+            if (doctor) {
+                doctor.addEventListener("change", submitAvailabilityForm);
+            }
+
+            if (date) {
+                date.addEventListener("change", submitAvailabilityForm);
+            }
+        });
+    </script>
+}
+
+<style>
+    .book-page {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 36px 12px 70px;
+    }
+
+    .book-card {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 44px;
+        box-shadow: 0 16px 40px rgba(24, 35, 51, 0.08);
+        border: 1px solid #e3eaee;
+    }
+
+    .book-header {
+        margin-bottom: 26px;
+    }
+
+        .book-header h1 {
+            margin: 0;
+            font-size: 42px;
+            font-weight: 900;
+            color: #182333;
+            line-height: 1.1;
+        }
+
+        .book-header p {
+            margin: 10px 0 0;
+            color: #526273;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+    .section-box {
+        background: #f8fafb;
+        border: 1px solid #e2e8ea;
+        border-radius: 24px;
+        padding: 26px;
+        margin-top: 22px;
+    }
+
+    .section-title {
+        margin-bottom: 18px;
+    }
+
+        .section-title h2 {
+            margin: 0;
+            color: #182333;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 18px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #182333;
+        font-weight: 900;
+        font-size: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 54px;
+        border: 1px solid #d6e0e4;
+        border-radius: 15px;
+        padding: 12px 15px;
+        background: #ffffff;
+        color: #182333;
+        outline: none;
+        font-weight: 800;
+        font-size: 15px;
+    }
+
+        .form-control:focus {
+            border-color: #637fa3;
+            box-shadow: 0 0 0 4px rgba(99, 127, 163, 0.13);
+        }
+
+        .form-control:disabled {
+            background: #edf2f5;
+            cursor: not-allowed;
+            color: #7a8b95;
+        }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: auto;
+    }
+
+    .textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .booking-note,
+    .booking-warning {
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .booking-note {
+        background: #eef6f8;
+        color: #075168;
+        border: 1px solid #d4e6eb;
+    }
+
+    .booking-warning {
+        background: #fff1f0;
+        color: #b42318;
+        border: 1px solid #f3b8b2;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 22px;
+    }
+
+    .gc-btn-primary {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 230px;
+        border-radius: 999px;
+        padding: 13px 26px;
+        font-weight: 900;
+        text-decoration: none;
+        border: 0;
+        transition: 0.2s ease;
+        cursor: pointer;
+        background: #637fa3;
+        color: white;
+        font-size: 15px;
+    }
+
+        .gc-btn-primary:hover {
+            transform: translateY(-2px);
+            color: white;
+            background: #4f6b8f;
+        }
+
+        .gc-btn-primary:disabled {
+            background: #a7b4bf;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .success-message {
+        background: #e8f7ef;
+        color: #1d6b42;
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-weight: 900;
+        margin-bottom: 18px;
+        border: 1px solid #b7e4c7;
+    }
+
+    .error-message {
+        background: #fff1f0;
+        color: #b42318;
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-weight: 900;
+        margin-bottom: 18px;
+        border: 1px solid #f3b8b2;
+    }
+
+    .validation-summary,
+    .field-error {
+        color: #b42318;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 900px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .book-card {
+            padding: 30px 22px;
+        }
+
+        .book-header h1 {
+            font-size: 34px;
+        }
+
+        .actions {
+            justify-content: stretch;
+        }
+
+        .gc-btn-primary {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+</style>

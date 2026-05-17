@@ -2,21 +2,23 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Models;
+using WebAPI.Hubs;
+using WebAPI.Services;
 using MVCApp.Services;
 using MVCApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MVC services.
+// MVC views/controllers
 builder.Services.AddControllersWithViews();
 
-// Use the shared DbContext from the WebAPI project.
+// Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-// Identity setup using the shared ApplicationUser model.
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -27,7 +29,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Cookie settings for MVC login/logout/access denied.
+// Cookie routes
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -35,31 +37,36 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Account/Logout";
 });
 
-// Session if needed by MVC pages.
+// Session
 builder.Services.AddSession();
 
-// HttpClient for the public lookup page that calls the Web API.
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddScoped<NotificationHubService>();
+
+// API connection for Public Lookup only
 builder.Services.AddHttpClient("WebAPI", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7117/");
 });
 
-
-// Custom MVC services.
+// App services
 builder.Services.AddScoped<IAppointmentWorkflowService, AppointmentWorkflowService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
 builder.Services.AddScoped<IClinicManagerService, ClinicManagerService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IClinicNotificationService, ClinicNotificationService>();
+builder.Services.AddScoped<IReceptionistService, ReceptionistService>();
 
 builder.Services.AddScoped<IDoctorDashboardService, DoctorDashboardService>();
 builder.Services.AddScoped<IDoctorAppointmentService, DoctorAppointmentService>();
 builder.Services.AddScoped<IVisitRecordService, VisitRecordService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 
-
 var app = builder.Build();
 
-// Seed roles, users, and linked Doctor/Patient profile records.
-// This fixes the issue where doctor@hcars.com logs in but has no Doctors table profile.
+// Apply migrations and seed users
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -70,7 +77,6 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedUsersAsync(userManager, roleManager, dbContext);
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -87,6 +93,10 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// SignalR live appointment updates
+app.MapHub<AppointmentHub>("/hubs/appointment");
+
+// Default page is Public Lookup
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Public}/{action=Lookup}/{id?}");

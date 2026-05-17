@@ -5,6 +5,8 @@ using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.ClinicManager;
 using WebAPI.Data;
 using WebAPI.Models;
+using Microsoft.AspNetCore.SignalR;
+using WebAPI.Hubs;
 
 namespace MVCApp.Services
 {
@@ -17,6 +19,7 @@ namespace MVCApp.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAppointmentWorkflowService _workflowService;
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppointmentHub> _appointmentHub;
 
         private static class StatusNames
         {
@@ -34,14 +37,16 @@ namespace MVCApp.Services
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IAppointmentWorkflowService workflowService,
-            INotificationService notificationService)
-        {
-            _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _workflowService = workflowService;
-            _notificationService = notificationService;
-        }
+            INotificationService notificationService,
+            IHubContext<AppointmentHub> appointmentHub)
+                {
+                    _context = context;
+                    _userManager = userManager;
+                    _roleManager = roleManager;
+                    _workflowService = workflowService;
+                    _notificationService = notificationService;
+                    _appointmentHub = appointmentHub;
+                }
 
         // =========================
         // Dashboard
@@ -468,6 +473,155 @@ namespace MVCApp.Services
             return (true, "Doctor updated successfully.");
         }
 
+
+        // =========================
+        // User Account Management
+        // =========================
+
+        public async Task<ClinicManagerUserAccountsViewModel> GetUserAccountsAsync(
+            string? searchTerm,
+            string? selectedRole,
+            bool? isActive)
+        {
+            var model = new ClinicManagerUserAccountsViewModel
+            {
+                SearchTerm = searchTerm,
+                SelectedRole = selectedRole,
+                IsActive = isActive,
+                RoleOptions = GetUserAccountRoleOptions(),
+                StatusOptions = GetUserAccountStatusOptions()
+            };
+
+            var allowedRoles = new List<string>
+    {
+        "Doctor",
+        "Receptionist",
+        "Patient"
+    };
+
+            var rolesToLoad = string.IsNullOrWhiteSpace(selectedRole)
+                ? allowedRoles
+                : allowedRoles
+                    .Where(r => r.Equals(selectedRole, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            var users = new List<ClinicManagerUserAccountItemViewModel>();
+
+            foreach (var roleName in rolesToLoad)
+            {
+                var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+                if (!roleExists)
+                {
+                    continue;
+                }
+
+                var roleUsers = await _userManager.GetUsersInRoleAsync(roleName);
+
+                users.AddRange(roleUsers.Select(user => new ClinicManagerUserAccountItemViewModel
+                {
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email ?? string.Empty,
+                    RoleName = roleName,
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt
+                }));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var search = searchTerm.Trim().ToLower();
+
+                users = users
+                    .Where(u =>
+                        u.FullName.ToLower().Contains(search) ||
+                        u.Email.ToLower().Contains(search) ||
+                        u.RoleName.ToLower().Contains(search))
+                    .ToList();
+            }
+
+            if (isActive.HasValue)
+            {
+                users = users
+                    .Where(u => u.IsActive == isActive.Value)
+                    .ToList();
+            }
+
+            model.Users = users
+                .GroupBy(u => u.UserId)
+                .Select(g => g.First())
+                .OrderBy(u => u.RoleName)
+                .ThenBy(u => u.FullName)
+                .ToList();
+
+            return model;
+        }
+
+        public async Task<(bool Success, string Message)> ToggleUserActiveStatusAsync(
+            string targetUserId,
+            string managerUserId)
+        {
+            if (string.IsNullOrWhiteSpace(targetUserId))
+            {
+                return (false, "User account was not selected.");
+            }
+
+            var user = await _userManager.FindByIdAsync(targetUserId);
+
+            if (user == null)
+            {
+                return (false, "User account was not found.");
+            }
+
+            if (user.Id == managerUserId)
+            {
+                return (false, "You cannot deactivate your own account.");
+            }
+
+            var isClinicManager = await _userManager.IsInRoleAsync(user, "ClinicManager");
+
+            if (isClinicManager)
+            {
+                return (false, "Clinic Manager accounts cannot be changed from this page.");
+            }
+
+            user.IsActive = !user.IsActive;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return (false, "Unable to update user account status.");
+            }
+
+            var statusText = user.IsActive ? "activated" : "deactivated";
+
+            return (true, $"{user.FullName} has been {statusText} successfully.");
+        }
+
+        private static List<SelectListItem> GetUserAccountRoleOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Value = "", Text = "All roles" },
+        new SelectListItem { Value = "Doctor", Text = "Doctors" },
+        new SelectListItem { Value = "Receptionist", Text = "Receptionists" },
+        new SelectListItem { Value = "Patient", Text = "Patients" }
+    };
+        }
+
+        private static List<SelectListItem> GetUserAccountStatusOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Value = "", Text = "All statuses" },
+        new SelectListItem { Value = "true", Text = "Active only" },
+        new SelectListItem { Value = "false", Text = "Inactive only" }
+    };
+        }
+
+
         // =========================
         // Doctor Schedule Management
         // =========================
@@ -849,24 +1003,34 @@ namespace MVCApp.Services
             var schedules = doctor.Schedules.ToList();
             var leaves = doctor.Leaves.ToList();
 
-            var impacted = appointments
-                .Where(a => IsAppointmentImpacted(a, schedules, leaves))
-                .Select(a => new ImpactedAppointmentItemViewModel
+            var impactedAppointments = new List<ImpactedAppointmentItemViewModel>();
+
+            foreach (var appointment in appointments)
+            {
+                if (!IsAppointmentImpacted(appointment, schedules, leaves))
                 {
-                    AppointmentId = a.Id,
-                    DoctorId = a.DoctorId,
-                    PatientId = a.PatientId,
-                    PatientName = a.Patient.User.FullName,
-                    DoctorName = a.Doctor.User.FullName,
-                    AppointmentDate = a.AppointmentDate,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    StatusName = _workflowService.FormatStatusName(a.Status.Name),
-                    Notes = a.Notes ?? string.Empty,
-                    ImpactType = GetImpactType(a, leaves),
-                    ImpactReason = BuildImpactReason(a, schedules, leaves)
-                })
-                .ToList();
+                    continue;
+                }
+
+                var item = new ImpactedAppointmentItemViewModel
+                {
+                    AppointmentId = appointment.Id,
+                    DoctorId = appointment.DoctorId,
+                    PatientId = appointment.PatientId,
+                    PatientName = appointment.Patient.User.FullName,
+                    DoctorName = appointment.Doctor.User.FullName,
+                    AppointmentDate = appointment.AppointmentDate,
+                    StartTime = appointment.StartTime,
+                    EndTime = appointment.EndTime,
+                    StatusName = _workflowService.FormatStatusName(appointment.Status.Name),
+                    Notes = appointment.Notes ?? string.Empty,
+                    ImpactType = GetImpactType(appointment, leaves),
+                    ImpactReason = BuildImpactReason(appointment, schedules, leaves),
+                    RescheduleSuggestions = await GetRescheduleSuggestionsAsync(appointment)
+                };
+
+                impactedAppointments.Add(item);
+            }
 
             return new AppointmentImpactViewModel
             {
@@ -876,10 +1040,9 @@ namespace MVCApp.Services
                 LicenseNumber = doctor.LicenseNumber,
                 FromDate = start,
                 ToDate = end,
-                ImpactedAppointments = impacted
+                ImpactedAppointments = impactedAppointments
             };
         }
-
         public async Task<(bool Success, string Message, int? DoctorId)> CancelImpactedAppointmentAsync(
             int appointmentId,
             string? reason)
@@ -902,6 +1065,8 @@ namespace MVCApp.Services
                 return (false, "This appointment cannot be cancelled.", appointment.DoctorId);
             }
 
+            var oldStatusName = appointment.Status.Name;
+
             var cancelledStatus = await _context.AppointmentStatuses
                 .FirstOrDefaultAsync(s => s.Name == StatusNames.Cancelled);
 
@@ -911,6 +1076,7 @@ namespace MVCApp.Services
             }
 
             appointment.StatusId = cancelledStatus.Id;
+            appointment.Status = cancelledStatus;
             appointment.CancellationReason = string.IsNullOrWhiteSpace(reason)
                 ? "Cancelled by clinic manager due to doctor availability change."
                 : reason.Trim();
@@ -923,7 +1089,99 @@ namespace MVCApp.Services
                 "Appointment Cancelled",
                 $"Appointment on {appointment.AppointmentDate:dd MMM yyyy} was cancelled due to doctor availability change.");
 
+            await BroadcastAppointmentStatusChangedAsync(
+                appointment,
+                oldStatusName,
+                StatusNames.Cancelled);
+
             return (true, "Appointment cancelled and notifications were created.", appointment.DoctorId);
+        }
+
+        public async Task<(bool Success, string Message, int? DoctorId)> RescheduleImpactedAppointmentAsync(
+    int appointmentId,
+    int newDoctorId,
+    DateTime newDate,
+    TimeOnly newStartTime,
+    TimeOnly newEndTime)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Status)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId);
+
+            if (appointment == null)
+            {
+                return (false, "Appointment was not found.", null);
+            }
+
+            var oldDoctorId = appointment.DoctorId;
+            var oldDoctorName = appointment.Doctor.User.FullName;
+            var oldDate = appointment.AppointmentDate;
+            var oldStartTime = appointment.StartTime;
+            var oldEndTime = appointment.EndTime;
+
+            if (appointment.Status.Name == StatusNames.Completed ||
+                appointment.Status.Name == StatusNames.Cancelled ||
+                appointment.Status.Name == StatusNames.Missed)
+            {
+                return (false, "This appointment cannot be rescheduled because it is already completed, cancelled, or missed.", oldDoctorId);
+            }
+
+            var newDoctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == newDoctorId);
+
+            if (newDoctor == null)
+            {
+                return (false, "Selected doctor was not found.", oldDoctorId);
+            }
+
+            var isValidSlot = await IsSuggestedSlotStillAvailableAsync(
+                appointment,
+                newDoctorId,
+                newDate.Date,
+                newStartTime,
+                newEndTime);
+
+            if (!isValidSlot)
+            {
+                return (false, "This suggested slot is no longer available. Please refresh the impact page and choose another slot.", oldDoctorId);
+            }
+
+            appointment.DoctorId = newDoctorId;
+            appointment.AppointmentDate = newDate.Date;
+            appointment.StartTime = newStartTime;
+            appointment.EndTime = newEndTime;
+            appointment.Notes = string.IsNullOrWhiteSpace(appointment.Notes)
+                ? $"Rescheduled from Dr. {oldDoctorName} on {oldDate:dd MMM yyyy}."
+                : appointment.Notes + $" | Rescheduled from Dr. {oldDoctorName} on {oldDate:dd MMM yyyy}.";
+            appointment.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await NotifyAppointmentUsersAsync(
+                appointment,
+                "Appointment Rescheduled",
+                $"Appointment was rescheduled to {newDate:dd MMM yyyy}, {newStartTime:HH\\:mm} - {newEndTime:HH\\:mm} with Dr. {newDoctor.User.FullName}.");
+
+            await _appointmentHub.Clients.All.SendAsync("AppointmentUpdated", new
+            {
+                appointmentId = appointment.Id,
+                oldDoctorId,
+                newDoctorId,
+                oldDoctorName,
+                newDoctorName = newDoctor.User.FullName,
+                oldDate = oldDate.ToString("yyyy-MM-dd"),
+                newDate = newDate.ToString("yyyy-MM-dd"),
+                oldTime = $"{oldStartTime:HH\\:mm} - {oldEndTime:HH\\:mm}",
+                newTime = $"{newStartTime:HH\\:mm} - {newEndTime:HH\\:mm}",
+                status = appointment.Status.Name
+            });
+
+            return (true, "Appointment rescheduled successfully and users were notified.", oldDoctorId);
         }
 
         // =========================
@@ -1110,9 +1368,10 @@ namespace MVCApp.Services
                 return (false, "Appointment was not found.");
             }
 
+            var oldStatusName = appointment.Status.Name;
             var newStatus = _workflowService.NormalizeStatusName(model.NewStatusName);
 
-            if (!_workflowService.IsValidStatusTransition(appointment.Status.Name, newStatus))
+            if (!_workflowService.IsValidStatusTransition(oldStatusName, newStatus))
             {
                 return (false, "This status change is not allowed.");
             }
@@ -1131,6 +1390,7 @@ namespace MVCApp.Services
             }
 
             appointment.StatusId = statusEntity.Id;
+            appointment.Status = statusEntity;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             if (newStatus == StatusNames.Cancelled)
@@ -1144,6 +1404,11 @@ namespace MVCApp.Services
                 appointment,
                 "Appointment Status Updated",
                 $"Appointment on {appointment.AppointmentDate:dd MMM yyyy} is now {_workflowService.FormatStatusName(newStatus)}.");
+
+            await BroadcastAppointmentStatusChangedAsync(
+                appointment,
+                oldStatusName,
+                newStatus);
 
             return (true, "Appointment status updated successfully.");
         }
@@ -1224,8 +1489,15 @@ namespace MVCApp.Services
             var appointments = await _context.Appointments
                 .AsNoTracking()
                 .Include(a => a.Status)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.DoctorSpecializations)
+                        .ThenInclude(ds => ds.Specialization)
+                .Include(a => a.VisitRecord)
+                    .ThenInclude(v => v!.Prescriptions)
                 .Where(a => a.AppointmentDate.Date >= start && a.AppointmentDate.Date <= end)
                 .ToListAsync();
 
@@ -1233,12 +1505,189 @@ namespace MVCApp.Services
                 .AsNoTracking()
                 .Include(d => d.User)
                 .Include(d => d.Leaves)
+                .Include(d => d.DoctorSpecializations)
+                    .ThenInclude(ds => ds.Specialization)
                 .ToListAsync();
 
             var totalAppointments = appointments.Count;
             var completed = appointments.Count(a => a.Status.Name == StatusNames.Completed);
             var cancelled = appointments.Count(a => a.Status.Name == StatusNames.Cancelled);
             var missed = appointments.Count(a => a.Status.Name == StatusNames.Missed);
+
+            var doctorReports = appointments
+                .GroupBy(a => new
+                {
+                    a.DoctorId,
+                    a.Doctor.User.FullName,
+                    a.Doctor.User.Email,
+                    a.Doctor.LicenseNumber
+                })
+                .Select(g =>
+                {
+                    var doctorTotal = g.Count();
+                    var doctorCompleted = g.Count(a => a.Status.Name == StatusNames.Completed);
+                    var doctorCancelled = g.Count(a => a.Status.Name == StatusNames.Cancelled);
+                    var doctorMissed = g.Count(a => a.Status.Name == StatusNames.Missed);
+
+                    return new ClinicReportItemViewModel
+                    {
+                        DoctorId = g.Key.DoctorId,
+                        DoctorName = g.Key.FullName,
+                        DoctorEmail = g.Key.Email ?? string.Empty,
+                        LicenseNumber = g.Key.LicenseNumber,
+                        TotalAppointments = doctorTotal,
+                        CompletedAppointments = doctorCompleted,
+                        CancelledAppointments = doctorCancelled,
+                        MissedAppointments = doctorMissed,
+                        RemainingAppointments = doctorTotal - doctorCompleted - doctorCancelled - doctorMissed,
+                        CompletionRate = CalculateRate(doctorCompleted, doctorTotal),
+                        CancellationRate = CalculateRate(doctorCancelled, doctorTotal),
+                        MissedRate = CalculateRate(doctorMissed, doctorTotal),
+                        UtilizationRate = CalculateRate(doctorTotal, totalAppointments)
+                    };
+                })
+                .OrderByDescending(r => r.TotalAppointments)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var specializationDemandReports = appointments
+                .SelectMany(a => a.Doctor.DoctorSpecializations.Select(ds => new
+                {
+                    SpecializationName = ds.Specialization.Name,
+                    a.DoctorId
+                }))
+                .GroupBy(x => x.SpecializationName)
+                .Select(g => new SpecializationDemandReportViewModel
+                {
+                    SpecializationName = g.Key,
+                    AppointmentCount = g.Count(),
+                    DoctorCount = g.Select(x => x.DoctorId).Distinct().Count(),
+                    DemandRate = CalculateRate(g.Count(), totalAppointments)
+                })
+                .OrderByDescending(r => r.AppointmentCount)
+                .ThenBy(r => r.SpecializationName)
+                .ToList();
+
+            var busiestHourReports = appointments
+                .GroupBy(a => a.StartTime.Hour)
+                .Select(g => new BusiestHourReportViewModel
+                {
+                    Hour = g.Key,
+                    TimeSlot = $"{g.Key:00}:00 - {g.Key:00}:59",
+                    AppointmentCount = g.Count(),
+                    AppointmentRate = CalculateRate(g.Count(), totalAppointments)
+                })
+                .OrderByDescending(r => r.AppointmentCount)
+                .ThenBy(r => r.Hour)
+                .ToList();
+
+            var doctorLeaveImpactReports = doctors
+                .SelectMany(doctor => doctor.Leaves
+                    .Where(leave => leave.StartDate.Date <= end && leave.EndDate.Date >= start)
+                    .Select(leave =>
+                    {
+                        var leaveStart = leave.StartDate.Date < start ? start : leave.StartDate.Date;
+                        var leaveEnd = leave.EndDate.Date > end ? end : leave.EndDate.Date;
+
+                        var affectedAppointments = appointments.Count(a =>
+                            a.DoctorId == doctor.Id &&
+                            a.AppointmentDate.Date >= leaveStart &&
+                            a.AppointmentDate.Date <= leaveEnd &&
+                            a.Status.Name != StatusNames.Cancelled);
+
+                        return new DoctorLeaveImpactReportViewModel
+                        {
+                            DoctorName = doctor.User.FullName,
+                            LeaveStartDate = leave.StartDate,
+                            LeaveEndDate = leave.EndDate,
+                            Reason = string.IsNullOrWhiteSpace(leave.Reason) ? "No reason recorded" : leave.Reason,
+                            AffectedAppointments = affectedAppointments
+                        };
+                    }))
+                .OrderByDescending(r => r.AffectedAppointments)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var missedAppointmentRiskReports = appointments
+                .Where(a => a.Status.Name == StatusNames.Missed)
+                .GroupBy(a => new
+                {
+                    a.PatientId,
+                    a.Patient.User.FullName,
+                    a.Patient.CPRNumber
+                })
+                .Select(g =>
+                {
+                    var patientTotalAppointments = appointments.Count(a => a.PatientId == g.Key.PatientId);
+                    var missedCount = g.Count();
+
+                    return new MissedAppointmentRiskReportViewModel
+                    {
+                        PatientId = g.Key.PatientId,
+                        PatientName = g.Key.FullName,
+                        CPRNumber = g.Key.CPRNumber,
+                        TotalAppointments = patientTotalAppointments,
+                        MissedAppointments = missedCount,
+                        LastMissedDate = g.Max(a => a.AppointmentDate),
+                        MissedRate = CalculateRate(missedCount, patientTotalAppointments)
+                    };
+                })
+                .OrderByDescending(r => r.MissedAppointments)
+                .ThenByDescending(r => r.MissedRate)
+                .ThenBy(r => r.PatientName)
+                .ToList();
+
+            var cancellationReasonReports = appointments
+                .Where(a => a.Status.Name == StatusNames.Cancelled)
+                .GroupBy(a => string.IsNullOrWhiteSpace(a.CancellationReason)
+                    ? "No reason recorded"
+                    : a.CancellationReason.Trim())
+                .Select(g => new CancellationReasonReportViewModel
+                {
+                    Reason = g.Key,
+                    Count = g.Count(),
+                    Rate = CalculateRate(g.Count(), cancelled)
+                })
+                .OrderByDescending(r => r.Count)
+                .ThenBy(r => r.Reason)
+                .ToList();
+
+            var prescriptionVolumeReports = appointments
+                .Where(a => a.VisitRecord != null)
+                .GroupBy(a => new
+                {
+                    a.DoctorId,
+                    a.Doctor.User.FullName,
+                    Specializations = string.Join(", ",
+                        a.Doctor.DoctorSpecializations
+                            .Select(ds => ds.Specialization.Name)
+                            .Distinct()
+                            .OrderBy(name => name))
+                })
+                .Select(g =>
+                {
+                    var visitRecords = g.Count(a => a.VisitRecord != null);
+                    var prescriptionCount = g.Sum(a => a.VisitRecord?.Prescriptions.Count ?? 0);
+
+                    return new PrescriptionVolumeReportViewModel
+                    {
+                        DoctorId = g.Key.DoctorId,
+                        DoctorName = g.Key.FullName,
+                        Specializations = string.IsNullOrWhiteSpace(g.Key.Specializations)
+                            ? "No specialization"
+                            : g.Key.Specializations,
+                        VisitRecords = visitRecords,
+                        PrescriptionCount = prescriptionCount,
+                        PrescriptionRate = CalculateRate(prescriptionCount, visitRecords)
+                    };
+                })
+                .OrderByDescending(r => r.PrescriptionCount)
+                .ThenBy(r => r.DoctorName)
+                .ToList();
+
+            var busiestDoctor = doctorReports.FirstOrDefault();
+            var busiestSpecialization = specializationDemandReports.FirstOrDefault();
+            var busiestHour = busiestHourReports.FirstOrDefault();
 
             return new ClinicReportViewModel
             {
@@ -1264,41 +1713,20 @@ namespace MVCApp.Services
                 CancellationRate = CalculateRate(cancelled, totalAppointments),
                 MissedRate = CalculateRate(missed, totalAppointments),
 
-                DoctorReports = appointments
-                    .GroupBy(a => new
-                    {
-                        a.DoctorId,
-                        a.Doctor.User.FullName,
-                        a.Doctor.User.Email,
-                        a.Doctor.LicenseNumber
-                    })
-                    .Select(g =>
-                    {
-                        var doctorTotal = g.Count();
-                        var doctorCompleted = g.Count(a => a.Status.Name == StatusNames.Completed);
-                        var doctorCancelled = g.Count(a => a.Status.Name == StatusNames.Cancelled);
-                        var doctorMissed = g.Count(a => a.Status.Name == StatusNames.Missed);
+                BusiestDoctorName = busiestDoctor == null ? "None" : $"Dr. {busiestDoctor.DoctorName}",
+                BusiestSpecializationName = busiestSpecialization?.SpecializationName ?? "None",
+                BusiestHourText = busiestHour?.TimeSlot ?? "None",
 
-                        return new ClinicReportItemViewModel
-                        {
-                            DoctorId = g.Key.DoctorId,
-                            DoctorName = g.Key.FullName,
-                            DoctorEmail = g.Key.Email ?? string.Empty,
-                            LicenseNumber = g.Key.LicenseNumber,
-                            TotalAppointments = doctorTotal,
-                            CompletedAppointments = doctorCompleted,
-                            CancelledAppointments = doctorCancelled,
-                            MissedAppointments = doctorMissed,
-                            RemainingAppointments = doctorTotal - doctorCompleted - doctorCancelled - doctorMissed,
-                            CompletionRate = CalculateRate(doctorCompleted, doctorTotal),
-                            CancellationRate = CalculateRate(doctorCancelled, doctorTotal),
-                            MissedRate = CalculateRate(doctorMissed, doctorTotal)
-                        };
-                    })
-                    .OrderByDescending(r => r.TotalAppointments)
-                    .ToList()
+                DoctorReports = doctorReports,
+                SpecializationDemandReports = specializationDemandReports,
+                BusiestHourReports = busiestHourReports,
+                DoctorLeaveImpactReports = doctorLeaveImpactReports,
+                MissedAppointmentRiskReports = missedAppointmentRiskReports,
+                CancellationReasonReports = cancellationReasonReports,
+                PrescriptionVolumeReports = prescriptionVolumeReports
             };
         }
+
 
         // =========================
         // Notifications
@@ -1332,6 +1760,144 @@ namespace MVCApp.Services
         public async Task MarkAllNotificationsAsReadAsync(string userId)
         {
             await _notificationService.MarkAllAsReadAsync(userId);
+        }
+
+        public Task<ClinicAnnouncementViewModel> GetCreateAnnouncementViewModelAsync()
+        {
+            var model = new ClinicAnnouncementViewModel
+            {
+                SelectedAudience = "All",
+                AudienceOptions = GetAnnouncementAudienceOptions()
+            };
+
+            return Task.FromResult(model);
+        }
+
+        public async Task<(bool Success, string Message, int SentCount)> SendAnnouncementAsync(
+            ClinicAnnouncementViewModel model,
+            string managerUserId)
+        {
+            if (model == null)
+            {
+                return (false, "Announcement form was not submitted correctly.", 0);
+            }
+
+            var title = model.Title?.Trim();
+            var message = model.Message?.Trim();
+            var audience = model.SelectedAudience?.Trim();
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return (false, "Announcement title is required.", 0);
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return (false, "Announcement message is required.", 0);
+            }
+
+            if (string.IsNullOrWhiteSpace(audience))
+            {
+                return (false, "Please select who should receive this announcement.", 0);
+            }
+
+            var validAudiences = new[] { "All", "Doctors", "Receptionists", "Patients" };
+
+            if (!validAudiences.Contains(audience))
+            {
+                return (false, "Selected announcement audience is not valid.", 0);
+            }
+
+            var recipientUserIds = new List<string>();
+
+            if (audience == "All" || audience == "Doctors")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Doctor"));
+            }
+
+            if (audience == "All" || audience == "Receptionists")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Receptionist"));
+            }
+
+            if (audience == "All" || audience == "Patients")
+            {
+                recipientUserIds.AddRange(await GetActiveUserIdsInRoleAsync("Patient"));
+            }
+
+            recipientUserIds = recipientUserIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Where(id => id != managerUserId)
+                .Distinct()
+                .ToList();
+
+            if (!recipientUserIds.Any())
+            {
+                return (false, "No active users were found for the selected audience.", 0);
+            }
+
+            await _notificationService.CreateNotificationsAsync(
+                recipientUserIds,
+                title,
+                message,
+                "Clinic Announcement",
+                null,
+                "ClinicAnnouncement");
+
+            return (
+                true,
+                $"Announcement sent successfully to {recipientUserIds.Count} user(s).",
+                recipientUserIds.Count);
+        }
+
+        private static List<SelectListItem> GetAnnouncementAudienceOptions()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem
+        {
+            Value = "All",
+            Text = "All users"
+        },
+        new SelectListItem
+        {
+            Value = "Doctors",
+            Text = "Doctors only"
+        },
+        new SelectListItem
+        {
+            Value = "Receptionists",
+            Text = "Receptionists only"
+        },
+        new SelectListItem
+        {
+            Value = "Patients",
+            Text = "Patients only"
+        }
+    };
+        }
+
+        private async Task<List<string>> GetActiveUserIdsInRoleAsync(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                return new List<string>();
+            }
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+            if (!roleExists)
+            {
+                return new List<string>();
+            }
+
+            var users = await _userManager.GetUsersInRoleAsync(roleName);
+
+            return users
+                .Where(u => u.IsActive)
+                .Select(u => u.Id)
+                .Distinct()
+                .ToList();
         }
 
         // =========================
@@ -1553,6 +2119,193 @@ namespace MVCApp.Services
             return "Appointment time is outside the current doctor schedule.";
         }
 
+        private async Task<List<AppointmentRescheduleSuggestionViewModel>> GetRescheduleSuggestionsAsync(Appointment appointment)
+        {
+            var appointmentDurationMinutes =
+                (int)(appointment.EndTime.ToTimeSpan() - appointment.StartTime.ToTimeSpan()).TotalMinutes;
+
+            if (appointmentDurationMinutes <= 0)
+            {
+                appointmentDurationMinutes = 30;
+            }
+
+            var originalDoctorSpecializationIds = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .Where(ds => ds.DoctorId == appointment.DoctorId)
+                .Select(ds => ds.SpecializationId)
+                .ToListAsync();
+
+            if (!originalDoctorSpecializationIds.Any())
+            {
+                return new List<AppointmentRescheduleSuggestionViewModel>();
+            }
+
+            var candidateDoctors = await _context.Doctors
+                .AsNoTracking()
+                .Include(d => d.User)
+                .Include(d => d.Schedules)
+                .Include(d => d.Leaves)
+                .Include(d => d.DoctorSpecializations)
+                .Where(d =>
+                    d.User.IsActive &&
+                    d.DoctorSpecializations.Any(ds => originalDoctorSpecializationIds.Contains(ds.SpecializationId)))
+                .OrderBy(d => d.Id == appointment.DoctorId ? 0 : 1)
+                .ThenBy(d => d.User.FullName)
+                .ToListAsync();
+
+            var suggestions = new List<AppointmentRescheduleSuggestionViewModel>();
+
+            var startDate = appointment.AppointmentDate.Date;
+            var endDate = startDate.AddDays(14);
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                foreach (var doctor in candidateDoctors)
+                {
+                    if (suggestions.Count >= 3)
+                    {
+                        return suggestions;
+                    }
+
+                    var doctorSchedules = doctor.Schedules
+                        .Where(s => s.DayOfWeek == date.DayOfWeek)
+                        .OrderBy(s => s.StartTime)
+                        .ToList();
+
+                    if (!doctorSchedules.Any())
+                    {
+                        continue;
+                    }
+
+                    var isOnLeave = doctor.Leaves.Any(l =>
+                        date.Date >= l.StartDate.Date &&
+                        date.Date <= l.EndDate.Date);
+
+                    if (isOnLeave)
+                    {
+                        continue;
+                    }
+
+                    foreach (var schedule in doctorSchedules)
+                    {
+                        var slotStart = schedule.StartTime;
+                        var slotEnd = slotStart.AddMinutes(appointmentDurationMinutes);
+
+                        while (slotEnd <= schedule.EndTime)
+                        {
+                            var available = await IsSlotAvailableAsync(
+                                appointment.Id,
+                                doctor.Id,
+                                date,
+                                slotStart,
+                                slotEnd);
+
+                            if (available)
+                            {
+                                suggestions.Add(new AppointmentRescheduleSuggestionViewModel
+                                {
+                                    DoctorId = doctor.Id,
+                                    DoctorName = doctor.User.FullName,
+                                    NewDate = date,
+                                    NewStartTime = slotStart,
+                                    NewEndTime = slotEnd,
+                                    SpecializationMatchText = doctor.Id == appointment.DoctorId
+                                        ? "Same doctor"
+                                        : "Same specialization"
+                                });
+
+                                break;
+                            }
+
+                            slotStart = slotStart.AddMinutes(schedule.SlotDurationMinutes);
+                            slotEnd = slotStart.AddMinutes(appointmentDurationMinutes);
+                        }
+                    }
+                }
+            }
+
+            return suggestions;
+        }
+
+        private async Task<bool> IsSuggestedSlotStillAvailableAsync(
+            Appointment appointment,
+            int newDoctorId,
+            DateTime newDate,
+            TimeOnly newStartTime,
+            TimeOnly newEndTime)
+        {
+            var originalDoctorSpecializationIds = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .Where(ds => ds.DoctorId == appointment.DoctorId)
+                .Select(ds => ds.SpecializationId)
+                .ToListAsync();
+
+            var newDoctorMatchesSpecialization = await _context.DoctorSpecializations
+                .AsNoTracking()
+                .AnyAsync(ds =>
+                    ds.DoctorId == newDoctorId &&
+                    originalDoctorSpecializationIds.Contains(ds.SpecializationId));
+
+            if (!newDoctorMatchesSpecialization)
+            {
+                return false;
+            }
+
+            var hasSchedule = await _context.DoctorSchedules
+                .AsNoTracking()
+                .AnyAsync(s =>
+                    s.DoctorId == newDoctorId &&
+                    s.DayOfWeek == newDate.DayOfWeek &&
+                    newStartTime >= s.StartTime &&
+                    newEndTime <= s.EndTime);
+
+            if (!hasSchedule)
+            {
+                return false;
+            }
+
+            var isOnLeave = await _context.DoctorLeaves
+                .AsNoTracking()
+                .AnyAsync(l =>
+                    l.DoctorId == newDoctorId &&
+                    newDate.Date >= l.StartDate.Date &&
+                    newDate.Date <= l.EndDate.Date);
+
+            if (isOnLeave)
+            {
+                return false;
+            }
+
+            return await IsSlotAvailableAsync(
+                appointment.Id,
+                newDoctorId,
+                newDate,
+                newStartTime,
+                newEndTime);
+        }
+
+        private async Task<bool> IsSlotAvailableAsync(
+            int currentAppointmentId,
+            int doctorId,
+            DateTime date,
+            TimeOnly startTime,
+            TimeOnly endTime)
+        {
+            var hasConflict = await _context.Appointments
+                .AsNoTracking()
+                .Include(a => a.Status)
+                .AnyAsync(a =>
+                    a.Id != currentAppointmentId &&
+                    a.DoctorId == doctorId &&
+                    a.AppointmentDate.Date == date.Date &&
+                    a.Status.Name != StatusNames.Cancelled &&
+                    a.Status.Name != StatusNames.Missed &&
+                    startTime < a.EndTime &&
+                    a.StartTime < endTime);
+
+            return !hasConflict;
+        }
+
         private async Task NotifyAppointmentUsersAsync(Appointment appointment, string title, string message)
         {
             var userIds = new List<string>
@@ -1578,6 +2331,165 @@ namespace MVCApp.Services
             }
 
             return Math.Round((double)value / total * 100, 1);
+        }
+
+        public async Task<ClinicManagerProfileViewModel?> GetProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+            {
+                return null;
+            }
+
+            return new ClinicManagerProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<EditClinicManagerProfileViewModel?> GetEditProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+            {
+                return null;
+            }
+
+            return new EditClinicManagerProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                CurrentProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<bool> UpdateProfileAsync(
+    string userId,
+    EditClinicManagerProfileViewModel model,
+    string webRootPath)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+            {
+                return false;
+            }
+
+            user.FullName = model.FullName.Trim();
+            user.PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber)
+                ? null
+                : model.PhoneNumber.Trim();
+
+            var email = model.Email.Trim();
+
+            if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailResult = await _userManager.SetEmailAsync(user, email);
+
+                if (!emailResult.Succeeded)
+                {
+                    return false;
+                }
+
+                var usernameResult = await _userManager.SetUserNameAsync(user, email);
+
+                if (!usernameResult.Succeeded)
+                {
+                    return false;
+                }
+            }
+
+            if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.ProfilePictureFile.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return false;
+                }
+
+                var uploadsFolder = Path.Combine(webRootPath, "images", "managers");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var oldImage = user.ProfilePicture;
+
+                var newFileName = $"manager-{user.Id}-{Guid.NewGuid()}{extension}";
+                var newFilePath = Path.Combine(uploadsFolder, newFileName);
+
+                using (var stream = new FileStream(newFilePath, FileMode.Create))
+                {
+                    await model.ProfilePictureFile.CopyToAsync(stream);
+                }
+
+                if (!string.IsNullOrWhiteSpace(oldImage) &&
+                    oldImage != "default-manager.png" &&
+                    oldImage != "default-profile.png")
+                {
+                    var oldFileName = Path.GetFileName(oldImage);
+                    var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
+
+                    if (File.Exists(oldFilePath))
+                    {
+                        File.Delete(oldFilePath);
+                    }
+                }
+
+                user.ProfilePicture = newFileName;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        private async Task BroadcastAppointmentStatusChangedAsync(
+    Appointment appointment,
+    string oldStatusName,
+    string newStatusName)
+        {
+            var statusText = _workflowService.FormatStatusName(newStatusName);
+
+            var updateData = new
+            {
+                AppointmentId = appointment.Id,
+                PatientId = appointment.PatientId,
+                DoctorId = appointment.DoctorId,
+                PatientName = appointment.Patient.User.FullName,
+                DoctorName = appointment.Doctor.User.FullName,
+                AppointmentDate = appointment.AppointmentDate.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
+                OldStatus = _workflowService.FormatStatusName(oldStatusName),
+                NewStatus = statusText,
+                UpdatedBy = "Clinic Manager",
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _appointmentHub.Clients
+                .Group("ReceptionistGroup")
+                .SendAsync("AppointmentStatusChanged", updateData);
+
+            await _appointmentHub.Clients
+                .Group("ReceptionistGroup")
+                .SendAsync("WaitingRoomUpdated", updateData);
+
+            await _appointmentHub.Clients
+                .Group($"Doctor_{appointment.DoctorId}")
+                .SendAsync("AppointmentStatusChanged", updateData);
+
+            await _appointmentHub.Clients
+                .Group($"Patient_{appointment.PatientId}")
+                .SendAsync("AppointmentStatusChanged", updateData);
         }
     }
 }

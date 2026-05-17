@@ -4,125 +4,164 @@
     ViewData["Title"] = "Update Appointment Status";
 }
 
-<div class="container mt-4">
+<div class="doctor-status-page">
+    <a asp-controller="DoctorAppointment"
+       asp-action="AppointmentDetails"
+       asp-route-id="@Model.AppointmentId"
+       class="back-link">
+        Back to Details
+    </a>
 
-    <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Update Appointment Status</h2>
-            <p class="text-muted mb-0">
-                Move the appointment to the next valid workflow status.
-            </p>
+    <div class="status-card">
+        <div class="status-card-header">
+            <h2>Status Update Form</h2>
         </div>
 
-        <a asp-controller="DoctorAppointment"
-           asp-action="AppointmentDetails"
-           asp-route-id="@Model.AppointmentId"
-           class="btn btn-outline-secondary">
-            Back to Details
-        </a>
-    </div>
+        <form action="/Doctor/UpdateStatus" method="post" class="status-form">
 
-    @if (TempData["Success"] != null)
-    {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
+            @Html.AntiForgeryToken()
 
-    @if (TempData["Error"] != null)
-    {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
+            <input type="hidden" asp-for="AppointmentId" />
 
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <h5 class="fw-bold mb-0">Status Update Form</h5>
-                </div>
-
-                <div class="card-body">
-
-                    <!-- Shows validation errors from the controller workflow checks -->
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                    <form asp-controller="DoctorAppointment"
-                          asp-action="UpdateStatus"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <input asp-for="AppointmentId" type="hidden" />
-
-                        <div class="mb-3">
-                            <label asp-for="CurrentStatusName" class="form-label">Current Status</label>
-                            <input asp-for="CurrentStatusName"
-                                   class="form-control"
-                                   readonly />
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="NewStatusName" class="form-label"></label>
-                            <select asp-for="NewStatusName"
-                                    asp-items="Model.AvailableStatuses"
-                                    class="form-select">
-                                <option value="">Select new status</option>
-                            </select>
-                            <span asp-validation-for="NewStatusName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="StatusNote" class="form-label"></label>
-                            <textarea asp-for="StatusNote"
-                                      class="form-control"
-                                      rows="3"
-                                      placeholder="Optional note about this status update"></textarea>
-                            <span asp-validation-for="StatusNote" class="text-danger"></span>
-                        </div>
-
-                        @if (!Model.HasAvailableStatuses)
-                        {
-                        <div class="alert alert-info">
-                            No next status is available for this appointment.
-                        </div>
-                        }
-
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a asp-controller="DoctorAppointment"
-                               asp-action="AppointmentDetails"
-                               asp-route-id="@Model.AppointmentId"
-                               class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    disabled="@(!Model.HasAvailableStatuses)">
-                                Save Status
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
+            <div class="form-group">
+                <label>Current Status</label>
+                <input value="@Model.CurrentStatusDisplay" class="form-control" readonly />
             </div>
 
-            <!-- Small workflow note for the doctor -->
-            <div class="alert alert-light border mt-4 mb-0">
-                <strong>Note:</strong>
-                Only valid appointment workflow transitions are shown.
-                Completed, cancelled, or missed appointments cannot be moved forward by the doctor.
+            <div class="form-group">
+                <label asp-for="NewStatusName">New Status</label>
+                <select asp-for="NewStatusName" asp-items="Model.AvailableStatuses" class="form-control">
+                    <option value="">Select new status</option>
+                </select>
+                <span asp-validation-for="NewStatusName" class="text-danger"></span>
             </div>
 
-        </div>
+            <div class="form-group">
+                <label asp-for="StatusNote">Status Note</label>
+                <textarea asp-for="StatusNote"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Optional note about this status update"></textarea>
+                <span asp-validation-for="StatusNote" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="DoctorAppointment"
+                   asp-action="AppointmentDetails"
+                   asp-route-id="@Model.AppointmentId"
+                   class="btn-cancel">
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn-save">Save Status</button>
+            </div>
+        </form>
     </div>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<style>
+    .doctor-status-page {
+        max-width: 520px;
+        margin: 70px auto;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 22px;
+        padding: 12px 18px;
+        border-radius: 14px;
+        background: #EAF7FA;
+        color: #06485F;
+        font-weight: 800;
+        text-decoration: none;
+        border: 1px solid #CDE7EC;
+    }
+
+    .status-card {
+        background: #FFFFFF;
+        border: 1px solid #D6E0E3;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 12px 28px rgba(6, 72, 95, 0.08);
+    }
+
+    .status-card-header {
+        padding: 22px 26px;
+        border-bottom: 1px solid #E5ECEE;
+    }
+
+        .status-card-header h2 {
+            margin: 0;
+            color: #06485F;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+    .status-form {
+        padding: 26px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 900;
+            color: #12262F;
+        }
+
+    .form-control {
+        width: 100%;
+        border: 1px solid #CAD8DC;
+        border-radius: 14px;
+        padding: 13px 14px;
+        font-weight: 700;
+        color: #12262F;
+        background: #FFFFFF;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00688C;
+            box-shadow: 0 0 0 3px rgba(0, 104, 140, 0.12);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-weight: 900;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        background: #EAF7FA;
+        color: #06485F;
+        border: 1px solid #CDE7EC;
+    }
+
+    .btn-save {
+        background: #06485F;
+        color: #FFFFFF;
+    }
+
+    .text-danger {
+        color: #B42318;
+        font-weight: 700;
+        font-size: 13px;
+    }
+</style>

@@ -1,0 +1,283 @@
+﻿@model MVCApp.ViewModels.ClinicManager.EditClinicManagerProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Manager Profile";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.CurrentProfilePicture)
+        ? Url.Content("~/images/managers/default-manager.png")
+        : Url.Content("~/images/managers/" + System.IO.Path.GetFileName(Model.CurrentProfilePicture) + "?v=" + DateTime.Now.Ticks);
+}
+
+<style>
+    .manager-edit-page {
+        max-width: 760px;
+        margin: 28px auto 55px;
+        padding: 0 18px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
+
+    .manager-edit-card {
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 24px;
+        padding: 34px;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    .manager-edit-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+        .manager-edit-header h1 {
+            margin: 0;
+            color: #075168;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .manager-edit-header p {
+            margin: 8px 0 0;
+            color: #687a80;
+            font-weight: 600;
+        }
+
+    .manager-avatar-area {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 28px;
+    }
+
+    .manager-avatar-wrap {
+        position: relative;
+        width: 130px;
+        height: 130px;
+    }
+
+    .manager-avatar-img {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ffffff;
+        border: 5px solid #e7f1f3;
+    }
+
+    .manager-camera-btn {
+        position: absolute;
+        right: 4px;
+        bottom: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #075168;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .manager-camera-btn:hover {
+            background: #00779b;
+            transform: translateY(-2px);
+        }
+
+    .manager-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .manager-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .manager-form-group label {
+        color: #12262f;
+        font-weight: 850;
+        margin-bottom: 7px;
+        display: block;
+    }
+
+    .manager-form-control {
+        width: 100%;
+        border: 1px solid #c9dbdf;
+        border-radius: 14px;
+        padding: 13px 15px;
+        color: #12262f;
+        background: #ffffff;
+        font-weight: 600;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+        .manager-form-control:focus {
+            border-color: #075168;
+            box-shadow: 0 0 0 4px rgba(7, 81, 104, 0.10);
+        }
+
+    .manager-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .manager-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 20px;
+        font-weight: 900;
+        text-decoration: none;
+        transition: 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .manager-btn-primary {
+        background: #075168;
+        color: #ffffff;
+    }
+
+        .manager-btn-primary:hover {
+            background: #00779b;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+    .manager-btn-secondary {
+        background: #e7f1f3;
+        color: #075168;
+    }
+
+        .manager-btn-secondary:hover {
+            background: #dce8ea;
+            color: #075168;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 700px) {
+        .manager-edit-card {
+            padding: 24px;
+        }
+
+        .manager-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .manager-edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .manager-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="manager-edit-page">
+    <section class="manager-edit-card">
+
+        <div class="manager-edit-header">
+            <h1>Edit Profile</h1>
+            <p>Update your clinic manager account information.</p>
+        </div>
+
+        <form asp-controller="ClinicManager"
+              asp-action="EditProfile"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="CurrentProfilePicture" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="manager-avatar-area">
+                <div class="manager-avatar-wrap">
+                    <img src="@profileImage"
+                         id="managerImagePreview"
+                         class="manager-avatar-img"
+                         alt="Clinic manager profile picture"
+                         onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
+
+                    <label for="ProfilePictureFile" class="manager-camera-btn" title="Change picture">
+                        <i class="bi bi-camera-fill"></i>
+                    </label>
+                </div>
+
+                <input asp-for="ProfilePictureFile"
+                       id="ProfilePictureFile"
+                       type="file"
+                       class="d-none"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+            </div>
+
+            <span asp-validation-for="ProfilePictureFile" class="text-danger small d-block text-center mb-3"></span>
+
+            <div class="manager-form-grid">
+                <div class="manager-form-group">
+                    <label asp-for="FullName"></label>
+                    <input asp-for="FullName" class="manager-form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="manager-form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="manager-form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="manager-form-group full">
+                    <label asp-for="PhoneNumber"></label>
+                    <input asp-for="PhoneNumber" class="manager-form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="manager-edit-actions">
+                <a asp-controller="ClinicManager"
+                   asp-action="Profile"
+                   class="manager-btn manager-btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="manager-btn manager-btn-primary">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const input = document.getElementById("ProfilePictureFile");
+        const preview = document.getElementById("managerImagePreview");
+
+        if (input && preview) {
+            input.addEventListener("change", function () {
+                const file = this.files && this.files[0];
+
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}
