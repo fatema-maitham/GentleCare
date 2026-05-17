@@ -541,6 +541,226 @@ The MVC application uses a service layer to keep business logic separate from co
 
 ---
 
+## Routing Table
+
+The system uses ASP.NET Core MVC routes for the web application and Web API routes for API access.  
+Access control is handled through ASP.NET Core Identity roles and JWT authentication where required.
+
+---
+
+## MVC Routes
+
+### Public
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/` | Public | Display the public appointment lookup page. |
+| GET | `/Public/Lookup` | Public | Display the public appointment lookup form. |
+| POST | `/Public/Lookup` | Public | Search appointments using patient lookup details. |
+
+---
+
+### Account
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/Account/Login` | Public | Display the login form. |
+| POST | `/Account/Login` | Public | Authenticate the user and sign them in. |
+| GET | `/Account/Register` | Public | Display the patient registration form. |
+| POST | `/Account/Register` | Public | Create a new patient account. |
+| GET | `/Account/AccessDenied` | Public | Display the access denied page. |
+| POST | `/Account/Logout` | Authenticated | Log out the current user. |
+
+---
+
+### Patient
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/Patient/Dashboard` | Patient | Display the patient dashboard. |
+| GET | `/Patient/Profile` | Patient | Display the current patient's profile. |
+| GET | `/Patient/EditProfile` | Patient | Display the edit profile form. |
+| POST | `/Patient/EditProfile` | Patient | Update the current patient's profile. |
+| GET | `/Patient/Appointments` | Patient | Display the patient's appointments. |
+| GET | `/Patient/History` | Patient | Display the patient's medical history. |
+| GET | `/Patient/Notifications` | Patient | Display patient notifications. |
+| GET | `/Patient/BookAppointment` | Patient | Display the appointment booking form. |
+| POST | `/Patient/BookAppointment` | Patient | Create a new appointment request. |
+| POST | `/Patient/CancelAppointment` | Patient | Cancel an appointment when cancellation is allowed. |
+
+---
+
+### Receptionist
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/Receptionist/Index` | Receptionist | Display the receptionist dashboard. |
+| GET | `/Receptionist/Appointments` | Receptionist | Display and filter appointments. |
+| GET | `/Receptionist/BookAppointment` | Receptionist | Display the appointment booking form. |
+| POST | `/Receptionist/BookAppointment` | Receptionist | Book an appointment for a patient. |
+| GET | `/Receptionist/UpdateStatus` | Receptionist | Display the appointment status update form. |
+| POST | `/Receptionist/UpdateStatus` | Receptionist | Update appointment status. |
+| GET | `/Receptionist/PatientSearch` | Receptionist | Search for patients. |
+| GET | `/Receptionist/LiveQueue` | Receptionist | Display the live appointment queue. |
+| POST | `/Receptionist/UpdateQueueStatus` | Receptionist | Update live queue appointment status. |
+
+---
+
+### Doctor
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/Doctor/Dashboard` | Doctor | Display the doctor's dashboard. |
+| GET | `/Doctor/Schedule` | Doctor | Display the doctor's schedule. |
+| GET | `/Doctor/Notifications` | Doctor | Display doctor notifications. |
+| POST | `/Doctor/MarkNotificationAsRead` | Doctor | Mark one notification as read. |
+| POST | `/Doctor/MarkAllNotificationsAsRead` | Doctor | Mark all doctor notifications as read. |
+| GET | `/Doctor/Profile` | Doctor | Display the doctor's profile. |
+| GET | `/Doctor/EditProfile` | Doctor | Display the edit profile form. |
+| POST | `/Doctor/EditProfile` | Doctor | Update doctor profile. |
+| GET | `/Doctor/Appointments` | Doctor | Display the doctor's appointments. |
+| GET | `/Doctor/AppointmentDetails/{id}` | Doctor | Display appointment details. |
+| GET | `/Doctor/UpdateStatus/{id}` | Doctor | Display the appointment status update form. |
+| POST | `/Doctor/UpdateStatus/{id?}` | Doctor | Update appointment status. |
+| GET | `/Doctor/PatientHistory/{patientId}` | Doctor | Display a patient's medical history. |
+| GET | `/Doctor/FollowUpRequest/{appointmentId}` | Doctor | Display follow-up appointment request form. |
+| POST | `/Doctor/CreateFollowUpRequest` | Doctor | Create a follow-up appointment request. |
+| GET | `/Doctor/Prescriptions` | Doctor | Display doctor prescriptions. |
+| GET | `/Doctor/CreateVisitRecord/{appointmentId}` | Doctor | Display the create visit record form. |
+| POST | `/Doctor/CreateVisitRecord/{appointmentId?}` | Doctor | Create a visit record for an appointment. |
+| GET | `/Doctor/EditVisitRecord/{appointmentId}` | Doctor | Display the edit visit record form. |
+| POST | `/Doctor/EditVisitRecord/{appointmentId?}` | Doctor | Update an existing visit record. |
+
+---
+
+### Clinic Manager
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/ClinicManager/Dashboard` | Clinic Manager | Display the clinic manager dashboard. |
+| GET | `/ClinicManager/Doctors` | Clinic Manager | List and filter doctors. |
+| GET | `/ClinicManager/DoctorDetails/{id}` | Clinic Manager | Display doctor details. |
+| GET | `/ClinicManager/CreateDoctor` | Clinic Manager | Display the create doctor form. |
+| POST | `/ClinicManager/CreateDoctor` | Clinic Manager | Create a new doctor account and profile. |
+| GET | `/ClinicManager/EditDoctor/{id}` | Clinic Manager | Display the edit doctor form. |
+| POST | `/ClinicManager/EditDoctor` | Clinic Manager | Update doctor information. |
+| GET | `/ClinicManager/ManageDoctorSchedule` | Clinic Manager | Display doctor schedule management. |
+| GET | `/ClinicManager/CreateDoctorSchedule` | Clinic Manager | Display the create doctor schedule form. |
+| POST | `/ClinicManager/CreateDoctorSchedule` | Clinic Manager | Create a doctor schedule. |
+| GET | `/ClinicManager/EditDoctorSchedule/{id}` | Clinic Manager | Display the edit doctor schedule form. |
+| POST | `/ClinicManager/EditDoctorSchedule` | Clinic Manager | Update doctor schedule. |
+| POST | `/ClinicManager/DeleteDoctorSchedule/{id}` | Clinic Manager | Delete doctor schedule. |
+| GET | `/ClinicManager/ManageDoctorLeaves` | Clinic Manager | Display doctor leave management. |
+| GET | `/ClinicManager/CreateDoctorLeave` | Clinic Manager | Display the create doctor leave form. |
+| POST | `/ClinicManager/CreateDoctorLeave` | Clinic Manager | Create doctor leave. |
+| GET | `/ClinicManager/EditDoctorLeave/{id}` | Clinic Manager | Display the edit doctor leave form. |
+| POST | `/ClinicManager/EditDoctorLeave` | Clinic Manager | Update doctor leave. |
+| POST | `/ClinicManager/DeleteDoctorLeave/{id}` | Clinic Manager | Delete doctor leave. |
+| GET | `/ClinicManager/AppointmentImpact` | Clinic Manager | Display appointments affected by doctor schedule or leave changes. |
+| POST | `/ClinicManager/CancelImpactedAppointment` | Clinic Manager | Cancel an impacted appointment. |
+| POST | `/ClinicManager/RescheduleImpactedAppointment` | Clinic Manager | Reschedule an impacted appointment. |
+| GET | `/ClinicManager/Appointments` | Clinic Manager | Display and filter clinic appointments. |
+| GET | `/ClinicManager/AppointmentDetails/{id}` | Clinic Manager | Display appointment details. |
+| GET | `/ClinicManager/UpdateAppointmentStatus/{id}` | Clinic Manager | Display the appointment status update form. |
+| POST | `/ClinicManager/UpdateAppointmentStatus` | Clinic Manager | Update appointment status. |
+| GET | `/ClinicManager/ManageDoctorSpecializations` | Clinic Manager | Display doctor specialization management. |
+| POST | `/ClinicManager/ManageDoctorSpecializations` | Clinic Manager | Update doctor specializations. |
+| GET | `/ClinicManager/Reports` | Clinic Manager | Display clinic reports dashboard. |
+| GET | `/ClinicManager/CreateAnnouncement` | Clinic Manager | Display the clinic announcement form. |
+| POST | `/ClinicManager/CreateAnnouncement` | Clinic Manager | Create and send a clinic announcement. |
+| GET | `/ClinicManager/Notifications` | Clinic Manager | Display clinic manager notifications. |
+| POST | `/ClinicManager/MarkNotificationAsRead/{id}` | Clinic Manager | Mark one notification as read. |
+| POST | `/ClinicManager/MarkAllNotificationsAsRead` | Clinic Manager | Mark all notifications as read. |
+| GET | `/ClinicManager/Profile` | Clinic Manager | Display clinic manager profile. |
+| GET | `/ClinicManager/EditProfile` | Clinic Manager | Display the edit profile form. |
+| POST | `/ClinicManager/EditProfile` | Clinic Manager | Update clinic manager profile. |
+| GET | `/ClinicManager/UserAccounts` | Clinic Manager | Display user account activation and deactivation page. |
+| POST | `/ClinicManager/ToggleUserStatus` | Clinic Manager | Activate or deactivate a user account. |
+
+---
+
+### Dashboard
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/Dashboard/Index` | Authenticated | Redirect the user to the correct dashboard based on role. |
+
+---
+
+### SignalR Hub
+
+| Method | Route | Access | Description |
+|---|---|---|---|
+| HUB | `/hubs/appointment` | Authenticated | Real-time appointment update hub. |
+
+---
+
+## Web API Endpoints
+
+### Authentication API
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Auth/register` | None | Register a new user account. |
+| POST | `/api/Auth/login` | None | Login and return a JWT token. |
+
+---
+
+### Appointment API
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| GET | `/api/Appointment/lookup` | None | Public appointment lookup by CPR and optional patient reference. |
+| GET | `/api/Appointment` | JWT + Receptionist / Clinic Manager | Get all appointments. |
+| GET | `/api/Appointment/my` | JWT + Patient | Get the current patient's appointments. |
+| PUT | `/api/Appointment/{id}/status` | JWT + Doctor / Receptionist / Clinic Manager | Update appointment status. |
+
+---
+
+### Doctor API
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| GET | `/api/Doctor` | JWT | Get all doctors. |
+| GET | `/api/Doctor/{id}` | JWT | Get doctor details by ID. |
+| POST | `/api/Doctor` | JWT + Clinic Manager | Create a new doctor. |
+| GET | `/api/Doctor/{id}/availability` | JWT | Get available time slots for a doctor. |
+
+---
+
+### Patient API
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Patient` | JWT + Patient / Receptionist / Clinic Manager | Create a patient record. |
+| GET | `/api/Patient` | JWT + Receptionist / Clinic Manager | Get all patients. |
+| GET | `/api/Patient/{id}` | JWT + Doctor / Receptionist / Clinic Manager | Get patient details by ID. |
+| GET | `/api/Patient/my` | JWT + Patient | Get the current patient's profile. |
+| PUT | `/api/Patient/{id}` | JWT + Patient / Receptionist / Clinic Manager | Update patient information. |
+| GET | `/api/Patient/{id}/history` | JWT + Doctor / Receptionist / Clinic Manager | Get a patient's visit history. |
+
+---
+
+### Reports API
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| GET | `/api/Report/appointment-stats` | JWT + Clinic Manager | Get appointment statistics by status and date range. |
+| GET | `/api/Report/doctor-workload` | JWT + Clinic Manager | Get doctor workload and utilization report. |
+| GET | `/api/Report/specialization-stats` | JWT + Clinic Manager | Get appointment statistics by specialization. |
+| GET | `/api/Report/daily-summary` | JWT + Clinic Manager | Get daily clinic summary. |
+
+---
+
+### API SignalR Hub
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| HUB | `/hubs/appointment` | JWT / Authorized users | Real-time appointment update hub. |
+
+---
+
+
 ## Test Credentials
 
 ### Clinic Manager

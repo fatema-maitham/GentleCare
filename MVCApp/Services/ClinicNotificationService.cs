@@ -22,6 +22,11 @@ namespace MVCApp.Services
             int? relatedEntityId = null,
             string? notificationTypeName = null)
         {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return;
+            }
+
             int? notificationTypeId = null;
 
             if (!string.IsNullOrWhiteSpace(notificationTypeName))
@@ -56,16 +61,45 @@ namespace MVCApp.Services
             int? relatedEntityId = null,
             string? notificationTypeName = null)
         {
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.Id == patientId);
+            var patientUserId = await _context.Patients
+                .Where(p => p.Id == patientId)
+                .Select(p => p.UserId)
+                .FirstOrDefaultAsync();
 
-            if (patient == null)
+            if (string.IsNullOrWhiteSpace(patientUserId))
             {
                 return;
             }
 
             await CreateUserNotificationAsync(
-                patient.UserId,
+                patientUserId,
+                title,
+                message,
+                relatedEntityType,
+                relatedEntityId,
+                notificationTypeName);
+        }
+
+        public async Task CreateDoctorNotificationAsync(
+            int doctorId,
+            string title,
+            string message,
+            string? relatedEntityType = null,
+            int? relatedEntityId = null,
+            string? notificationTypeName = null)
+        {
+            var doctorUserId = await _context.Doctors
+                .Where(d => d.Id == doctorId)
+                .Select(d => d.UserId)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(doctorUserId))
+            {
+                return;
+            }
+
+            await CreateUserNotificationAsync(
+                doctorUserId,
                 title,
                 message,
                 relatedEntityType,

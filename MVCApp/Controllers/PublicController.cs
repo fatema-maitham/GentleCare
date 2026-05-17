@@ -27,6 +27,7 @@ namespace MVCApp.Controllers
             model.HasSearched = true;
             model.UpcomingAppointments = new();
             model.RecentVisits = new();
+            model.ErrorMessage = null;
 
             if (string.IsNullOrWhiteSpace(model.CPRNumber) ||
                 string.IsNullOrWhiteSpace(model.ReferenceNumber))
@@ -42,15 +43,27 @@ namespace MVCApp.Controllers
 
             try
             {
-                var appointments = await client.GetFromJsonAsync<List<PublicAppointmentResultViewModel>>(url);
+                var lookupResult = await client.GetFromJsonAsync<PublicLookupResponseViewModel>(url);
 
-                if (appointments == null || !appointments.Any())
+                if (lookupResult == null)
                 {
-                    model.ErrorMessage = "No appointment details were found.";
+                    model.ErrorMessage = "No appointment or visit details were found.";
                     return View(model);
                 }
 
-                model.UpcomingAppointments = appointments;
+                model.UpcomingAppointments = lookupResult.UpcomingAppointments ?? new();
+                model.RecentVisits = lookupResult.RecentVisits ?? new();
+
+                if (!model.UpcomingAppointments.Any() && !model.RecentVisits.Any())
+                {
+                    model.ErrorMessage = "No upcoming appointments or recent visits were found.";
+                }
+
+                return View(model);
+            }
+            catch (HttpRequestException)
+            {
+                model.ErrorMessage = "Could not connect to the appointment lookup API.";
                 return View(model);
             }
             catch

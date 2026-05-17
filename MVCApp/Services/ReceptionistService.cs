@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Receptionist;
 using WebAPI.Data;
+using WebAPI.Hubs;
 using WebAPI.Models;
 
 namespace MVCApp.Services
@@ -11,13 +13,16 @@ namespace MVCApp.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IClinicNotificationService _notificationService;
+        private readonly IHubContext<AppointmentHub> _hubContext;
 
         public ReceptionistService(
             ApplicationDbContext context,
-            IClinicNotificationService notificationService)
+            IClinicNotificationService notificationService,
+            IHubContext<AppointmentHub> hubContext)
         {
             _context = context;
             _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
         public async Task<ReceptionistDashboardViewModel> GetDashboardAsync()
@@ -79,7 +84,7 @@ namespace MVCApp.Services
                 .Select(s => new SelectListItem
                 {
                     Value = s.Name,
-                    Text = s.Name
+                    Text = FormatStatusName(s.Name)
                 })
                 .ToListAsync();
 
@@ -174,6 +179,13 @@ namespace MVCApp.Services
             var patientId = model.PatientId.Value;
             var appointmentDate = model.AppointmentDate.Value.Date;
 
+            var patientExists = await _context.Patients.AnyAsync(p => p.Id == patientId);
+
+            if (!patientExists)
+            {
+                return (false, "Selected patient was not found.");
+            }
+
             var doctorHasSpecialization = await _context.DoctorSpecializations
                 .AnyAsync(ds => ds.DoctorId == doctorId && ds.SpecializationId == specializationId);
 
@@ -182,23 +194,25 @@ namespace MVCApp.Services
                 return (false, "Selected doctor does not match the selected specialization.");
             }
 
-            var schedule = await _context.DoctorSchedules
-                .Where(s => s.DoctorId == doctorId
-                         && s.DayOfWeek == appointmentDate.DayOfWeek
-                         && s.StartTime <= selectedStartTime)
+            var schedules = await _context.DoctorSchedules
+                .Where(s => s.DoctorId == doctorId && s.DayOfWeek == appointmentDate.DayOfWeek)
                 .OrderBy(s => s.StartTime)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
+
+            var schedule = schedules.FirstOrDefault(s =>
+                s.StartTime <= selectedStartTime &&
+                selectedStartTime.AddMinutes(s.SlotDurationMinutes) <= s.EndTime);
 
             if (schedule == null)
             {
-                return (false, "Selected time does not match doctor schedule.");
+                return (false, "Selected time does not match the doctor's working schedule.");
             }
 
             var endTime = selectedStartTime.AddMinutes(schedule.SlotDurationMinutes);
 
-            if (endTime > schedule.EndTime)
+            if (appointmentDate == DateTime.Today && selectedStartTime <= TimeOnly.FromDateTime(DateTime.Now))
             {
-                return (false, "Selected time exceeds doctor schedule.");
+                return (false, "Selected time has already passed.");
             }
 
             var hasLeave = await _context.DoctorLeaves.AnyAsync(l =>
@@ -217,12 +231,13 @@ namespace MVCApp.Services
                     a.DoctorId == doctorId &&
                     a.AppointmentDate.Date == appointmentDate &&
                     a.Status.Name != "Cancelled" &&
+                    a.Status.Name != "Missed" &&
                     selectedStartTime < a.EndTime &&
                     a.StartTime < endTime);
 
             if (hasConflict)
             {
-                return (false, "This slot is already booked.");
+                return (false, "This slot is already booked. Please select another available slot.");
             }
 
             var confirmedStatus = await _context.AppointmentStatuses
@@ -251,6 +266,7 @@ namespace MVCApp.Services
             await _context.SaveChangesAsync();
 
             var doctorName = await GetDoctorNameAsync(doctorId);
+            var patientName = await GetPatientNameAsync(patientId);
 
             await _notificationService.CreatePatientNotificationAsync(
                 patientId,
@@ -259,6 +275,16 @@ namespace MVCApp.Services
                 "Appointment",
                 appointment.Id,
                 "Appointment");
+
+            await _notificationService.CreateDoctorNotificationAsync(
+                doctorId,
+                "New Appointment Booked",
+                $"{patientName} has been booked for an appointment on {appointmentDate:dd MMM yyyy} at {selectedStartTime:HH:mm}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
+            await BroadcastAppointmentUpdateAsync(appointment.Id);
 
             return (true, "Appointment booked successfully.");
         }
@@ -294,12 +320,12 @@ namespace MVCApp.Services
             }
 
             var oldStatus = appointment.Status.Name;
-            var allowedStatusNames = GetAllowedNextStatuses(oldStatus);
+            var allowedStatusNames = GetReceptionistAllowedNextStatuses(oldStatus);
             var refreshedModel = BuildUpdateStatusModel(appointment);
 
             if (!allowedStatusNames.Contains(model.NewStatus))
             {
-                return (false, "Invalid status transition.", refreshedModel);
+                return (false, "Invalid status transition for receptionist workflow.", refreshedModel);
             }
 
             if (model.NewStatus == "Cancelled" && string.IsNullOrWhiteSpace(model.CancellationReason))
@@ -320,7 +346,7 @@ namespace MVCApp.Services
 
             if (model.NewStatus == "Cancelled")
             {
-                appointment.CancellationReason = model.CancellationReason;
+                appointment.CancellationReason = model.CancellationReason!.Trim();
             }
             else
             {
@@ -332,10 +358,20 @@ namespace MVCApp.Services
             await _notificationService.CreatePatientNotificationAsync(
                 appointment.PatientId,
                 "Appointment Status Updated",
-                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {oldStatus} to {model.NewStatus}.",
+                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {FormatStatusName(oldStatus)} to {FormatStatusName(model.NewStatus)}.",
                 "Appointment",
                 appointment.Id,
                 "Appointment");
+
+            await _notificationService.CreateDoctorNotificationAsync(
+                appointment.DoctorId,
+                "Appointment Status Updated",
+                $"{appointment.Patient.User.FullName}'s appointment changed from {FormatStatusName(oldStatus)} to {FormatStatusName(model.NewStatus)}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
+            await BroadcastAppointmentUpdateAsync(appointment.Id);
 
             return (true, "Appointment status updated successfully.", null);
         }
@@ -440,11 +476,17 @@ namespace MVCApp.Services
             }
 
             var oldStatus = appointment.Status.Name;
-            var allowedStatuses = GetAllowedNextStatuses(oldStatus);
+
+            var allowedStatuses = oldStatus switch
+            {
+                "Confirmed" => new List<string> { "CheckedIn", "Missed" },
+                "CheckedIn" => new List<string> { "InProgress" },
+                _ => new List<string>()
+            };
 
             if (!allowedStatuses.Contains(newStatus))
             {
-                return (false, "Invalid status update.");
+                return (false, "Invalid queue update for receptionist workflow.");
             }
 
             var status = await _context.AppointmentStatuses
@@ -457,21 +499,27 @@ namespace MVCApp.Services
 
             appointment.StatusId = status.Id;
             appointment.UpdatedAt = DateTime.UtcNow;
-
-            if (newStatus != "Cancelled")
-            {
-                appointment.CancellationReason = null;
-            }
+            appointment.CancellationReason = null;
 
             await _context.SaveChangesAsync();
 
             await _notificationService.CreatePatientNotificationAsync(
                 appointment.PatientId,
                 "Appointment Status Updated",
-                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {oldStatus} to {newStatus}.",
+                $"Your appointment with Dr. {appointment.Doctor.User.FullName} changed from {FormatStatusName(oldStatus)} to {FormatStatusName(newStatus)}.",
                 "Appointment",
                 appointment.Id,
                 "Appointment");
+
+            await _notificationService.CreateDoctorNotificationAsync(
+                appointment.DoctorId,
+                "Appointment Status Updated",
+                $"{appointment.Patient.User.FullName}'s appointment changed from {FormatStatusName(oldStatus)} to {FormatStatusName(newStatus)}.",
+                "Appointment",
+                appointment.Id,
+                "Appointment");
+
+            await BroadcastAppointmentUpdateAsync(appointment.Id);
 
             return (true, "Queue status updated successfully.");
         }
@@ -562,7 +610,8 @@ namespace MVCApp.Services
                 .Include(a => a.Status)
                 .Where(a => a.DoctorId == doctorId
                          && a.AppointmentDate.Date == date.Date
-                         && a.Status.Name != "Cancelled")
+                         && a.Status.Name != "Cancelled"
+                         && a.Status.Name != "Missed")
                 .ToListAsync();
 
             foreach (var schedule in schedules)
@@ -574,10 +623,13 @@ namespace MVCApp.Services
                     var slotStart = current;
                     var slotEnd = current.AddMinutes(schedule.SlotDurationMinutes);
 
+                    var isPastSlot = date.Date == DateTime.Today &&
+                                     slotStart <= TimeOnly.FromDateTime(DateTime.Now);
+
                     var overlaps = existingAppointments.Any(a =>
                         slotStart < a.EndTime && a.StartTime < slotEnd);
 
-                    if (!overlaps)
+                    if (!isPastSlot && !overlaps)
                     {
                         slots.Add(new SelectListItem
                         {
@@ -595,7 +647,7 @@ namespace MVCApp.Services
 
         private ReceptionistUpdateAppointmentStatusViewModel BuildUpdateStatusModel(Appointment appointment)
         {
-            var allowedStatusNames = GetAllowedNextStatuses(appointment.Status.Name);
+            var allowedStatusNames = GetReceptionistAllowedNextStatuses(appointment.Status.Name);
 
             return new ReceptionistUpdateAppointmentStatusViewModel
             {
@@ -605,14 +657,30 @@ namespace MVCApp.Services
                 AppointmentDate = appointment.AppointmentDate,
                 StartTime = appointment.StartTime.ToString("HH:mm"),
                 EndTime = appointment.EndTime.ToString("HH:mm"),
-                CurrentStatus = appointment.Status.Name,
+                CurrentStatus = FormatStatusName(appointment.Status.Name),
                 AllowedStatuses = allowedStatusNames
                     .Select(s => new SelectListItem
                     {
                         Value = s,
-                        Text = s
+                        Text = FormatStatusName(s)
                     })
                     .ToList()
+            };
+        }
+
+        private static List<string> GetReceptionistAllowedNextStatuses(string currentStatus)
+        {
+            return currentStatus switch
+            {
+                "Requested" => new List<string> { "Confirmed", "Cancelled" },
+                "Confirmed" => new List<string> { "CheckedIn", "Cancelled", "Missed" },
+                "CheckedIn" => new List<string> { "InProgress", "Cancelled" },
+
+                // Receptionist should not complete medical visits.
+                // Completed should happen after the doctor creates/finishes the visit record.
+                "InProgress" => new List<string>(),
+
+                _ => new List<string>()
             };
         }
 
@@ -623,6 +691,24 @@ namespace MVCApp.Services
                 .Where(d => d.Id == doctorId)
                 .Select(d => d.User.FullName)
                 .FirstOrDefaultAsync() ?? "your doctor";
+        }
+
+        private async Task<string> GetPatientNameAsync(int patientId)
+        {
+            return await _context.Patients
+                .Include(p => p.User)
+                .Where(p => p.Id == patientId)
+                .Select(p => p.User.FullName)
+                .FirstOrDefaultAsync() ?? "The patient";
+        }
+
+        private async Task BroadcastAppointmentUpdateAsync(int appointmentId)
+        {
+            await _hubContext.Clients.Group("ReceptionistQueue")
+                .SendAsync("QueueUpdated");
+
+            await _hubContext.Clients.All
+                .SendAsync("AppointmentUpdated", appointmentId);
         }
 
         private static int GetStatusOrder(string status)
@@ -640,15 +726,13 @@ namespace MVCApp.Services
             };
         }
 
-        private static List<string> GetAllowedNextStatuses(string currentStatus)
+        private static string FormatStatusName(string statusName)
         {
-            return currentStatus switch
+            return statusName switch
             {
-                "Requested" => new List<string> { "Confirmed", "Cancelled" },
-                "Confirmed" => new List<string> { "CheckedIn", "Cancelled", "Missed" },
-                "CheckedIn" => new List<string> { "InProgress", "Missed" },
-                "InProgress" => new List<string> { "Completed" },
-                _ => new List<string>()
+                "CheckedIn" => "Checked In",
+                "InProgress" => "In Progress",
+                _ => statusName
             };
         }
     }
