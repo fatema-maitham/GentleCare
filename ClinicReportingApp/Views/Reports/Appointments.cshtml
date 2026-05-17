@@ -1,0 +1,174 @@
+@model ClinicReportingApp.ViewModels.AppointmentReportViewModel
+@{
+    ViewData["Title"] = "Appointment Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Appointment Report</h4>
+</div>
+
+<!-- ── Date Filter ────────────────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-muted small">From</label>
+                <input type="date" name="from" value="@Model.Filter.FromStr" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-muted small">To</label>
+                <input type="date" name="to" value="@Model.Filter.ToStr" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Apply Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── KPI Cards ─────────────────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    @{
+        var cards = new[]
+        {
+            ("Total",       Model.Stats.TotalAppointments.ToString(), "primary",  "bi-calendar"),
+            ("Completed",   Model.Stats.Completed.ToString(),         "success",  "bi-check-circle"),
+            ("Cancelled",   Model.Stats.Cancelled.ToString(),         "warning",  "bi-x-circle"),
+            ("Missed",      Model.Stats.Missed.ToString(),            "danger",   "bi-slash-circle"),
+            ("Pending",     Model.Stats.Pending.ToString(),           "info",     "bi-hourglass-split"),
+        };
+    }
+    @foreach (var (label, value, color, icon) in cards)
+    {
+        <div class="col-6 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi @icon text-@color fs-3"></i>
+                    <h3 class="fw-bold my-1">@value</h3>
+                    <small class="text-muted">@label</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ── Rates ──────────────────────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Completion Rate</p>
+                <h4 class="text-success fw-bold">@Model.Stats.CompletionRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-success" style="width:@Model.Stats.CompletionRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Cancellation Rate</p>
+                <h4 class="text-warning fw-bold">@Model.Stats.CancellationRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-warning" style="width:@Model.Stats.CancellationRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Missed Rate</p>
+                <h4 class="text-danger fw-bold">@Model.Stats.MissedRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-danger" style="width:@Model.Stats.MissedRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Trend Chart ────────────────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent fw-semibold border-bottom">
+        <i class="bi bi-graph-up me-2 text-primary"></i>Monthly Appointment Trend
+    </div>
+    <div class="card-body">
+        <canvas id="trendChart" height="80"></canvas>
+    </div>
+</div>
+
+<!-- ── Period Table ───────────────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent fw-semibold border-bottom">
+        <i class="bi bi-table me-2 text-primary"></i>Breakdown by Period
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Period</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">Completed</th>
+                        <th class="text-center">Cancelled</th>
+                        <th class="text-center">Missed</th>
+                        <th>Completion %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.ByPeriod)
+                    {
+                        var rate = p.Total > 0 ? Math.Round((double)p.Completed / p.Total * 100, 1) : 0;
+                        <tr>
+                            <td class="fw-semibold">@p.Period</td>
+                            <td class="text-center">@p.Total</td>
+                            <td class="text-center text-success">@p.Completed</td>
+                            <td class="text-center text-warning">@p.Cancelled</td>
+                            <td class="text-center text-danger">@p.Missed</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height:6px;">
+                                        <div class="progress-bar bg-success" style="width:@rate%"></div>
+                                    </div>
+                                    <small>@rate%</small>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        var periodsJson = System.Text.Json.JsonSerializer.Serialize(Model.ByPeriod.Select(p => p.Period));
+        var completedJson = System.Text.Json.JsonSerializer.Serialize(Model.ByPeriod.Select(p => p.Completed));
+        var cancelledJson = System.Text.Json.JsonSerializer.Serialize(Model.ByPeriod.Select(p => p.Cancelled));
+        var missedJson = System.Text.Json.JsonSerializer.Serialize(Model.ByPeriod.Select(p => p.Missed));
+    }
+    <script>
+        const periods   = @Html.Raw(periodsJson);
+        const completed = @Html.Raw(completedJson);
+        const cancelled = @Html.Raw(cancelledJson);
+        const missed    = @Html.Raw(missedJson);
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: periods,
+                datasets: [
+                    { label: 'Completed', data: completed, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.1)', tension: 0.4, fill: true },
+                    { label: 'Cancelled', data: cancelled, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,.05)', tension: 0.4 },
+                    { label: 'Missed',    data: missed,    borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.05)', tension: 0.4 }
+                ]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+    </script>
+}
