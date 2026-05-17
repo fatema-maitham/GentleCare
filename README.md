@@ -94,11 +94,13 @@ GentleCare/
 ├── README.md                                      // Project documentation
 ├── schema.sql                                     // SQL script for database schema
 ├── seed.sql                                       // SQL script for seeded test data
+├── .gitignore                                     // Git ignored files configuration
+├── .gitattributes                                 // Git repository attributes
 │
 ├── WebAPI/                                        // ASP.NET Core Web API and shared data layer
 │   │
 │   ├── WebAPI.csproj                              // Web API project file
-│   ├── Program.cs                                 // API startup, services, middleware, authentication, SignalR
+│   ├── Program.cs                                 // API startup, services, middleware, authentication, CORS, and SignalR
 │   ├── appsettings.json                           // API configuration and connection string
 │   ├── appsettings.Development.json               // Development configuration
 │   ├── WebAPI.http                                // API testing requests
@@ -113,17 +115,24 @@ GentleCare/
 │   │   └── WeatherForecastController.cs           // Default generated test controller
 │   │
 │   ├── DTO/                                       // API data transfer objects
-│   │   └── DTO files                              // Request and response shapes for API communication
+│   │   ├── AppointmentDTOs.cs                     // Appointment request and response DTOs
+│   │   ├── AuthDTOs.cs                            // Authentication DTOs
+│   │   ├── DoctorDTOs.cs                          // Doctor DTOs
+│   │   ├── PatientDTOs.cs                         // Patient DTOs
+│   │   └── ReportDTOs.cs                          // Report DTOs
 │   │
 │   ├── Data/                                      // Database configuration and seeding
 │   │   ├── ApplicationDbContext.cs                // EF Core DbContext and database relationships
-│   │   └── DbSeeder.cs                            // Seeds users, roles, doctors, patients, statuses, and test data
+│   │   └── DbSeeder.cs                            // Seeds users, roles, doctors, patients, statuses, notifications, and test data
 │   │
 │   ├── Hubs/                                      // SignalR hubs
 │   │   └── AppointmentHub.cs                      // Real-time appointment and queue update hub
 │   │
 │   ├── Migrations/                                // EF Core migrations
-│   │   └── migration files                        // Auto-generated database migration files
+│   │   ├── 20260401193514_InitialCreate.cs        // Initial database migration
+│   │   ├── 20260408104851_ImprovedSchema.cs       // Improved schema migration
+│   │   ├── 20260410191344_LookupTables.cs         // Lookup tables migration
+│   │   └── ApplicationDbContextModelSnapshot.cs   // Current EF Core model snapshot
 │   │
 │   ├── Models/                                    // Database entity models
 │   │   ├── ApplicationUser.cs                     // Identity user extension with profile and active status
@@ -136,7 +145,7 @@ GentleCare/
 │   │   ├── Notification.cs                        // User notification entity
 │   │   ├── NotificationType.cs                    // Notification type lookup entity
 │   │   ├── Patient.cs                             // Patient profile entity
-│   │   ├── Prescription.cs                         // Prescription entity linked to visit records
+│   │   ├── Prescription.cs                        // Prescription entity linked to visit records
 │   │   ├── Specialization.cs                      // Medical specialization entity
 │   │   └── VisitRecord.cs                         // Visit record entity for completed appointments
 │   │
@@ -144,105 +153,116 @@ GentleCare/
 │   │   └── launchSettings.json                    // Local run profiles
 │   │
 │   └── Services/                                  // API services
-│       ├── NotificationHubService.cs             // Sends real-time notification updates through SignalR
-│       └── TokenService.cs                       // Creates JWT tokens for authenticated users
+│       ├── NotificationHubService.cs              // Sends real-time notification updates through SignalR
+│       └── TokenService.cs                        // Creates JWT tokens for authenticated users
 │
 │
 ├── MVCApp/                                        // ASP.NET Core MVC user-facing application
 │   │
 │   ├── MVCApp.csproj                              // MVC project file
-│   ├── Program.cs                                 // MVC startup, services, Identity, EF Core, routing, session
+│   ├── Program.cs                                 // MVC startup, services, Identity, EF Core, routing, and session
 │   ├── appsettings.json                           // MVC configuration and connection string
 │   ├── appsettings.Development.json               // Development configuration
 │   │
 │   ├── Controllers/                               // MVC page controllers
-│   │   ├── AccountController.cs                   // Login, logout, access denied, and account logic
-│   │   ├── AppointmentController.cs               // Appointment booking and appointment-related MVC pages
+│   │   ├── AccountController.cs                   // Login, register, logout, and access denied logic
+│   │   ├── AppointmentController.cs               // General appointment pages and appointment-related actions
 │   │   ├── ClinicManagerController.cs             // Clinic Manager dashboard, doctors, schedules, reports, accounts, announcements
 │   │   ├── DashboardController.cs                 // Role-based dashboard routing
-│   │   ├── DoctorAppointmentController.cs         // Doctor appointment list, details, status, history, and follow-up requests
+│   │   ├── DoctorAppointmentController.cs         // Doctor appointments, details, status updates, history, and follow-up requests
 │   │   ├── DoctorController.cs                    // Doctor dashboard, schedule, profile, and notifications
-│   │   ├── PatientController.cs                   // Patient dashboard, booking, appointments, history, and profile
+│   │   ├── PatientController.cs                   // Patient dashboard, booking, appointments, history, notifications, and profile
 │   │   ├── PrescriptionController.cs              // Prescription pages and actions
 │   │   ├── PublicController.cs                    // Public appointment lookup page using API
-│   │   ├── ReceptionistController.cs              // Receptionist appointment and queue workflow
+│   │   ├── ReceptionistController.cs              // Receptionist booking, appointment workflow, patient search, and live queue
 │   │   └── VisitRecordController.cs               // Visit record creation and editing
 │   │
 │   ├── Models/                                    // General MVC models
 │   │   └── ErrorViewModel.cs                      // Error page model
 │   │
-│   ├── Services/                                  // Business logic services
+│   ├── Services/                                  // MVC business logic services
 │   │   ├── AppointmentWorkflowService.cs          // Appointment status workflow and valid transition rules
 │   │   ├── ClinicManagerService.cs                // Clinic Manager business logic
-│   │   ├── DoctorAppointmentService.cs            // Doctor appointment, history, and follow-up logic
-│   │   ├── DoctorDashboardService.cs              // Doctor dashboard, schedule, profile, and notifications logic
+│   │   ├── ClinicNotificationService.cs           // Clinic announcement and role notification logic
+│   │   ├── DoctorAppointmentService.cs            // Doctor appointment, history, visit, prescription, and follow-up logic
+│   │   ├── DoctorDashboardService.cs              // Doctor dashboard, schedule, profile, and notification logic
 │   │   ├── NotificationService.cs                 // Creates and reads in-system notifications
-│   │   ├── PatientService.cs                      // Patient dashboard, booking, profile, and history logic
+│   │   ├── PatientService.cs                      // Patient dashboard, booking, profile, notifications, and history logic
 │   │   ├── PrescriptionService.cs                 // Prescription business logic
-│   │   ├── VisitRecordService.cs                  // Visit record and treatment logic
-│   │   │
-│   │   └── Interfaces/                            // Service contracts
-│   │       ├── IAppointmentWorkflowService.cs     // Appointment workflow service interface
-│   │       ├── IClinicManagerService.cs           // Clinic Manager service interface
-│   │       ├── IDoctorAppointmentService.cs       // Doctor appointment service interface
-│   │       ├── IDoctorDashboardService.cs         // Doctor dashboard service interface
-│   │       ├── INotificationService.cs            // Notification service interface
-│   │       ├── IPatientService.cs                 // Patient service interface
-│   │       ├── IPrescriptionService.cs            // Prescription service interface
-│   │       └── IVisitRecordService.cs             // Visit record service interface
+│   │   ├── ReceptionistService.cs                 // Receptionist booking, queue, patient search, and appointment workflow logic
+│   │   └── VisitRecordService.cs                  // Visit record and treatment logic
+│   │
+│   ├── Services/Interfaces/                       // Service contracts
+│   │   ├── IAppointmentWorkflowService.cs         // Appointment workflow service interface
+│   │   ├── IClinicManagerService.cs               // Clinic Manager service interface
+│   │   ├── IClinicNotificationService.cs          // Clinic notification and announcement service interface
+│   │   ├── IDoctorAppointmentService.cs           // Doctor appointment service interface
+│   │   ├── IDoctorDashboardService.cs             // Doctor dashboard service interface
+│   │   ├── INotificationService.cs                // Notification service interface
+│   │   ├── IPatientService.cs                     // Patient service interface
+│   │   ├── IPrescriptionService.cs                // Prescription service interface
+│   │   ├── IReceptionistService.cs                // Receptionist service interface
+│   │   └── IVisitRecordService.cs                 // Visit record service interface
 │   │
 │   ├── ViewModels/                                // Strongly typed page models
+│   │   ├── LoginViewModel.cs                      // Login form model
+│   │   ├── RegisterViewModel.cs                   // Registration form model
 │   │   │
 │   │   ├── Appointment/                           // Appointment view models
-│   │   │   └── appointment view model files       // Appointment booking and display models
+│   │   │   ├── CreatePrescriptionViewModel.cs     // Create prescription model
+│   │   │   ├── CreateVisitRecordViewModel.cs      // Create visit record model
+│   │   │   ├── DoctorAppointmentDetailsViewModel.cs       // Doctor appointment details model
+│   │   │   ├── DoctorAppointmentListItemViewModel.cs      // Doctor appointment row model
+│   │   │   └── UpdateAppointmentStatusViewModel.cs        // Appointment status update model
 │   │   │
 │   │   ├── ClinicManager/                         // Clinic Manager view models
 │   │   │   ├── AppointmentImpactViewModel.cs      // Affected appointment review model
+│   │   │   ├── AppointmentRescheduleSuggestionViewModel.cs // Suggested replacement slot model
 │   │   │   ├── ClinicAnnouncementViewModel.cs     // Announcement creation model
-│   │   │   ├── ClinicManagerAppointmentDetailsViewModel.cs    // Manager appointment details model
-│   │   │   ├── ClinicManagerAppointmentItemViewModel.cs       // Appointment list item model
-│   │   │   ├── ClinicManagerAppointmentStatusViewModel.cs     // Manager status update model
-│   │   │   ├── ClinicManagerAppointmentsViewModel.cs          // Manager appointment list page model
-│   │   │   ├── ClinicManagerDashboardViewModel.cs             // Manager dashboard summary model
-│   │   │   ├── ClinicManagerDoctorDetailsViewModel.cs         // Doctor details model
-│   │   │   ├── ClinicManagerDoctorListItemViewModel.cs        // Doctor row model
-│   │   │   ├── ClinicManagerDoctorListViewModel.cs            // Doctor list page model
-│   │   │   ├── ClinicManagerNotificationViewModel.cs          // Manager notification model
-│   │   │   ├── ClinicManagerProfileViewModel.cs               // Manager profile model
-│   │   │   ├── ClinicManagerUserAccountsViewModel.cs          // Account activation and deactivation model
-│   │   │   ├── ClinicReportItemViewModel.cs                   // Doctor utilization report row model
-│   │   │   ├── ClinicReportViewModel.cs                       // Full reports dashboard model
-│   │   │   ├── DoctorCreateViewModel.cs                       // Create doctor form model
-│   │   │   ├── DoctorEditViewModel.cs                         // Edit doctor form model
-│   │   │   ├── DoctorLeaveFormViewModel.cs                    // Doctor leave form model
-│   │   │   ├── DoctorLeaveItemViewModel.cs                    // Doctor leave row model
-│   │   │   ├── DoctorScheduleFormViewModel.cs                 // Doctor schedule form model
-│   │   │   ├── DoctorScheduleItemViewModel.cs                 // Doctor schedule row model
-│   │   │   ├── EditClinicManagerProfileViewModel.cs           // Edit manager profile model
-│   │   │   ├── ImpactedAppointmentItemViewModel.cs            // Impacted appointment row model
-│   │   │   ├── ManageDoctorLeavesViewModel.cs                 // Manage doctor leaves page model
-│   │   │   ├── ManageDoctorScheduleViewModel.cs               // Manage doctor schedule page model
-│   │   │   ├── ManageDoctorSpecializationsViewModel.cs        // Manage specializations page model
-│   │   │   └── SpecializationSelectionViewModel.cs            // Specialization checkbox model
+│   │   │   ├── ClinicManagerAppointmentDetailsViewModel.cs // Manager appointment details model
+│   │   │   ├── ClinicManagerAppointmentItemViewModel.cs    // Manager appointment row model
+│   │   │   ├── ClinicManagerAppointmentStatusViewModel.cs  // Manager appointment status model
+│   │   │   ├── ClinicManagerAppointmentsViewModel.cs       // Manager appointment list model
+│   │   │   ├── ClinicManagerDashboardViewModel.cs          // Manager dashboard model
+│   │   │   ├── ClinicManagerDoctorDetailsViewModel.cs      // Doctor details model
+│   │   │   ├── ClinicManagerDoctorListItemViewModel.cs     // Doctor row model
+│   │   │   ├── ClinicManagerDoctorListViewModel.cs         // Doctor list page model
+│   │   │   ├── ClinicManagerNotificationViewModel.cs       // Manager notification model
+│   │   │   ├── ClinicManagerProfileViewModel.cs            // Manager profile model
+│   │   │   ├── ClinicManagerUserAccountsViewModel.cs       // Account activation/deactivation model
+│   │   │   ├── ClinicReportItemViewModel.cs                // Doctor utilization report row model
+│   │   │   ├── ClinicReportViewModel.cs                    // Full reports dashboard model
+│   │   │   ├── DoctorCreateViewModel.cs                    // Create doctor form model
+│   │   │   ├── DoctorEditViewModel.cs                      // Edit doctor form model
+│   │   │   ├── DoctorLeaveFormViewModel.cs                 // Doctor leave form model
+│   │   │   ├── DoctorLeaveItemViewModel.cs                 // Doctor leave row model
+│   │   │   ├── DoctorScheduleFormViewModel.cs              // Doctor schedule form model
+│   │   │   ├── DoctorScheduleItemViewModel.cs              // Doctor schedule row model
+│   │   │   ├── EditClinicManagerProfileViewModel.cs        // Edit manager profile model
+│   │   │   ├── ImpactedAppointmentItemViewModel.cs         // Impacted appointment row model
+│   │   │   ├── ManageDoctorLeavesViewModel.cs              // Manage doctor leaves page model
+│   │   │   ├── ManageDoctorScheduleViewModel.cs            // Manage doctor schedules page model
+│   │   │   ├── ManageDoctorSpecializationsViewModel.cs     // Manage doctor specializations page model
+│   │   │   └── SpecializationSelectionViewModel.cs         // Specialization checkbox model
 │   │   │
 │   │   ├── Doctor/                                // Doctor view models
 │   │   │   ├── CreateFollowUpRequestViewModel.cs  // Follow-up appointment request form model
 │   │   │   ├── CreateVisitRecordViewModel.cs      // Create visit record model
-│   │   │   ├── DoctorAppointmentDetailsViewModel.cs           // Doctor appointment details model
-│   │   │   ├── DoctorAppointmentListItemViewModel.cs          // Doctor appointment row model
-│   │   │   ├── DoctorAppointmentListViewModel.cs              // Doctor appointments page model
-│   │   │   ├── DoctorDashboardViewModel.cs                    // Doctor dashboard model
-│   │   │   ├── DoctorNotificationsViewModel.cs                // Doctor notifications model
-│   │   │   ├── DoctorPatientHistoryViewModel.cs               // Doctor patient history model
-│   │   │   ├── DoctorPrescriptionViewModel.cs                 // Doctor prescription display model
-│   │   │   ├── DoctorProfileViewModel.cs                      // Doctor profile model
-│   │   │   ├── DoctorScheduleItemViewModel.cs                 // Doctor schedule item model
-│   │   │   ├── DoctorScheduleViewModel.cs                     // Doctor schedule page model
-│   │   │   ├── EditDoctorProfileViewModel.cs                  // Edit doctor profile model
-│   │   │   ├── EditVisitRecordViewModel.cs                    // Edit visit record model
-│   │   │   ├── PrescriptionInputViewModel.cs                  // Prescription input model
-│   │   │   ├── UpdateAppointmentStatusViewModel.cs            // Doctor status update model
-│   │   │   └── VisitRecordDetailsViewModel.cs                 // Visit record details model
+│   │   │   ├── DoctorAppointmentDetailsViewModel.cs       // Doctor appointment details model
+│   │   │   ├── DoctorAppointmentListItemViewModel.cs      // Doctor appointment row model
+│   │   │   ├── DoctorAppointmentListViewModel.cs          // Doctor appointment list page model
+│   │   │   ├── DoctorDashboardViewModel.cs                // Doctor dashboard model
+│   │   │   ├── DoctorNotificationsViewModel.cs            // Doctor notifications model
+│   │   │   ├── DoctorPatientHistoryViewModel.cs           // Patient history model for doctor
+│   │   │   ├── DoctorPrescriptionViewModel.cs             // Doctor prescription display model
+│   │   │   ├── DoctorProfileViewModel.cs                  // Doctor profile model
+│   │   │   ├── DoctorScheduleItemViewModel.cs             // Doctor schedule row model
+│   │   │   ├── DoctorScheduleViewModel.cs                 // Doctor schedule page model
+│   │   │   ├── EditDoctorProfileViewModel.cs              // Edit doctor profile model
+│   │   │   ├── EditVisitRecordViewModel.cs                // Edit visit record model
+│   │   │   ├── PrescriptionInputViewModel.cs              // Prescription input model
+│   │   │   ├── UpdateAppointmentStatusViewModel.cs        // Doctor appointment status update model
+│   │   │   └── VisitRecordDetailsViewModel.cs             // Visit record details model
 │   │   │
 │   │   ├── Patient/                               // Patient view models
 │   │   │   ├── PatientAppointmentsViewModel.cs    // Patient appointment list model
@@ -250,27 +270,38 @@ GentleCare/
 │   │   │   ├── PatientDashboardViewModel.cs       // Patient dashboard model
 │   │   │   ├── PatientEditProfileViewModel.cs     // Edit patient profile model
 │   │   │   ├── PatientHistoryViewModel.cs         // Patient visit history model
+│   │   │   ├── PatientNotificationViewModel.cs    // Patient notification model
 │   │   │   ├── PatientProfileViewModel.cs         // Patient profile model
 │   │   │   └── PrescriptionItemViewModel.cs       // Prescription row model
 │   │   │
 │   │   ├── Public/                                // Public lookup view models
-│   │   │   └── PublicAppointmentLookupViewModel.cs // Public lookup result model
+│   │   │   └── PublicAppointmentLookupViewModel.cs // Public appointment lookup result model
 │   │   │
 │   │   └── Receptionist/                          // Receptionist view models
 │   │       ├── ReceptionistAppointmentListItemViewModel.cs     // Receptionist appointment row model
 │   │       ├── ReceptionistAppointmentsPageViewModel.cs        // Receptionist appointment page model
 │   │       ├── ReceptionistBookAppointmentViewModel.cs         // Receptionist booking model
 │   │       ├── ReceptionistDashboardViewModel.cs               // Receptionist dashboard model
+│   │       ├── ReceptionistLiveQueueItemViewModel.cs           // Live queue row model
+│   │       ├── ReceptionistLiveQueueViewModel.cs               // Live queue page model
+│   │       ├── ReceptionistPatientSearchResultViewModel.cs     // Patient search result model
+│   │       ├── ReceptionistPatientSearchViewModel.cs           // Patient search page model
 │   │       └── ReceptionistUpdateAppointmentStatusViewModel.cs // Receptionist status update model
 │   │
 │   ├── Views/                                     // Razor views
-│   │   │
 │   │   ├── Account/                               // Account pages
 │   │   │   ├── AccessDenied.cshtml                // Access denied page
-│   │   │   └── Login.cshtml                       // Login page
+│   │   │   ├── Login.cshtml                       // Login page
+│   │   │   └── Register.cshtml                    // Register page
 │   │   │
-│   │   ├── Appointment/                           // Appointment pages
-│   │   │   └── appointment views                  // General appointment views
+│   │   ├── Appointment/                           // General appointment pages
+│   │   │   ├── AddPrescription.cshtml             // Add prescription page
+│   │   │   ├── Book.cshtml                        // Appointment booking page
+│   │   │   ├── CreateVisitRecord.cshtml           // Create visit record page
+│   │   │   ├── Details.cshtml                     // Appointment details page
+│   │   │   ├── List.cshtml                        // Appointment list page
+│   │   │   ├── MyAppointments.cshtml              // Current user's appointments page
+│   │   │   └── PatientHistory.cshtml              // Patient history page
 │   │   │
 │   │   ├── ClinicManager/                         // Clinic Manager pages
 │   │   │   ├── AppointmentDetails.cshtml          // Manager appointment details page
@@ -296,8 +327,8 @@ GentleCare/
 │   │   │   ├── UpdateAppointmentStatus.cshtml     // Manager appointment status update page
 │   │   │   └── UserAccounts.cshtml                // User activation and deactivation page
 │   │   │
-│   │   ├── Dashboard/                             // Shared dashboard pages
-│   │   │   └── dashboard views                    // Role routing or dashboard support views
+│   │   ├── Dashboard/                             // Shared dashboard routing
+│   │   │   └── Index.cshtml                       // Redirects users to the correct role dashboard
 │   │   │
 │   │   ├── Doctor/                                // Doctor pages
 │   │   │   ├── AppointmentDetails.cshtml          // Doctor appointment details page
@@ -305,6 +336,7 @@ GentleCare/
 │   │   │   ├── CreateFollowUpRequest.cshtml       // Follow-up request form page
 │   │   │   ├── CreateVisitRecord.cshtml           // Create visit record page
 │   │   │   ├── Dashboard.cshtml                   // Doctor dashboard page
+│   │   │   ├── DoctorAppointmentStatusViewModel.cs // Doctor appointment status support view file
 │   │   │   ├── EditProfile.cshtml                 // Edit doctor profile page
 │   │   │   ├── EditVisitRecord.cshtml             // Edit visit record page
 │   │   │   ├── Notifications.cshtml               // Doctor notifications page
@@ -320,6 +352,7 @@ GentleCare/
 │   │   │   ├── Dashboard.cshtml                   // Patient dashboard page
 │   │   │   ├── EditProfile.cshtml                 // Edit patient profile page
 │   │   │   ├── History.cshtml                     // Patient visit history page
+│   │   │   ├── Notifications.cshtml               // Patient notifications page
 │   │   │   └── Profile.cshtml                     // Patient profile page
 │   │   │
 │   │   ├── Public/                                // Public pages
@@ -329,6 +362,8 @@ GentleCare/
 │   │   │   ├── Appointments.cshtml                // Receptionist appointments page
 │   │   │   ├── BookAppointment.cshtml             // Receptionist booking page
 │   │   │   ├── Index.cshtml                       // Receptionist dashboard page
+│   │   │   ├── LiveQueue.cshtml                   // Receptionist live queue page
+│   │   │   ├── PatientSearch.cshtml               // Receptionist patient search page
 │   │   │   └── UpdateStatus.cshtml                // Receptionist status update page
 │   │   │
 │   │   └── Shared/                                // Shared layout and partial views
@@ -340,12 +375,19 @@ GentleCare/
 │   │       └── _ValidationScriptsPartial.cshtml   // Client-side validation scripts
 │   │
 │   ├── wwwroot/                                   // Static web assets
+│   │   ├── favicon.ico                            // Browser icon
+│   │   ├── logo.png                               // GentleCare logo
 │   │   ├── css/
 │   │   │   └── site.css                           // Main site CSS
 │   │   ├── js/
 │   │   │   └── site.js                            // Main site JavaScript
 │   │   ├── images/                                // Uploaded and static images
-│   │   └── lib/                                   // Client libraries
+│   │   │   ├── gentlecare-erd.jpeg                // ERD image used in README
+│   │   │   ├── default-patient.png                // Default patient image
+│   │   │   ├── doctors/                           // Doctor profile images
+│   │   │   ├── managers/                          // Manager profile images
+│   │   │   └── patients/                          // Patient profile images
+│   │   └── lib/                                   // Client libraries such as Bootstrap, jQuery, and validation scripts
 │   │
 │   └── Properties/
 │       └── launchSettings.json                    // MVC local run profiles
