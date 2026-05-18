@@ -1,14 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using WebAPI.Models;
 
 namespace WebAPI.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly IHttpContextAccessor? _httpContextAccessor;
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IHttpContextAccessor? httpContextAccessor = null)
             : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<Doctor> Doctors { get; set; }
@@ -145,6 +151,36 @@ namespace WebAPI.Data
                 new NotificationType { Id = 2, Name = "Prescription" },
                 new NotificationType { Id = 3, Name = "General" }
             );
+        }
+
+        public override Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<AuditableEntity>();
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = GetCurrentUser();
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedBy = GetCurrentUser();
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private string GetCurrentUser()
+        {
+            return _httpContextAccessor?.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?
+                .Value ?? "System";
         }
     }
 }
