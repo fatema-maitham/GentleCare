@@ -1,13 +1,13 @@
 ﻿namespace WebAPI.Models
 {
-    public class Doctor
+    public class Doctor : AuditableEntity
     {
         public int Id { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string LicenseNumber { get; set; } = string.Empty;
         public string? Bio { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        //public DateTime? UpdatedAt { get; set; }
 
    
         public ApplicationUser User { get; set; } = null!;

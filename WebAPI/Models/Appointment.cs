@@ -1,6 +1,6 @@
 ﻿namespace WebAPI.Models
 {
-    public class Appointment
+    public class Appointment : AuditableEntity
     {
         public int Id { get; set; }
         public int PatientId { get; set; }
@@ -11,8 +11,8 @@
         public TimeOnly EndTime { get; set; }
         public string? Notes { get; set; }
         public string? CancellationReason { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        //public DateTime? UpdatedAt { get; set; }
 
         
         public Patient Patient { get; set; } = null!;
