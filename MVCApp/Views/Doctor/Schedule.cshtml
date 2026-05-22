@@ -11,10 +11,14 @@
         var mins = minutes % 60;
 
         if (hours > 0 && mins > 0)
+        {
             return $"{hours} hr {mins} min";
+        }
 
         if (hours > 0)
+        {
             return hours == 1 ? "1 hr" : $"{hours} hrs";
+        }
 
         return $"{mins} min";
     }
@@ -26,250 +30,134 @@
 
     int GetTotalMinutes(TimeOnly start, TimeOnly end)
     {
-        if (end <= start) return 0;
+        if (end <= start)
+        {
+            return 0;
+        }
+
         return (int)(end - start).TotalMinutes;
     }
 }
 
-<section class="doctor-schedule-page">
-
-    <div class="schedule-summary">
-        <div class="summary-card">
-            <span>Working Days</span>
-            <strong>@Model.WorkingDaysCount</strong>
+<div class="doctor-page">
+    <div class="doctor-schedule-page">
+        <div class="manager-card dashboard-hero">
+            <div class="card-head">
+                <div>
+                    <h2>My Schedule</h2>
+                    <span class="muted">Dr. @Model.DoctorFullName</span>
+                </div>
+            </div>
         </div>
 
-        <div class="summary-card">
-            <span>Schedule Rows</span>
-            <strong>@Model.Schedules.Count</strong>
+        <div class="schedule-summary">
+            <div class="doctor-stat-card">
+                <strong>@Model.WorkingDaysCount</strong>
+                <span>Working Days</span>
+            </div>
+
+            <div class="doctor-stat-card">
+                <strong>@Model.Schedules.Count</strong>
+                <span>Schedule Rows</span>
+            </div>
+
+            <div class="doctor-stat-card">
+                <strong>@Model.Leaves.Count</strong>
+                <span>Leave Periods</span>
+            </div>
         </div>
 
-        <div class="summary-card">
-            <span>Leave Periods</span>
-            <strong>@Model.Leaves.Count</strong>
-        </div>
-    </div>
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Weekly Working Schedule</h2>
+            </div>
 
-    <div class="schedule-panel">
-        <h2>Weekly Working Schedule</h2>
-
-        @if (Model.HasSchedules)
-        {
-            <div class="table-responsive">
-                <table class="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Shift Duration</th>
-                            <th>Slot Duration</th>
-                            <th>Available Slots</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var schedule in Model.Schedules)
-                        {
-                            var totalMinutes = GetTotalMinutes(schedule.StartTime, schedule.EndTime);
-
-                            var slotCount = schedule.SlotDurationMinutes > 0 && totalMinutes > 0
-                            ? totalMinutes / schedule.SlotDurationMinutes
-                            : 0;
-
+            @if (Model.HasSchedules)
+            {
+                <div class="table-wrap">
+                    <table class="schedule-table">
+                        <thead>
                             <tr>
-                                <td class="fw-bold">@schedule.DayOfWeek</td>
-                                <td>@FormatTimeOnly(schedule.StartTime)</td>
-                                <td>@FormatTimeOnly(schedule.EndTime)</td>
-                                <td>@FormatDuration(totalMinutes)</td>
-                                <td>@FormatDuration(schedule.SlotDurationMinutes)</td>
-                                <td>@slotCount slots</td>
+                                <th>Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Shift Duration</th>
+                                <th>Slot Duration</th>
+                                <th>Available Slots</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var schedule in Model.Schedules)
+                            {
+                                var totalMinutes = GetTotalMinutes(schedule.StartTime, schedule.EndTime);
+                                var slotCount = schedule.SlotDurationMinutes > 0 && totalMinutes > 0
+                                    ? totalMinutes / schedule.SlotDurationMinutes
+                                    : 0;
+
+                                <tr>
+                                    <td class="fw-bold">@schedule.DayOfWeek</td>
+                                    <td>@FormatTimeOnly(schedule.StartTime)</td>
+                                    <td>@FormatTimeOnly(schedule.EndTime)</td>
+                                    <td>@FormatDuration(totalMinutes)</td>
+                                    <td>@FormatDuration(schedule.SlotDurationMinutes)</td>
+                                    <td>@slotCount slots</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    No weekly schedule has been configured for you yet.
+                </div>
+            }
+        </div>
+
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Leave Periods</h2>
             </div>
-        }
-        else
-        {
-            <div class="empty-box">
-                No weekly schedule has been configured for you yet.
-            </div>
-        }
-    </div>
 
-    <div class="schedule-panel">
-        <h2>Leave Periods</h2>
-
-        @if (Model.HasLeaves)
-        {
-            <div class="table-responsive">
-                <table class="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Leave Duration</th>
-                            <th>Reason</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var leave in Model.Leaves)
-                        {
-                            var leaveDays = (leave.EndDate.Date - leave.StartDate.Date).Days + 1;
-
+            @if (Model.HasLeaves)
+            {
+                <div class="table-wrap">
+                    <table class="schedule-table">
+                        <thead>
                             <tr>
-                                <td>@leave.StartDate.ToString("dd MMM yyyy")</td>
-                                <td>@leave.EndDate.ToString("dd MMM yyyy")</td>
-                                <td>@leaveDays day@(leaveDays == 1 ? "" : "s")</td>
-                                <td>
-                                    @(string.IsNullOrWhiteSpace(leave.Reason)
-                                                                ? "No reason recorded"
-                                                                : leave.Reason)
-                        </td>
-                    </tr>
-                                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="empty-box">
-                No leave periods are recorded for you.
-            </div>
-        }
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Leave Duration</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var leave in Model.Leaves)
+                            {
+                                var leaveDays = (leave.EndDate.Date - leave.StartDate.Date).Days + 1;
+
+                                <tr>
+                                    <td>@leave.StartDate.ToString("dd MMM yyyy")</td>
+                                    <td>@leave.EndDate.ToString("dd MMM yyyy")</td>
+                                    <td>@leaveDays day@(leaveDays == 1 ? "" : "s")</td>
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(leave.Reason) ? "No reason recorded" : leave.Reason)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    No leave periods are recorded for you.
+                </div>
+            }
+        </div>
     </div>
-
-</section>
-
-<style>
-    .doctor-schedule-page {
-        min-height: calc(100vh - 90px);
-        padding: 38px 22px;
-        background: #f1efed;
-    }
-
-    .schedule-summary {
-        max-width: 1120px;
-        margin: 0 auto 24px auto;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-    }
-
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 18px;
-        padding: 22px;
-        min-height: 116px;
-        text-align: left;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-    }
-
-    .summary-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 5px;
-        background: #075168;
-    }
-
-        .summary-card span {
-        display: block;
-        color: #12262F;
-        font-size: 15px;
-        font-weight: 800;
-    }
-
-        .summary-card strong {
-        display: block;
-        color: #075168;
-        font-size: 40px;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 12px;
-    }
-
-        
-
-    .schedule-panel {
-        max-width: 1120px;
-        margin: 0 auto 24px auto;
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 22px;
-        padding: 24px;
-    }
-
-        .schedule-panel h2 {
-            color: #06485F;
-            font-size: 22px;
-            font-weight: 900;
-            margin-bottom: 18px;
-        }
-
-    .schedule-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        overflow: hidden;
-        border: 1px solid #d9e2e4;
-        border-radius: 16px;
-        background: #ffffff;
-    }
-
-        .schedule-table thead th {
-            background: #eaf3f6;
-            color: #06485F;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 14px;
-            border-bottom: 1px solid #d9e2e4;
-            white-space: nowrap;
-        }
-
-        .schedule-table tbody td {
-            color: #102a36;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 14px;
-            border-bottom: 1px solid #edf1f2;
-            vertical-align: middle;
-        }
-
-        .schedule-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .schedule-table tbody tr:hover {
-            background: #f8fafb;
-        }
-
-    .empty-box {
-        background: #f8fafb;
-        border: 1px dashed #93acb4;
-        color: #06485F;
-        border-radius: 16px;
-        padding: 18px;
-        text-align: center;
-        font-weight: 800;
-    }
-
-    @@media (max-width: 900px) {
-        .schedule-summary
-
-    {
-        grid-template-columns: 1fr;
-    }
-
-    .schedule-panel {
-        padding: 18px;
-    }
-
-    }
-</style>
+</div>

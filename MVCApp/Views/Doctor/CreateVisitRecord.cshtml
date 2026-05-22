@@ -4,251 +4,166 @@
     ViewData["Title"] = "Create Visit Record";
 }
 
-<div class="container mt-4 visit-form-page">
-
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <a asp-controller="DoctorAppointment"
-           asp-action="AppointmentDetails"
-           asp-route-id="@Model.AppointmentId"
-           class="btn btn-outline-secondary">
-            Back to Appointment
-        </a>
-    </div>
-
-    @if (TempData["Success"] != null)
-    {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    }
-
-    <!-- Appointment and patient summary -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white">
-            <h5 class="fw-bold mb-0">Appointment Summary</h5>
+<div class="doctor-page">
+    <div class="doctor-visit-page">
+        <div class="manager-top">
+            <a asp-controller="DoctorAppointment"
+               asp-action="AppointmentDetails"
+               asp-route-id="@Model.AppointmentId"
+               class="btn-light">
+                Back to Appointment
+            </a>
         </div>
 
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Patient</dt>
-                <dd class="col-sm-9">@Model.PatientFullName</dd>
+        @if (TempData["Success"] != null)
+        {
+            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+        }
 
-                <dt class="col-sm-3">Appointment Date</dt>
-                <dd class="col-sm-9">@Model.AppointmentDateDisplay</dd>
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
-                <dt class="col-sm-3">Appointment Time</dt>
-                <dd class="col-sm-9">@Model.TimeDisplay</dd>
-            </dl>
-        </div>
-    </div>
+        <form asp-controller="VisitRecord"
+              asp-action="CreateVisitRecord"
+              method="post"
+              class="manager-form">
+            @Html.AntiForgeryToken()
 
-    <!-- Visit record form -->
-    <form action="/Doctor/CreateVisitRecord" method="post">
+            <input asp-for="AppointmentId" type="hidden" />
+            <input asp-for="PatientId" type="hidden" />
+            <input asp-for="PatientFullName" type="hidden" />
+            <input asp-for="AppointmentDate" type="hidden" />
+            <input asp-for="StartTime" type="hidden" />
+            <input asp-for="EndTime" type="hidden" />
 
-        @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-        <input asp-for="AppointmentId" type="hidden" />
-        <input asp-for="PatientId" type="hidden" />
-        <input asp-for="PatientFullName" type="hidden" />
-        <input asp-for="AppointmentDate" type="hidden" />
-        <input asp-for="StartTime" type="hidden" />
-        <input asp-for="EndTime" type="hidden" />
-
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="fw-bold mb-0">Medical Visit Details</h5>
-            </div>
-
-            <div class="card-body">
-                <div class="mb-3">
-                    <label asp-for="DoctorNotes" class="form-label"></label>
-                    <textarea asp-for="DoctorNotes"
-                              class="form-control"
-                              rows="4"
-                              placeholder="Write the consultation notes"></textarea>
-                    <span asp-validation-for="DoctorNotes" class="text-danger"></span>
+            <div class="manager-card">
+                <div class="card-head">
+                    <h2>Appointment Summary</h2>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Diagnosis" class="form-label"></label>
-                    <textarea asp-for="Diagnosis"
-                              class="form-control"
-                              rows="3"
-                              placeholder="Write the diagnosis"></textarea>
-                    <span asp-validation-for="Diagnosis" class="text-danger"></span>
-                </div>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <span>Patient</span>
+                        <strong>@Model.PatientFullName</strong>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="Treatment" class="form-label"></label>
-                    <textarea asp-for="Treatment"
-                              class="form-control"
-                              rows="3"
-                              placeholder="Write the treatment plan if needed"></textarea>
-                    <span asp-validation-for="Treatment" class="text-danger"></span>
+                    <div class="info-box">
+                        <span>Appointment Date</span>
+                        <strong>@Model.AppointmentDateDisplay</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Appointment Time</span>
+                        <strong>@Model.TimeDisplay</strong>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Prescription section -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="fw-bold mb-0">Prescriptions</h5>
+            <div class="manager-card">
+                <div class="card-head">
+                    <h2>Medical Visit Details</h2>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label asp-for="DoctorNotes"></label>
+                        <textarea asp-for="DoctorNotes"
+                                  placeholder="Write the consultation notes"></textarea>
+                        <span asp-validation-for="DoctorNotes" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label asp-for="Diagnosis"></label>
+                        <textarea asp-for="Diagnosis"
+                                  placeholder="Write the diagnosis"></textarea>
+                        <span asp-validation-for="Diagnosis" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label asp-for="Treatment"></label>
+                        <textarea asp-for="Treatment"
+                                  placeholder="Write the treatment plan if needed"></textarea>
+                        <span asp-validation-for="Treatment" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="card-body">
-                <p class="text-muted">
+            <div class="manager-card">
+                <div class="card-head">
+                    <h2>Prescriptions</h2>
+                </div>
+
+                <div class="muted">
                     You can enter prescription details if medication is required. Leave the row empty if there is no prescription.
-                </p>
+                </div>
 
                 @for (var i = 0; i < Model.Prescriptions.Count; i++)
                 {
-                <div class="border rounded p-3 mb-3">
-                    <h6 class="fw-bold mb-3">Prescription @(i + 1)</h6>
+                    <div class="prescription-card">
+                        <h3>Prescription @(i + 1)</h3>
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="Prescriptions[i].MedicationName" class="form-label"></label>
-                            <input asp-for="Prescriptions[i].MedicationName"
-                                   class="form-control"
-                                   placeholder="Example: Paracetamol" />
-                            <span asp-validation-for="Prescriptions[i].MedicationName" class="text-danger"></span>
-                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label asp-for="Prescriptions[i].MedicationName"></label>
+                                <input asp-for="Prescriptions[i].MedicationName" placeholder="Example: Paracetamol" />
+                                <span asp-validation-for="Prescriptions[i].MedicationName" class="text-danger"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Prescriptions[i].Dosage" class="form-label"></label>
-                            <input asp-for="Prescriptions[i].Dosage"
-                                   class="form-control"
-                                   placeholder="Example: 500mg" />
-                            <span asp-validation-for="Prescriptions[i].Dosage" class="text-danger"></span>
-                        </div>
+                            <div class="form-group">
+                                <label asp-for="Prescriptions[i].Dosage"></label>
+                                <input asp-for="Prescriptions[i].Dosage" placeholder="Example: 500mg" />
+                                <span asp-validation-for="Prescriptions[i].Dosage" class="text-danger"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Prescriptions[i].Frequency" class="form-label"></label>
-                            <input asp-for="Prescriptions[i].Frequency"
-                                   class="form-control"
-                                   placeholder="Example: Twice daily" />
-                            <span asp-validation-for="Prescriptions[i].Frequency" class="text-danger"></span>
-                        </div>
+                            <div class="form-group">
+                                <label asp-for="Prescriptions[i].Frequency"></label>
+                                <input asp-for="Prescriptions[i].Frequency" placeholder="Example: Twice daily" />
+                                <span asp-validation-for="Prescriptions[i].Frequency" class="text-danger"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Prescriptions[i].DurationDays" class="form-label"></label>
-                            <input asp-for="Prescriptions[i].DurationDays"
-                                   class="form-control"
-                                   type="number"
-                                   min="0" />
-                            <span asp-validation-for="Prescriptions[i].DurationDays" class="text-danger"></span>
-                        </div>
+                            <div class="form-group">
+                                <label asp-for="Prescriptions[i].DurationDays"></label>
+                                <input asp-for="Prescriptions[i].DurationDays" type="number" min="0" />
+                                <span asp-validation-for="Prescriptions[i].DurationDays" class="text-danger"></span>
+                            </div>
 
-                        <div class="col-12">
-                            <label asp-for="Prescriptions[i].Instructions" class="form-label"></label>
-                            <textarea asp-for="Prescriptions[i].Instructions"
-                                      class="form-control"
-                                      rows="2"
-                                      placeholder="Example: Take after food"></textarea>
-                            <span asp-validation-for="Prescriptions[i].Instructions" class="text-danger"></span>
+                            <div class="form-group full">
+                                <label asp-for="Prescriptions[i].Instructions"></label>
+                                <textarea asp-for="Prescriptions[i].Instructions"
+                                          placeholder="Example: Take after food"></textarea>
+                                <span asp-validation-for="Prescriptions[i].Instructions" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
                 }
 
                 @if (!Model.Prescriptions.Any())
                 {
-                <div class="alert alert-info mb-0">
-                    No prescription row is available. You can still save the visit record without prescriptions.
-                </div>
+                    <div class="empty-box">
+                        No prescription row is available. You can still save the visit record without prescriptions.
+                    </div>
                 }
             </div>
-        </div>
 
-        <!-- Form actions -->
-        <div class="d-flex justify-content-end gap-2 mb-4">
-            <a asp-controller="DoctorAppointment"
-               asp-action="AppointmentDetails"
-               asp-route-id="@Model.AppointmentId"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+            <div class="actions">
+                <a asp-controller="DoctorAppointment"
+                   asp-action="AppointmentDetails"
+                   asp-route-id="@Model.AppointmentId"
+                   class="btn-light">
+                    Cancel
+                </a>
 
-            <button type="submit" class="btn btn-success">
-                Save Visit Record
-            </button>
-        </div>
-    </form>
+                <button type="submit" class="btn-main">
+                    Save Visit Record
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-
-<style>
-    body { background: #F4F1EE; }
-
-    .visit-form-page {
-        max-width: 980px;
-        padding-bottom: 50px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .card {
-        border: 1px solid #D6DDDE !important;
-        border-radius: 22px !important;
-        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08) !important;
-        overflow: hidden;
-    }
-
-    .card-header {
-        padding: 18px 22px;
-        border-bottom: 1px solid #E9EEEE !important;
-    }
-
-    .card-header h5 {
-        color: #075168;
-        font-size: 20px;
-        font-weight: 900;
-    }
-
-    .form-label,
-    dt {
-        color: #12262F;
-        font-weight: 850;
-    }
-
-    .form-control {
-        border-radius: 14px;
-        border: 1px solid #D6DDDE;
-        font-weight: 650;
-    }
-
-    .form-control:focus {
-        border-color: #00779B;
-        box-shadow: 0 0 0 3px rgba(0,119,155,.13);
-    }
-
-    .btn-success,
-    .btn-primary {
-        background: #075168 !important;
-        border-color: #075168 !important;
-        border-radius: 14px;
-        font-weight: 900;
-        padding: 10px 18px;
-    }
-
-    .btn-outline-secondary {
-        color: #075168 !important;
-        border-color: #C9DBDF !important;
-        background: #E7F1F3 !important;
-        border-radius: 14px;
-        font-weight: 900;
-        padding: 10px 18px;
-    }
-</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

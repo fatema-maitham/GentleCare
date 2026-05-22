@@ -8,6 +8,7 @@
         : Url.Content("~/images/managers/" + System.IO.Path.GetFileName(Model.CurrentProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
+<div class="manager-page">
 <div class="manager-profile-page">
 
     @if (TempData["Success"] != null)
@@ -86,6 +87,7 @@
         </form>
 
     </section>
+</div>
 </div>
 
 @section Scripts {
