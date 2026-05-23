@@ -90,6 +90,178 @@
     </div>
 </div>
 
+<style>
+    .manager-edit-page {
+        max-width: 760px;
+        margin: 28px auto 55px;
+        padding: 0 18px;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }
+
+    .manager-edit-card {
+        background: #ffffff;
+        border: 1px solid #d6ddde;
+        border-radius: 24px;
+        padding: 34px;
+        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+    }
+
+    .manager-edit-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+        .manager-edit-header h1 {
+            margin: 0;
+            color: #075168;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .manager-edit-header p {
+            margin: 8px 0 0;
+            color: #687a80;
+            font-weight: 600;
+        }
+
+    .manager-avatar-area {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 28px;
+    }
+
+    .manager-avatar-wrap {
+        position: relative;
+        width: 130px;
+        height: 130px;
+    }
+
+    .manager-avatar-img {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ffffff;
+        border: 5px solid #e7f1f3;
+    }
+
+    .manager-camera-btn {
+        position: absolute;
+        right: 4px;
+        bottom: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #075168;
+        color: #ffffff;
+        border: 3px solid #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .manager-camera-btn:hover {
+            background: #00779b;
+            transform: translateY(-2px);
+        }
+
+    .manager-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .manager-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .manager-form-group label {
+        color: #12262f;
+        font-weight: 850;
+        margin-bottom: 7px;
+        display: block;
+    }
+
+    .manager-form-control {
+        width: 100%;
+        border: 1px solid #c9dbdf;
+        border-radius: 14px;
+        padding: 13px 15px;
+        color: #12262f;
+        background: #ffffff;
+        font-weight: 600;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+        .manager-form-control:focus {
+            border-color: #075168;
+            box-shadow: 0 0 0 4px rgba(7, 81, 104, 0.10);
+        }
+
+    .manager-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .manager-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 20px;
+        font-weight: 900;
+        text-decoration: none;
+        transition: 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .manager-btn-primary {
+        background: #075168;
+        color: #ffffff;
+    }
+
+        .manager-btn-primary:hover {
+            background: #00779b;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+    .manager-btn-secondary {
+        background: #e7f1f3;
+        color: #075168;
+    }
+
+        .manager-btn-secondary:hover {
+            background: #dce8ea;
+            color: #075168;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 700px) {
+        .manager-edit-card {
+            padding: 24px;
+        }
+
+        .manager-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .manager-edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .manager-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
