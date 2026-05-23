@@ -146,6 +146,7 @@ main,
 #wrapper {
     display: flex;
     min-height: 100vh;
+    min-width: 0;
 }
 
 #sidebar {
@@ -248,6 +249,7 @@ main,
     display: flex;
     flex-direction: column;
     margin-left: 230px;
+    overflow-x: hidden;
 }
 
 .content-area {
@@ -1905,6 +1907,456 @@ main,
     text-align: center;
 }
 
+/* ===== Responsive Design ===== */
+
+@media (max-width: 960px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    #sidebar {
+        display: none;
+    }
+
+    .content-area {
+        padding: 20px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .page-header h1 {
+            font-size: 26px;
+        }
+}
+
+@media (max-width: 640px) {
+    .auth-page,
+    .lookup-page {
+        padding: 24px 16px;
+    }
+
+    .auth-card,
+    .lookup-card,
+    .lookup-results {
+        border-radius: 12px;
+    }
+
+    .auth-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-header,
+    .lookup-header,
+    .auth-form {
+        padding: 24px 16px;
+    }
+
+        .auth-header h1,
+        .lookup-header h1 {
+            font-size: 24px;
+        }
+
+    .appointment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+}
+
+/* ===== Manager Pages (Dashboard, Doctors, Appointments, etc) ===== */
+
+.manager-page {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 22px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.manager-page > .manager-card,
+.manager-page > .manager-grid {
+    width: 100%;
+}
+
+.manager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+.manager-card {
+    background: #fff;
+    border: 1px solid var(--gc-border);
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
+    padding: 22px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .manager-page {
+        padding: 20px 16px 40px;
+    }
+
+    .manager-card {
+        padding: 18px;
+    }
+}
+
+.manager-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.manager-stat,
+.manager-card {
+    background: #fff;
+    border: 1px solid var(--gc-border);
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
+}
+
+.manager-stat {
+    padding: 18px;
+}
+
+    .manager-stat span {
+        display: block;
+        color: var(--gc-muted);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .manager-stat strong {
+        display: block;
+        color: var(--gc-main);
+        font-size: 30px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+.manager-card {
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+    .card-head h2 {
+        margin: 0;
+        color: var(--gc-text);
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+.muted {
+    color: var(--gc-muted);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.info-box {
+    background: var(--gc-soft);
+    border: 1px solid #E2E8EA;
+    border-radius: 14px;
+    padding: 14px;
+}
+
+    .info-box span {
+        display: block;
+        color: var(--gc-muted);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .info-box strong {
+        display: block;
+        color: var(--gc-text);
+        font-size: 15px;
+        font-weight: 900;
+        word-break: break-word;
+    }
+
+.manager-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.manager-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+    .manager-table th {
+        text-align: left;
+        padding: 13px 12px;
+        color: var(--gc-muted);
+        font-size: 13px;
+        font-weight: 900;
+        border-bottom: 1px solid #E5ECEE;
+        background: #FAFCFC;
+        white-space: nowrap;
+    }
+
+    .manager-table td {
+        padding: 14px 12px;
+        color: var(--gc-text);
+        font-size: 14px;
+        font-weight: 650;
+        border-bottom: 1px solid #EEF2F3;
+        vertical-align: top;
+    }
+
+    .manager-table tr:last-child td {
+        border-bottom: none;
+    }
+
+.filter-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 16px;
+}
+
+.doctor-page .doctor-appointments-page .doctor-filter-form {
+    row-gap: 22px;
+}
+
+.doctor-page .doctor-appointments-page .filter-actions {
+    margin-top: 8px;
+    align-self: end;
+}
+
+.manager-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        color: var(--gc-text);
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+.form-control,
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #B9CBD0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: var(--gc-text);
+    background: #fff;
+    font-size: 15px;
+    font-weight: 650;
+    outline: none;
+}
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: var(--gc-main);
+        box-shadow: 0 0 0 3px rgba(7, 81, 104, 0.12);
+    }
+
+.check-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.check-item {
+    border: 1px solid #E2E8EA;
+    background: #FAFCFC;
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 800;
+    color: var(--gc-text);
+}
+
+    .check-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin: 0;
+        order: 2;
+    }
+
+    .check-item span {
+        display: block;
+        color: var(--gc-text);
+        font-weight: 800;
+        margin-top: 0;
+        order: 1;
+        flex: 1;
+    }
+
+    .check-item small {
+        display: block;
+        color: var(--gc-muted);
+        font-weight: 650;
+        margin-top: 3px;
+    }
+
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-main,
+.btn-light,
+.btn-danger {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 900;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    transition: all 0.2s ease;
+}
+
+.btn-main {
+    background: var(--gc-main);
+    color: #fff;
+}
+
+    .btn-main:hover {
+        background: var(--gc-accent);
+        color: #fff;
+    }
+
+.btn-light {
+    background: #F1F5F9;
+    color: var(--gc-text);
+    border: 1px solid var(--gc-border);
+}
+
+    .btn-light:hover {
+        background: var(--gc-border);
+    }
+
+.btn-danger {
+    background: #FFF1F0;
+    color: var(--gc-danger);
+    border: 1px solid #F3B8B2;
+}
+
+    .btn-danger:hover {
+        background: #DC2626;
+        color: #fff;
+    }
+
+.table-link {
+    background: #EEF6F8;
+    color: var(--gc-main);
+    padding: 7px 10px;
+    min-height: 32px;
+    margin: 2px;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+    .table-link:hover {
+        background: var(--gc-main);
+        color: #fff;
+    }
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(3, 105, 161, 0.12);
+    color: var(--gc-accent);
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.empty-box {
+    background: #FAFCFC;
+    border: 1px dashed #B9CBD0;
+    border-radius: 16px;
+    padding: 22px;
+    color: var(--gc-muted);
+    font-weight: 800;
+    text-align: center;
+}
+
 /* ===== Doctor Pages Base ===== */
 .doctor-page {
     width: 100%;
@@ -1946,6 +2398,7 @@ main,
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    margin-bottom: 18px;
 }
 
 .doctor-page .card-head {
@@ -1963,12 +2416,6 @@ main,
         font-size: 20px;
         font-weight: 900;
     }
-
-.doctor-page .muted {
-    color: var(--gc-muted);
-    font-weight: 700;
-    font-size: 14px;
-}
 
 .doctor-page .manager-alert {
     border-radius: 14px;
@@ -2202,34 +2649,29 @@ main,
     background: #fff;
     border: 1px solid var(--gc-border);
     border-radius: 18px;
-    padding: 22px;
-    min-height: 116px;
-    box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
-    position: relative;
+    padding: 18px;
+    min-height: unset;
+    position: static;
     overflow: hidden;
 }
 
 .doctor-page .dashboard-stat::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 5px;
-    background: var(--gc-main);
+    display: none;
 }
 
 .doctor-page .dashboard-number {
     display: block;
     color: var(--gc-main);
-    font-size: 40px;
+    font-size: 30px;
     font-weight: 900;
     line-height: 1;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .doctor-page .dashboard-stat span {
     display: block;
-    color: var(--gc-text);
-    font-size: 15px;
+    color: var(--gc-muted);
+    font-size: 13px;
     font-weight: 800;
 }
 
@@ -2458,34 +2900,29 @@ main,
     background: #fff;
     border: 1px solid var(--gc-border);
     border-radius: 18px;
-    padding: 22px;
-    min-height: 116px;
-    box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
-    position: relative;
+    padding: 18px;
+    min-height: unset;
+    position: static;
     overflow: hidden;
 }
 
 .doctor-page .doctor-stat-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 5px;
-    background: var(--gc-main);
+    display: none;
 }
 
 .doctor-page .doctor-stat-card strong {
     display: block;
     color: var(--gc-main);
-    font-size: 40px;
+    font-size: 30px;
     font-weight: 900;
     line-height: 1;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .doctor-page .doctor-stat-card span {
     display: block;
-    color: var(--gc-text);
-    font-size: 15px;
+    color: var(--gc-muted);
+    font-size: 13px;
     font-weight: 800;
 }
 
@@ -2876,8 +3313,8 @@ main,
     background: #fff;
     border: 1px solid var(--gc-border);
     border-radius: 18px;
-    padding: 22px;
-    min-height: 116px;
+    padding: 18px;
+    min-height: unset;
     box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
     position: relative;
     overflow: hidden;
@@ -3090,3 +3527,839 @@ main,
         width: 100%;
     }
 }
+
+/* ===== Manager Profile Pages ===== */
+.manager-page .manager-profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.manager-page .manager-profile-card {
+    background: #fff;
+    border: 1px solid var(--gc-border);
+    border-radius: 24px;
+    padding: 34px;
+    box-shadow: 0 10px 24px rgba(8, 47, 73, 0.08);
+}
+
+.manager-page .manager-avatar-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.manager-page .manager-avatar-img {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    background: #ffffff;
+    border: 5px solid #E0F2FE;
+    display: block;
+}
+
+.manager-page .manager-name-block {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+    .manager-page .manager-name-block h2 {
+        margin: 0;
+        color: var(--gc-text);
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+.manager-page .manager-badge {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: rgba(3, 105, 161, 0.12);
+    color: var(--gc-accent);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.manager-page .manager-info-list {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid #E5ECEE;
+}
+
+.manager-page .manager-info-row {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid #EEF2F3;
+    align-items: start;
+}
+
+.manager-page .manager-label {
+    color: var(--gc-muted);
+    font-weight: 900;
+}
+
+.manager-page .manager-value {
+    color: var(--gc-text);
+    font-weight: 850;
+    word-break: break-word;
+}
+
+.manager-page .manager-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+.manager-page .manager-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.manager-page .manager-btn-primary {
+    background: var(--gc-main);
+    color: #ffffff;
+}
+
+    .manager-page .manager-btn-primary:hover {
+        background: var(--gc-accent);
+        color: #ffffff;
+    }
+
+.manager-page .manager-btn-secondary {
+    background: #E0F2FE;
+    color: var(--gc-accent);
+}
+
+    .manager-page .manager-btn-secondary:hover {
+        background: #BAE6FD;
+        color: var(--gc-accent);
+    }
+
+.manager-page .manager-btn-danger {
+    background: var(--gc-danger);
+    color: #ffffff;
+}
+
+    .manager-page .manager-btn-danger:hover {
+        background: #B91C1C;
+        color: #ffffff;
+    }
+
+.manager-page .manager-btn-success {
+    background: var(--gc-success);
+    color: #ffffff;
+}
+
+    .manager-page .manager-btn-success:hover {
+        background: #15803D;
+        color: #ffffff;
+    }
+
+.manager-page .manager-camera-btn {
+    position: absolute;
+    right: 4px;
+    bottom: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gc-main);
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.manager-page .manager-camera-btn:hover {
+    background: var(--gc-accent);
+    transform: translateY(-2px);
+}
+
+.manager-page .manager-edit-form {
+    display: grid;
+    gap: 18px;
+}
+
+.manager-page .manager-edit-grid {
+    display: grid;
+    gap: 0;
+    margin-bottom: 24px;
+}
+
+.manager-page .manager-edit-row {
+    display: grid;
+    gap: 8px;
+    padding: 14px 0;
+    border-bottom: 1px solid #EEF2F3;
+}
+
+    .manager-page .manager-edit-row:last-child {
+        border-bottom: none;
+    }
+
+    .manager-page .manager-edit-row label {
+        color: var(--gc-muted);
+        font-weight: 900;
+    }
+
+    .manager-page .manager-edit-row input {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid #B9CBD0;
+        border-radius: 12px;
+        padding: 10px 12px;
+        color: var(--gc-text);
+        background: #fff;
+        font-size: 15px;
+        font-weight: 650;
+        outline: none;
+        font-family: inherit;
+    }
+
+        .manager-page .manager-edit-row input:focus {
+            border-color: var(--gc-main);
+            box-shadow: 0 0 0 3px rgba(8, 47, 73, 0.12);
+        }
+
+.manager-page .manager-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .manager-page .manager-profile-card {
+        padding: 24px;
+    }
+
+    .manager-page .manager-info-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .manager-page .manager-profile-actions,
+    .manager-page .manager-edit-actions {
+        flex-direction: column;
+    }
+
+    .manager-page .manager-btn {
+        width: 100%;
+    }
+}
+
+.manager-page .reports-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+    .manager-page .reports-page .report-card {
+        background: #fff;
+        border: 1px solid var(--gc-border);
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 8px 20px rgba(8, 47, 73, 0.05);
+        margin-bottom: 0;
+    }
+
+    .manager-page .reports-page .report-filter-card {
+        padding-bottom: 20px;
+    }
+
+    .manager-page .reports-page .report-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #E9EEEE;
+        margin-bottom: 18px;
+    }
+
+        .manager-page .reports-page .report-card-header h2 {
+            margin: 0;
+            color: var(--gc-main);
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+    .manager-page .reports-page .header-note {
+        margin: 6px 0 0;
+        color: var(--gc-muted);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .manager-page .reports-page .filter-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 16px;
+        align-items: end;
+    }
+
+        .manager-page .reports-page .filter-form .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+            .manager-page .reports-page .filter-form .form-group label {
+                color: var(--gc-text);
+                font-weight: 900;
+                font-size: 14px;
+            }
+
+            .manager-page .reports-page .filter-form .form-group input {
+                width: 100%;
+                min-height: 44px;
+                border: 1px solid #B9CBD0;
+                border-radius: 13px;
+                padding: 10px 12px;
+                color: var(--gc-text);
+                background: #fff;
+                font-size: 15px;
+                font-weight: 700;
+                outline: none;
+                font-family: inherit;
+            }
+
+                .manager-page .reports-page .filter-form .form-group input:focus {
+                    border-color: var(--gc-main);
+                    box-shadow: 0 0 0 3px rgba(8, 47, 73, 0.12);
+                }
+
+    .manager-page .reports-page .filter-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .manager-page .reports-page .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .manager-page .reports-page .summary-box {
+        background: #F7FAFA;
+        border: 1px solid #E2E8EA;
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+        .manager-page .reports-page .summary-box span,
+        .manager-page .reports-page .mini-box span {
+            display: block;
+            color: var(--gc-muted);
+            font-size: 13px;
+            font-weight: 850;
+            margin-bottom: 8px;
+        }
+
+        .manager-page .reports-page .summary-box strong {
+            display: block;
+            color: var(--gc-main);
+            font-size: 31px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+    .manager-page .reports-page .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+
+    .manager-page .reports-page .mini-box {
+        background: #ffffff;
+        border: 1px solid #E2E8EA;
+        border-radius: 16px;
+        padding: 15px;
+    }
+
+        .manager-page .reports-page .mini-box strong {
+            color: var(--gc-text);
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+    .manager-page .reports-page .two-column-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .manager-page .reports-page .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .manager-page .reports-page .reports-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+        .manager-page .reports-page .reports-table.compact {
+            min-width: 520px;
+        }
+
+        .manager-page .reports-page .reports-table th {
+            background: #F8FAFC;
+            color: var(--gc-muted);
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 13px;
+            font-weight: 900;
+            border-bottom: 1px solid var(--gc-border);
+            white-space: nowrap;
+        }
+
+        .manager-page .reports-page .reports-table td {
+            color: var(--gc-text);
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            border-bottom: 1px solid #EEF2F3;
+            vertical-align: middle;
+        }
+
+            .manager-page .reports-page .reports-table td strong {
+                display: block;
+                color: var(--gc-text);
+                font-weight: 900;
+            }
+
+            .manager-page .reports-page .reports-table td small {
+                display: block;
+                color: var(--gc-muted);
+                font-size: 12px;
+                font-weight: 700;
+                margin-top: 4px;
+            }
+
+    .manager-page .reports-page .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 11px;
+        background: rgba(3, 105, 161, 0.12);
+        color: var(--gc-accent);
+        border: 1px solid rgba(3, 105, 161, 0.2);
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+        .manager-page .reports-page .pill.danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--gc-danger);
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+    .manager-page .reports-page .empty-box {
+        background: #FAFCFC;
+        border: 1px dashed #B9CBD0;
+        border-radius: 16px;
+        padding: 22px;
+        color: var(--gc-muted);
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .manager-page .reports-page .date-error {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 13px;
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--gc-danger);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        font-weight: 850;
+    }
+
+@media (max-width: 950px) {
+    .manager-page .reports-page .filter-form,
+    .manager-page .reports-page .two-column-grid,
+    .manager-page .reports-page .mini-grid,
+    .manager-page .reports-page .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-page .reports-page .filter-actions .btn-main,
+    .manager-page .reports-page .filter-actions .btn-light {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ===== Manager User Accounts Page ===== */
+.manager-page .accounts-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+    .manager-page .accounts-page .accounts-card {
+        background: #fff;
+        border: 1px solid var(--gc-border);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(8, 47, 73, 0.05);
+        margin-bottom: 0;
+    }
+
+    .manager-page .accounts-page .accounts-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #E9EEEE;
+    }
+
+        .manager-page .accounts-page .accounts-card-header h4 {
+            margin: 0;
+            color: var(--gc-main);
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+    .manager-page .accounts-page .accounts-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+        .manager-page .accounts-page .accounts-header-row span {
+            color: var(--gc-muted);
+            font-weight: 800;
+        }
+
+    .manager-page .accounts-page .accounts-filter {
+        padding: 24px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 16px;
+        align-items: end;
+    }
+
+        .manager-page .accounts-page .accounts-filter .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+            .manager-page .accounts-page .accounts-filter .form-group label {
+                color: var(--gc-text);
+                font-weight: 900;
+                font-size: 14px;
+            }
+
+            .manager-page .accounts-page .accounts-filter .form-group input,
+            .manager-page .accounts-page .accounts-filter .form-group select {
+                width: 100%;
+                min-height: 44px;
+                border: 1px solid #B9CBD0;
+                border-radius: 13px;
+                padding: 10px 12px;
+                color: var(--gc-text);
+                background: #fff;
+                font-size: 15px;
+                font-weight: 700;
+                outline: none;
+                font-family: inherit;
+            }
+
+                .manager-page .accounts-page .accounts-filter .form-group input:focus,
+                .manager-page .accounts-page .accounts-filter .form-group select:focus {
+                    border-color: var(--gc-main);
+                    box-shadow: 0 0 0 3px rgba(8, 47, 73, 0.12);
+                }
+
+    .manager-page .accounts-page .filter-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .manager-page .accounts-page .accounts-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .manager-page .accounts-page .accounts-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+        .manager-page .accounts-page .accounts-table th {
+            background: #F8FAFC;
+            color: var(--gc-muted);
+            padding: 15px 18px;
+            font-weight: 900;
+            border-bottom: 1px solid var(--gc-border);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .manager-page .accounts-page .accounts-table td {
+            padding: 17px 18px;
+            border-bottom: 1px solid #EDF1F2;
+            color: var(--gc-text);
+            font-weight: 650;
+            vertical-align: middle;
+        }
+
+            .manager-page .accounts-page .accounts-table td strong {
+                display: block;
+                color: var(--gc-text);
+                font-weight: 900;
+            }
+
+    .manager-page .accounts-page .action-col {
+        text-align: right;
+    }
+
+    .manager-page .accounts-page .status-badge {
+        display: inline-flex;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+        .manager-page .accounts-page .status-badge.active {
+            background: rgba(22, 163, 74, 0.12);
+            color: var(--gc-success);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+        }
+
+        .manager-page .accounts-page .status-badge.inactive {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--gc-danger);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+    .manager-page .accounts-page .primary-btn,
+    .manager-page .accounts-page .secondary-btn,
+    .manager-page .accounts-page .danger-btn,
+    .manager-page .accounts-page .success-btn {
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-weight: 900;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .manager-page .accounts-page .primary-btn {
+        background: var(--gc-main);
+        color: #ffffff;
+    }
+
+        .manager-page .accounts-page .primary-btn:hover {
+            background: var(--gc-accent);
+            color: #ffffff;
+        }
+
+    .manager-page .accounts-page .secondary-btn {
+        background: #E0F2FE;
+        color: var(--gc-accent);
+    }
+
+        .manager-page .accounts-page .secondary-btn:hover {
+            background: #BAE6FD;
+            color: var(--gc-accent);
+        }
+
+    .manager-page .accounts-page .danger-btn {
+        background: var(--gc-danger);
+        color: #ffffff;
+    }
+
+        .manager-page .accounts-page .danger-btn:hover {
+            background: #B91C1C;
+            color: #ffffff;
+        }
+
+    .manager-page .accounts-page .success-btn {
+        background: var(--gc-success);
+        color: #ffffff;
+    }
+
+        .manager-page .accounts-page .success-btn:hover {
+            background: #15803D;
+            color: #ffffff;
+    }
+
+    .manager-page .accounts-page .empty-box {
+        margin: 24px;
+    }
+
+@media (max-width: 950px) {
+    .manager-page .accounts-page .accounts-filter,
+    .manager-page .accounts-page .two-column-grid,
+    .manager-page .accounts-page .mini-grid,
+    .manager-page .accounts-page .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-page .accounts-page .filter-actions .btn-main,
+    .manager-page .accounts-page .filter-actions .btn-light {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .manager-page .accounts-page .accounts-card-header {
+        padding: 18px 20px;
+    }
+
+    .manager-page .accounts-page .accounts-filter {
+        padding: 20px;
+    }
+
+    .manager-page .accounts-page .accounts-table th,
+    .manager-page .accounts-page .accounts-table td {
+        padding: 14px 14px;
+    }
+
+    .manager-page .accounts-page .action-col {
+        text-align: left;
+    }
+}
+
+.manager-page .announcement-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.manager-page .announcement-page .manager-card {
+    margin-bottom: 0;
+}
+
+.manager-page .announcement-page .announcement-form {
+    display: grid;
+    gap: 18px;
+}
+
+.manager-page .announcement-page .announcement-form .form-group {
+    display: grid;
+    gap: 7px;
+}
+
+.manager-page .announcement-page .announcement-form .form-group label {
+    color: var(--gc-text);
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.manager-page .announcement-page .announcement-form .form-group input,
+.manager-page .announcement-page .announcement-form .form-group select,
+.manager-page .announcement-page .announcement-form .form-group textarea {
+    width: 100%;
+    border: 1px solid #B9CBD0;
+    border-radius: 14px;
+    padding: 13px 14px;
+    color: var(--gc-text);
+    background: #ffffff;
+    font-weight: 650;
+    outline: none;
+    font-family: inherit;
+}
+
+.manager-page .announcement-page .announcement-form .form-group textarea {
+    min-height: 170px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.manager-page .announcement-page .announcement-form .form-group input:focus,
+.manager-page .announcement-page .announcement-form .form-group select:focus,
+.manager-page .announcement-page .announcement-form .form-group textarea:focus {
+    border-color: var(--gc-accent);
+    box-shadow: 0 0 0 4px rgba(3, 105, 161, 0.14);
+}
+
+.manager-page .announcement-page .announcement-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.manager-page .announcement-page .validation-summary-errors {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--gc-danger);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-weight: 750;
+}
+
+@media (max-width: 768px) {
+    .manager-page .announcement-page .announcement-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .manager-page .announcement-page .announcement-actions .btn-main,
+    .manager-page .announcement-page .announcement-actions .btn-light {
+        width: 100%;
+    }
+}
+
+#wrapper {
+    min-width: 0;
+}
+
+.main-content,
+.content-area,
+.doctor-page,
+.manager-page,
+.reports-page,
+.accounts-page,
+.announcement-page {
+    min-width: 0;
+}
+
+.doctor-page .doctor-appointments-page .doctor-stat-card-wrap,
+.doctor-page .doctor-appointments-page .manager-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+}
+
+.doctor-page .doctor-appointments-page .doctor-stat-card {
+    margin: 0;
+}
+

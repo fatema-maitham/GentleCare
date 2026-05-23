@@ -7,15 +7,15 @@
 <div class="manager-page">
 <div class="reports-page">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">@TempData["Success"]</div>
-    }
+        @if (TempData["Success"] != null)
+        {
+            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+        }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">@TempData["Error"]</div>
-    }
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
     <div class="report-card report-filter-card no-print">
         <form asp-controller="ClinicManager"

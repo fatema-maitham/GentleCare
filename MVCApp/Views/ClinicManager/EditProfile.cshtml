@@ -9,85 +9,85 @@
 }
 
 <div class="manager-page">
-<div class="manager-profile-page">
+    <div class="manager-profile-page">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-    }
+        @if (TempData["Success"] != null)
+        {
+            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+        }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-    }
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
-    <section class="manager-profile-card">
+        <section class="manager-profile-card">
 
-        <div class="manager-avatar-area">
-            <div style="position: relative; width: 135px; height: 135px; margin: 0 auto;">
-                <img src="@profileImage"
-                     id="managerImagePreview"
-                     class="manager-avatar-img"
-                     alt="Clinic manager profile picture"
-                     onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
+            <div class="manager-avatar-area">
+                <div style="position: relative; width: 135px; height: 135px; margin: 0 auto;">
+                    <img src="@profileImage"
+                         id="managerImagePreview"
+                         class="manager-avatar-img"
+                         alt="Clinic manager profile picture"
+                         onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
 
-                <label for="ProfilePictureFile" class="manager-camera-btn" title="Change picture" style="position: absolute; right: 4px; bottom: 8px; width: 40px; height: 40px; border-radius: 50%; background: #075168; color: #ffffff; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s ease;">
-                    <i class="bi bi-camera-fill"></i>
-                </label>
-            </div>
-        </div>
-
-        <form asp-controller="ClinicManager"
-              asp-action="EditProfile"
-              method="post"
-              enctype="multipart/form-data">
-
-            @Html.AntiForgeryToken()
-
-            <input asp-for="CurrentProfilePicture" type="hidden" />
-            <input asp-for="ProfilePictureFile"
-                   id="ProfilePictureFile"
-                   type="file"
-                   class="d-none"
-                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div style="display: grid; gap: 0; margin-bottom: 24px;">
-                <div style="display: grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 0; border-bottom: 1px solid #EEF2F3;">
-                    <label for="FullName" style="color: #687a80; font-weight: 900;">Full Name</label>
-                    <input asp-for="FullName" style="width: 100%; min-height: 44px; border: 1px solid #B9CBD0; border-radius: 12px; padding: 10px 12px; color: #0F172A; background: #fff; font-size: 15px; font-weight: 650; outline: none;" />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 0; border-bottom: 1px solid #EEF2F3;">
-                    <label for="Email" style="color: #687a80; font-weight: 900;">Email</label>
-                    <input asp-for="Email" style="width: 100%; min-height: 44px; border: 1px solid #B9CBD0; border-radius: 12px; padding: 10px 12px; color: #0F172A; background: #fff; font-size: 15px; font-weight: 650; outline: none;" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 0; border-bottom: none;">
-                    <label for="PhoneNumber" style="color: #687a80; font-weight: 900;">Phone Number</label>
-                    <input asp-for="PhoneNumber" style="width: 100%; min-height: 44px; border: 1px solid #B9CBD0; border-radius: 12px; padding: 10px 12px; color: #0F172A; background: #fff; font-size: 15px; font-weight: 650; outline: none;" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    <label for="ProfilePictureFile" class="manager-camera-btn" title="Change picture">
+                        <i class="bi bi-camera-fill"></i>
+                    </label>
                 </div>
             </div>
 
-            <div class="manager-profile-actions">
-                <a asp-controller="ClinicManager"
-                   asp-action="Profile"
-                   class="manager-btn manager-btn-secondary">
-                    Cancel
-                </a>
+            <form asp-controller="ClinicManager"
+                  asp-action="EditProfile"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="manager-edit-form">
+                @Html.AntiForgeryToken()
 
-                <button type="submit" class="manager-btn manager-btn-primary">
-                    Save Changes
-                </button>
-            </div>
-        </form>
+                <input asp-for="CurrentProfilePicture" type="hidden" />
+                <input asp-for="ProfilePictureFile"
+                       id="ProfilePictureFile"
+                       type="file"
+                       class="d-none"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
 
-    </section>
-</div>
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <div class="manager-edit-grid">
+                    <div class="manager-edit-row">
+                        <label asp-for="FullName"></label>
+                        <input asp-for="FullName" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="manager-edit-row">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="manager-edit-row">
+                        <label asp-for="PhoneNumber"></label>
+                        <input asp-for="PhoneNumber" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="manager-edit-actions">
+                    <a asp-controller="ClinicManager"
+                       asp-action="Profile"
+                       class="manager-btn manager-btn-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="manager-btn manager-btn-primary">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+
+        </section>
+    </div>
 </div>
 
 @section Scripts {
@@ -100,15 +100,12 @@
         if (input && preview) {
             input.addEventListener("change", function () {
                 const file = this.files && this.files[0];
-
                 if (!file) return;
 
                 const reader = new FileReader();
-
                 reader.onload = function (e) {
                     preview.src = e.target.result;
                 };
-
                 reader.readAsDataURL(file);
             });
         }
