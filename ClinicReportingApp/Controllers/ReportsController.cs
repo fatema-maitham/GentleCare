@@ -35,6 +35,9 @@ namespace ClinicReportingApp.Controllers
             var stats = await _api.GetAppointmentStatsAsync(token, from, to);
             var daily = await _api.GetDailySummaryAsync(token);
             var byPeriod = await _api.GetAppointmentsByPeriodAsync(token, from, to);
+            var specs = await _api.GetSpecializationStatsAsync(token, from, to);
+            var cancellationReasons = await _api.GetCancellationReasonsAsync(token, from, to);
+
 
             return View(new AppointmentReportViewModel
             {
@@ -42,6 +45,10 @@ namespace ClinicReportingApp.Controllers
                 DailySummary = daily,
                 Filter      = new DateRangeFilter { From = from, To = to },
                 ByPeriod = byPeriod,
+                SpecializationStats = specs,
+                CancellationReasons = cancellationReasons,
+
+
             });
         }
 
@@ -57,11 +64,13 @@ namespace ClinicReportingApp.Controllers
 
             var doctors = await _api.GetDoctorWorkloadAsync(token, from, to);
             var specs   = await _api.GetSpecializationStatsAsync(token, from, to);
+            var leaveImpact = await _api.GetDoctorLeaveImpactAsync(token, from, to);
 
             return View(new DoctorReportViewModel
             {
                 DoctorWorkload      = doctors,
                 SpecializationStats = specs,
+                DoctorLeaveImpact = leaveImpact,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }
@@ -112,10 +121,12 @@ namespace ClinicReportingApp.Controllers
             to   ??= DateTime.Today;
 
             var stats = await _api.GetPrescriptionStatsAsync(token, from, to);
+            var prescriptionVolume = await _api.GetPrescriptionVolumeAsync(token, from, to);
 
             return View(new PrescriptionReportViewModel
             {
                 Stats  = stats,
+                PrescriptionVolume = prescriptionVolume,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }

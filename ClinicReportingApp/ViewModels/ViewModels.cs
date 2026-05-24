@@ -4,6 +4,7 @@ namespace ClinicReportingApp.ViewModels
 {
     public class DashboardViewModel
     {
+        public List<BusiestHourDto> BusiestHours { get; set; } = new();
         public AppointmentStatsDto AppointmentStats  { get; set; } = new();
         public List<DoctorloadDto> DoctorWorkload { get; set; } = new();
         public DailySummaryDto DailySummary          { get; set; } = new();
@@ -23,6 +24,9 @@ namespace ClinicReportingApp.ViewModels
         public DailySummaryDto DailySummary { get; set; } = new();
         public DateRangeFilter Filter     { get; set; } = new();
         public List<AppointmentsByPeriodDto> ByPeriod { get; set; } = new();
+        public List<SpecializationStatsDto> SpecializationStats { get; set; } = new();
+        public List<CancellationReasonDto> CancellationReasons { get; set; } = new();
+
     }
 
     public class DoctorReportViewModel
@@ -30,6 +34,8 @@ namespace ClinicReportingApp.ViewModels
         public List<DoctorloadDto>  DoctorWorkload      { get; set; } = new();
         public List<SpecializationStatsDto> SpecializationStats { get; set; } = new();
         public DateRangeFilter Filter { get; set; } = new();
+        public List<DoctorLeaveImpactDto> DoctorLeaveImpact { get; set; } = new();
+
 
     }
 
@@ -64,5 +70,6 @@ namespace ClinicReportingApp.ViewModels
     {
         public PrescriptionStatsDto Stats { get; set; } = new();
         public DateRangeFilter Filter     { get; set; } = new();
+        public List<PrescriptionVolumeDto> PrescriptionVolume { get; set; } = new();
     }
 }

@@ -4,40 +4,60 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-person-badge me-2 text-primary"></i>Doctor Workload Report</h4>
+    <h4 class="fw-bold mb-0">
+        <i class="bi bi-person-badge me-2 text-primary"></i>
+        Doctor Workload Report
+    </h4>
 </div>
 
-<!-- ── Date Filter ────────────────────────────────────────────────────────── -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
+
             <div class="col-md-4">
                 <label class="form-label text-muted small">From</label>
-                <input type="date" name="from" value="@Model.Filter.FromStr" class="form-control" />
+                <input type="date"
+                       name="from"
+                       value="@Model.Filter.FromStr"
+                       class="form-control" />
             </div>
+
             <div class="col-md-4">
                 <label class="form-label text-muted small">To</label>
-                <input type="date" name="to" value="@Model.Filter.ToStr" class="form-control" />
+                <input type="date"
+                       name="to"
+                       value="@Model.Filter.ToStr"
+                       class="form-control" />
             </div>
+
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-funnel me-1"></i>Apply Filter
+                    <i class="bi bi-funnel me-1"></i>
+                    Apply Filter
                 </button>
             </div>
+
         </form>
     </div>
 </div>
 
 <div class="row g-4 mb-4">
-    <!-- ── Doctor Table ──────────────────────────────────────────────────── -->
+
     <div class="col-lg-8">
+
         <div class="card border-0 shadow-sm h-100">
+
             <div class="card-header bg-transparent fw-semibold border-bottom">
-                <i class="bi bi-table me-2 text-primary"></i>Workload per Doctor
+                <i class="bi bi-table me-2 text-primary"></i>
+                Workload per Doctor
             </div>
+
             <div class="card-body p-0">
+
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+
+                    <table class="table table-hover mb-0 align-middle">
+
                         <thead class="table-light">
                             <tr>
                                 <th>Doctor</th>
@@ -49,96 +69,347 @@
                                 <th>Workload</th>
                             </tr>
                         </thead>
+
                         <tbody>
+
                             @foreach (var d in Model.DoctorWorkload.OrderByDescending(x => x.WorkloadRate))
                             {
-                                var c = d.WorkloadRate >= 70 ? "success" : d.WorkloadRate >= 50 ? "warning" : "danger";
+                                var c = d.WorkloadRate >= 70
+                                ? "success"
+                                : d.WorkloadRate >= 50
+                                ? "warning"
+                                : "danger";
+
                                 <tr>
-                                    <td class="fw-semibold">@d.DoctorName</td>
-                                    <td><small class="text-muted">@string.Join(", ", d.Specializations)</small></td>
-                                    <td class="text-center">@d.TotalAppointments</td>
-                                    <td class="text-center text-success">@d.CompletedAppointments</td>
-                                    <td class="text-center text-warning">@d.CancelledAppointments</td>
-                                    <td class="text-center text-danger">@d.MissedAppointments</td>
-                                    <td style="min-width:130px;">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="progress flex-grow-1" style="height:6px;">
-                                                <div class="progress-bar bg-@c" style="width:@d.WorkloadRate%"></div>
-                                            </div>
-                                            <span class="badge bg-@c">@d.WorkloadRate%</span>
-                                        </div>
+
+                                    <td class="fw-semibold">
+                                        @d.DoctorName
                                     </td>
+
+                                    <td>
+                                        <small class="text-muted">
+                                            @string.Join(", ", d.Specializations)
+                                        </small>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @d.TotalAppointments
+                                    </td>
+
+                                    <td class="text-center text-success">
+                                        @d.CompletedAppointments
+                                    </td>
+
+                                    <td class="text-center text-warning">
+                                        @d.CancelledAppointments
+                                    </td>
+
+                                    <td class="text-center text-danger">
+                                        @d.MissedAppointments
+                                    </td>
+
+                                    <td style="min-width:140px;">
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <div class="progress flex-grow-1"
+                                                 style="height:6px;">
+
+                                                <div class="progress-bar bg-@c"
+                                                     style="width:@d.WorkloadRate%">
+                                                </div>
+
+                                            </div>
+
+                                            <span class="badge bg-@c">
+                                                @d.WorkloadRate%
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
                                 </tr>
                             }
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
-    <!--Specialization Stats -->
     <div class="col-lg-4">
+
         <div class="card border-0 shadow-sm h-100">
+
             <div class="card-header bg-transparent fw-semibold border-bottom">
-                <i class="bi bi-diagram-3 me-2 text-success"></i>By Specialization
+                <i class="bi bi-diagram-3 me-2 text-success"></i>
+                By Specialization
             </div>
+
             <div class="card-body">
+
                 @{
                     var maxSpec = Model.SpecializationStats.Any()
-                    ? Model.SpecializationStats.Max(s => s.TotalAppointments) : 1;
+                    ? Model.SpecializationStats.Max(s => s.TotalAppointments)
+                    : 1;
                 }
+
                 @foreach (var s in Model.SpecializationStats.OrderByDescending(x => x.TotalAppointments))
                 {
-                    var pct = maxSpec > 0 ? (double)s.TotalAppointments / maxSpec * 100 : 0;
+                    var pct = maxSpec > 0
+                    ? (double)s.TotalAppointments / maxSpec * 100
+                    : 0;
+
                     <div class="mb-3">
+
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="small fw-semibold">@s.SpecializationName</span>
-                            <span class="small text-muted">@s.TotalAppointments appts</span>
+
+                            <span class="small fw-semibold">
+                                @s.SpecializationName
+                            </span>
+
+                            <span class="small text-muted">
+                                @s.TotalAppointments appts
+                            </span>
+
                         </div>
+
                         <div class="progress" style="height:8px;">
-                            <div class="progress-bar bg-primary" style="width:@pct%"></div>
+
+                            <div class="progress-bar bg-primary"
+                                 style="width:@pct%">
+                            </div>
+
                         </div>
-                       
+
                     </div>
                 }
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
-<!--Bar Chart -->
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-transparent fw-semibold border-bottom">
-        <i class="bi bi-bar-chart me-2 text-primary"></i>Appointments per Doctor
+<div class="row g-4">
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-bar-chart me-2 text-primary"></i>
+                Appointments per Doctor
+            </div>
+
+            <div class="card-body">
+
+                <div style="height:400px;">
+                    <canvas id="doctorChart"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <div class="card-body">
-        <canvas id="doctorChart" height="80"></canvas>
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-calendar-x me-2 text-warning"></i>
+                Doctor Leave Impact Report
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0 align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Leave Period</th>
+                                <th class="text-center">Affected</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var l in Model.DoctorLeaveImpact)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        Dr. @l.DoctorName
+                                    </td>
+
+                                    <td>
+                                        @l.LeaveStartDate.ToString("dd MMM yyyy")
+                                        -
+                                        @l.LeaveEndDate.ToString("dd MMM yyyy")
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <span class="badge bg-warning text-dark px-3 py-2">
+                                            @l.AffectedAppointments
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                            @if (!Model.DoctorLeaveImpact.Any())
+                            {
+                                <tr>
+
+                                    <td colspan="3"
+                                        class="text-center text-muted py-4">
+
+                                        No leave impact found.
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
 @section Scripts {
-<script>
-    const names = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                    Model.DoctorWorkload.Select(d => d.DoctorName.Replace("Dr. ", ""))));
-    const completed = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                Model.DoctorWorkload.Select(d => d.CompletedAppointments)));
-    const cancelled = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                Model.DoctorWorkload.Select(d => d.CancelledAppointments)));
-    const missed = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                Model.DoctorWorkload.Select(d => d.MissedAppointments)));
+
+    <script>
+
+        const names = @Html.Raw(
+                    System.Text.Json.JsonSerializer.Serialize(
+                            Model.DoctorWorkload.Select(
+                                    d => d.DoctorName.Replace("Dr. ", "")
+                            )
+                    )
+            );
+
+    const completed = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                        Model.DoctorWorkload.Select(
+                                d => d.CompletedAppointments
+                        )
+                )
+        );
+
+    const cancelled = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                        Model.DoctorWorkload.Select(
+                                d => d.CancelledAppointments
+                        )
+                )
+        );
+
+    const missed = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                        Model.DoctorWorkload.Select(
+                                d => d.MissedAppointments
+                        )
+                )
+        );
 
     new Chart(document.getElementById('doctorChart'), {
-        type: 'bar',
-        data: {
-            labels: names,
-            datasets: [
-                { label: 'Completed', data: completed, backgroundColor: '#22c55e' },
-                { label: 'Cancelled', data: cancelled, backgroundColor: '#f59e0b' },
-                { label: 'Missed',    data: missed,    backgroundColor: '#ef4444' },
-            ]
-        },
-        options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
-    });
-</script>
+
+            type: 'bar',
+
+            data: {
+
+                labels: names,
+
+                datasets: [
+
+                    {
+                        label: 'Completed',
+                        data: completed,
+                        backgroundColor: '#22c55e'
+                    },
+
+                    {
+                        label: 'Cancelled',
+                        data: cancelled,
+                        backgroundColor: '#f59e0b'
+                    },
+
+                    {
+                        label: 'Missed',
+                        data: missed,
+                        backgroundColor: '#ef4444'
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        position: 'top'
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        stacked: true,
+
+                        ticks: {
+                            maxRotation: 0,
+                            autoSkip: false
+                        }
+
+                    },
+
+                    y: {
+
+                        stacked: true,
+                        beginAtZero: true
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    </script>
+
 }

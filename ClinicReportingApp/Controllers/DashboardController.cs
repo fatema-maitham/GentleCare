@@ -24,7 +24,7 @@ namespace ClinicReportingApp.Controllers
 
             var token = _tokenService.GetToken(HttpContext)!;
 
-            // Default: last 30 days /لتحديدالمدة like a filter
+            // Default: last 30 days /like a filter
             var from = DateTime.Today.AddDays(-30);
             var to = DateTime.Today;
 
@@ -34,9 +34,11 @@ namespace ClinicReportingApp.Controllers
             var prescriptions = await _api.GetPrescriptionStatsAsync(token, from, to);
             var specs = await _api.GetSpecializationStatsAsync(token, from, to);
             var daily = await _api.GetDailySummaryAsync(token);
+            var busiestHours = await _api.GetBusiestHoursAsync(token, from, to);
 
             var vm = new DashboardViewModel
             {
+                BusiestHours = busiestHours,
                 AppointmentStats = stats,
                 DoctorWorkload = doctorStats,
                 PatientActivity = patientStats,
