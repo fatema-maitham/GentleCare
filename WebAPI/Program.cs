@@ -20,9 +20,7 @@
 
 //app.UseAuthorization();
 
-//app.MapControllers();
 
-//app.Run();
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
