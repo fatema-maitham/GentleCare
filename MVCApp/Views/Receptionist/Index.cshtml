@@ -4,339 +4,81 @@
     ViewData["Title"] = "Receptionist Dashboard";
 }
 
-<section class="receptionist-page">
-
-    <div class="receptionist-hero">
-        <div>
-            <p class="eyebrow">Reception Desk</p>
-            <h1>Today’s Clinic Overview</h1>
-            <p>Monitor appointments and patient check-ins for today.</p>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span>Today's Total</span>
-            <strong>@Model.TodayTotalAppointments</strong>
+<div class="receptionist-page">
+    <div class="receptionist-dashboard-page">
+        <div class="manager-card">
+            <div class="card-head">
+                <div>
+                    <h2>Today's Clinic Overview</h2>
+                    <span class="muted">Monitor appointments and patient check-ins for today.</span>
+                </div>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <span>Confirmed</span>
-            <strong>@Model.TodayConfirmedCount</strong>
+        <div class="dashboard-stats">
+            <div class="dashboard-stat">
+                <strong>@Model.TodayTotalAppointments</strong>
+                <span>Today's Total</span>
+            </div>
+
+            <div class="dashboard-stat">
+                <strong>@Model.TodayConfirmedCount</strong>
+                <span>Confirmed</span>
+            </div>
+
+            <div class="dashboard-stat">
+                <strong>@Model.TodayCheckedInCount</strong>
+                <span>Checked In</span>
+            </div>
+
+            <div class="dashboard-stat">
+                <strong>@Model.TodayInProgressCount</strong>
+                <span>In Progress</span>
+            </div>
+
+            <div class="dashboard-stat">
+                <strong>@Model.TodayCompletedCount</strong>
+                <span>Completed</span>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <span>Checked In</span>
-            <strong>@Model.TodayCheckedInCount</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>In Progress</span>
-            <strong>@Model.TodayInProgressCount</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>Completed</span>
-            <strong>@Model.TodayCompletedCount</strong>
-        </div>
-    </div>
-
-    <div class="appointments-card">
-        <div class="section-header">
-            <div>
+        <div class="manager-card">
+            <div class="card-head">
                 <h2>Today's Appointments</h2>
-                <p>Appointments that need receptionist follow-up appear first.</p>
             </div>
-        </div>
 
-        @if (Model.TodayAppointments == null || !Model.TodayAppointments.Any())
-        {
-            <div class="empty-box">
-                <h3>No appointments for today</h3>
-                <p>Today’s appointments will appear here once they are booked.</p>
-            </div>
-        }
-        else
-        {
-            <div class="appointments-list">
-                @foreach (var item in Model.TodayAppointments)
-                {
-                    <div class="appointment-row">
-                        <div>
-                            <span class="time">@item.StartTime - @item.EndTime</span>
-                            <h3>@item.PatientName</h3>
-                            <p>Dr. @item.DoctorName</p>
-                        </div>
-
-                        <div class="row-actions">
-                            <span class="status-pill status-@item.Status.ToLower()">@item.Status</span>
-
-                            <a asp-controller="Receptionist"
-                               asp-action="UpdateStatus"
-                               asp-route-id="@item.AppointmentId"
-                               class="gc-btn-light small">
-                                Update Status
-                            </a>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-    </div>
-
-</section>
-
-<style>
-    .receptionist-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 26px 10px 60px;
-    }
-
-    .receptionist-hero {
-        background: linear-gradient(135deg, #637fa3, #71999f);
-        color: white;
-        border-radius: 28px;
-        padding: 34px 42px;
-        box-shadow: 0 14px 34px rgba(99, 127, 163, 0.18);
-    }
-
-    .eyebrow {
-        margin: 0 0 8px;
-        color: #ffe0a3;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .receptionist-hero h1 {
-        margin: 0;
-        font-size: 40px;
-        font-weight: 900;
-    }
-
-    .receptionist-hero p {
-        margin: 12px 0 0;
-        max-width: 680px;
-        color: rgba(255,255,255,0.92);
-        line-height: 1.6;
-    }
-
-    .stats-grid {
-        margin-top: 22px;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 22px;
-        padding: 22px 24px;
-        box-shadow: 0 10px 26px rgba(99, 127, 163, 0.09);
-        min-height: 128px;
-        transition: 0.2s ease;
-    }
-
-        .stat-card:hover,
-        .appointments-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .stat-card span {
-            color: #6b7a87;
-            font-weight: 800;
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .stat-card strong {
-            display: block;
-            font-size: 38px;
-            line-height: 1;
-            color: #182333;
-        }
-
-    .appointments-card {
-        margin-top: 22px;
-        background: white;
-        border-radius: 24px;
-        padding: 28px;
-        box-shadow: 0 10px 26px rgba(99, 127, 163, 0.09);
-        transition: 0.2s ease;
-    }
-
-    .section-header {
-        margin-bottom: 18px;
-    }
-
-        .section-header h2 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 900;
-            color: #182333;
-        }
-
-        .section-header p {
-            margin: 8px 0 0;
-            color: #6b7a87;
-        }
-
-    .appointments-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .appointment-row {
-        background: #f5f8fa;
-        border-radius: 20px;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 18px;
-    }
-
-        .appointment-row h3 {
-            margin: 6px 0 4px;
-            font-size: 20px;
-            font-weight: 900;
-            color: #182333;
-        }
-
-        .appointment-row p {
-            margin: 0;
-            color: #6b7a87;
-            font-weight: 700;
-        }
-
-    .time {
-        color: #637fa3;
-        font-weight: 900;
-    }
-
-    .row-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .status-pill {
-        display: inline-block;
-        border-radius: 999px;
-        padding: 7px 13px;
-        font-size: 13px;
-        font-weight: 900;
-        white-space: nowrap;
-        background: #e9edf2;
-        color: #4b5563;
-    }
-
-    .status-requested {
-        background: #fff7ed;
-        color: #c2410c;
-    }
-
-    .status-confirmed {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .status-checkedin {
-        background: #cffafe;
-        color: #0e7490;
-    }
-
-    .status-inprogress {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-completed {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status-missed {
-        background: #e5e7eb;
-        color: #111827;
-    }
-
-    .empty-box {
-        background: #f5f8fa;
-        border-radius: 20px;
-        padding: 24px;
-    }
-
-        .empty-box h3 {
-            margin: 0 0 8px;
-            font-weight: 900;
-            color: #182333;
-        }
-
-        .empty-box p {
-            margin: 0;
-            color: #6b7a87;
-        }
-
-    .gc-btn-light {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 999px;
-        padding: 12px 20px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: 0.2s ease;
-        white-space: nowrap;
-        background: white;
-        color: #637fa3;
-        border: 1px solid #dce5e8;
-    }
-
-        .gc-btn-light.small {
-            padding: 9px 15px;
-            font-size: 14px;
-        }
-
-        .gc-btn-light:hover {
-            transform: translateY(-2px);
-            color: #182333;
-        }
-
-    @@media (max-width: 1000px) {
-        .stats-grid {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-    }
-
-    @@media (max-width: 700px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .appointment-row {
-            display: block;
-        }
-
-        .row-actions {
-            justify-content: flex-start;
-            margin-top: 16px;
-        }
-
-        .receptionist-hero {
-            padding: 28px;
-        }
-
-            .receptionist-hero h1 {
-                font-size: 32px;
+            @if (Model.TodayAppointments == null || !Model.TodayAppointments.Any())
+            {
+                <div class="empty-box">
+                    No appointments for today
+                </div>
             }
-    }
-</style>
+            else
+            {
+                <div class="appointments-list">
+                    @foreach (var item in Model.TodayAppointments)
+                    {
+                        <div class="receptionist-appointment-item">
+                            <div class="appointment-main">
+                                <span class="appointment-date">@item.StartTime - @item.EndTime</span>
+                                <h3>@item.PatientName</h3>
+                                <p class="appointment-meta-text">Dr. @item.DoctorName</p>
+                            </div>
+
+                            <div class="appointment-actions">
+                                <span class="status-pill status-@item.Status.ToLower()">@item.Status</span>
+
+                                <a asp-controller="Receptionist"
+                                   asp-action="UpdateStatus"
+                                   asp-route-id="@item.AppointmentId"
+                                   class="btn-light">
+                                    Update Status
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

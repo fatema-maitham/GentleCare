@@ -9,222 +9,60 @@
 }
 
 <div class="manager-page">
-<div class="manager-profile-page">
+    <div class="manager-profile-page">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-    }
+        @if (TempData["Success"] != null)
+        {
+            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+        }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-    }
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
-    <section class="manager-profile-card">
+        <section class="manager-profile-card">
 
-        <div class="manager-avatar-area">
-            <img src="@profileImage"
-                 alt="Clinic manager profile picture"
-                 class="manager-avatar-img"
-                 onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
-        </div>
-
-        <div class="manager-name-block">
-            <h2>@Model.FullName</h2>
-            <span class="manager-badge">Clinic Manager Account</span>
-        </div>
-
-        <div class="manager-info-list">
-            <div class="manager-info-row">
-                <div class="manager-label">Full Name</div>
-                <div class="manager-value">@Model.FullName</div>
+            <div class="manager-avatar-area">
+                <img src="@profileImage"
+                     alt="Clinic manager profile picture"
+                     class="manager-avatar-img"
+                     onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
             </div>
 
-            <div class="manager-info-row">
-                <div class="manager-label">Email</div>
-                <div class="manager-value">@Model.Email</div>
+            <div class="manager-name-block">
+                <h2>@Model.FullName</h2>
+                <span class="manager-badge">Clinic Manager Account</span>
             </div>
 
-            <div class="manager-info-row">
-                <div class="manager-label">Phone Number</div>
-                <div class="manager-value">
-                    @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added yet." : Model.PhoneNumber)
+            <div class="manager-info-list">
+                <div class="manager-info-row">
+                    <div class="manager-label">Full Name</div>
+                    <div class="manager-value">@Model.FullName</div>
+                </div>
+
+                <div class="manager-info-row">
+                    <div class="manager-label">Email</div>
+                    <div class="manager-value">@Model.Email</div>
+                </div>
+
+                <div class="manager-info-row">
+                    <div class="manager-label">Phone Number</div>
+                    <div class="manager-value">
+                        @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added yet." : Model.PhoneNumber)
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="manager-profile-actions">
+            <div class="manager-profile-actions">
 
-            <a asp-controller="ClinicManager"
-               asp-action="EditProfile"
-               class="manager-btn manager-btn-primary">
-                Edit Profile
-            </a>
-        </div>
+                <a asp-controller="ClinicManager"
+                   asp-action="EditProfile"
+                   class="manager-btn manager-btn-primary">
+                    Edit Profile
+                </a>
+            </div>
 
-    </section>
-
-        <style>
-        .manager-profile-page {
-        max-width: 760px;
-        margin: 28px auto 55px;
-        padding: 0 18px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-        }
-
-        .manager-profile-card {
-        background: #ffffff;
-        border: 1px solid #d6ddde;
-        border-radius: 24px;
-        padding: 34px;
-        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-        }
-
-        .manager-avatar-area {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-        }
-
-        .manager-avatar-img {
-        width: 135px;
-        height: 135px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #ffffff;
-        border: 5px solid #e7f1f3;
-        }
-
-        .manager-name-block {
-        text-align: center;
-        margin-bottom: 30px;
-        }
-
-        .manager-name-block h2 {
-        margin: 0;
-        color: #12262f;
-        font-size: 30px;
-        font-weight: 900;
-        }
-
-        .manager-badge {
-        display: inline-flex;
-        margin-top: 10px;
-        padding: 7px 13px;
-        border-radius: 999px;
-        background: #e7f1f3;
-        color: #075168;
-        font-size: 13px;
-        font-weight: 900;
-        }
-
-        .manager-info-list {
-        display: grid;
-        gap: 0;
-        border-top: 1px solid #e5ecee;
-        }
-
-        .manager-info-row {
-        display: grid;
-        grid-template-columns: 190px 1fr;
-        gap: 20px;
-        padding: 16px 0;
-        border-bottom: 1px solid #eef2f3;
-        align-items: start;
-        }
-
-        .manager-label {
-        color: #687a80;
-        font-weight: 900;
-        }
-
-        .manager-value {
-        color: #001a27;
-        font-weight: 850;
-        word-break: break-word;
-        }
-
-        .manager-profile-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 28px;
-        }
-
-        .manager-btn {
-        border: none;
-        border-radius: 14px;
-        padding: 12px 20px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        }
-
-        .manager-btn-primary {
-        background: #075168;
-        color: #ffffff;
-        }
-
-        .manager-btn-primary:hover {
-        background: #00779b;
-        color: #ffffff;
-        transform: translateY(-2px);
-        }
-
-        .manager-btn-secondary {
-        background: #e7f1f3;
-        color: #075168;
-        }
-
-        .manager-btn-secondary:hover {
-        background: #dce8ea;
-        color: #075168;
-        transform: translateY(-2px);
-        }
-
-        .manager-alert {
-        border-radius: 14px;
-        padding: 13px 15px;
-        margin-bottom: 16px;
-        font-weight: 800;
-        border: 1px solid transparent;
-        }
-
-        .manager-alert-success {
-        background: #ecfdf3;
-        color: #157347;
-        border-color: #b7e4c7;
-        }
-
-        .manager-alert-danger {
-        background: #fff1f0;
-        color: #b42318;
-        border-color: #f3b8b2;
-        }
-
-        @@media (max-width: 700px) {
-        .manager-profile-card {
-        padding: 24px;
-        }
-
-        .manager-info-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-        }
-
-        .manager-profile-actions {
-        flex-direction: column;
-        }
-
-        .manager-btn {
-        width: 100%;
-        text-align: center;
-        }
-        }
-        </style>
-</div>
+        </section>
+    </div>
 </div>

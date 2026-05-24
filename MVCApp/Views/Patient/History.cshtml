@@ -4,67 +4,65 @@
     ViewData["Title"] = "Medical History";
 }
 
-<section class="history-page">
-    <div class="page-card">
-
-        <div class="page-header-custom">
-            <h1>Medical History</h1>
-            <p class="page-subtitle">View your completed appointment records.</p>
+<div class="patient-page">
+    <div class="patient-history-page">
+        <div class="manager-card">
+            <div class="card-head">
+                <div>
+                    <h2>Medical History</h2>
+                    <span class="muted">View your completed appointment records.</span>
+                </div>
+            </div>
         </div>
 
         @if (Model == null || !Model.Any())
         {
             <div class="empty-box">
-                <h3>No history records yet</h3>
-                <p>Completed appointment records will appear here after a doctor visit.</p>
+                No history records yet
             </div>
         }
         else
         {
-            <div class="history-list">
+            <div class="patient-history-list">
                 @foreach (var item in Model)
                 {
-                    <div class="history-card">
+                    <div class="patient-history-card">
                         <div class="history-top">
                             <div>
-                                <span class="date">@item.AppointmentDate.ToString("dd MMM yyyy")</span>
-                                <h2>Dr. @item.DoctorName</h2>
+                                <span class="history-date">@item.AppointmentDate.ToString("dd MMM yyyy")</span>
+                                <h3>Dr. @item.DoctorName</h3>
                             </div>
 
-                            <span class="id-pill">Appointment #@item.AppointmentId</span>
+                            <span class="history-id-pill">Appointment #@item.AppointmentId</span>
                         </div>
 
-                        <div class="record-grid">
-                            <div class="record-box">
+                        <div class="history-record-grid">
+                            <div class="history-record-box">
                                 <span>Diagnosis</span>
                                 <p>@(string.IsNullOrWhiteSpace(item.Diagnosis) ? "Not provided" : item.Diagnosis)</p>
                             </div>
 
-                            <div class="record-box">
+                            <div class="history-record-box">
                                 <span>Treatment</span>
                                 <p>@(string.IsNullOrWhiteSpace(item.Treatment) ? "Not provided" : item.Treatment)</p>
                             </div>
 
-                            <div class="record-box wide">
+                            <div class="history-record-box wide">
                                 <span>Doctor Notes</span>
                                 <p>@(string.IsNullOrWhiteSpace(item.DoctorNotes) ? "Not provided" : item.DoctorNotes)</p>
                             </div>
                         </div>
 
-                        <div class="prescription-section">
-                            <h3>Prescriptions</h3>
+                        @if (item.Prescriptions != null && item.Prescriptions.Any())
+                        {
+                            <div class="history-prescription-section">
+                                <h4>Prescriptions</h4>
 
-                            @if (item.Prescriptions == null || !item.Prescriptions.Any())
-                            {
-                                <p class="muted">No prescriptions recorded for this visit.</p>
-                            }
-                            else
-                            {
-                                <div class="prescription-grid">
+                                <div class="history-prescription-grid">
                                     @foreach (var prescription in item.Prescriptions)
                                     {
-                                        <div class="prescription-card">
-                                            <h4>@prescription.MedicationName</h4>
+                                        <div class="history-prescription-card">
+                                            <h5>@prescription.MedicationName</h5>
                                             <p><strong>Dosage:</strong> @prescription.Dosage</p>
                                             <p><strong>Frequency:</strong> @prescription.Frequency</p>
                                             <p><strong>Duration:</strong> @prescription.DurationDays days</p>
@@ -75,198 +73,11 @@
                                         </div>
                                     }
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 }
             </div>
         }
-
     </div>
-</section>
-
-<style>
-    .history-page {
-        max-width: 850px;
-        margin: 0 auto;
-        padding: 48px 18px 60px;
-    }
-
-    .page-card {
-        background: white;
-        border-radius: 30px;
-        padding: 34px 42px;
-        box-shadow: 0 14px 35px rgba(99,127,163,0.10);
-    }
-
-    .page-header-custom {
-        margin-bottom: 22px;
-    }
-
-        .page-header-custom h1 {
-            margin: 0;
-            font-size: 36px;
-            font-weight: 900;
-            color: #182333;
-        }
-
-    .page-subtitle {
-        margin: 8px 0 0;
-        font-size: 16px;
-        color: #6b7a87;
-        line-height: 1.5;
-    }
-
-    .history-list {
-        display: grid;
-        gap: 20px;
-    }
-
-    .history-card {
-        background: #f5f8fa;
-        border-radius: 26px;
-        padding: 24px;
-    }
-
-    .history-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        align-items: flex-start;
-        margin-bottom: 20px;
-    }
-
-    .date {
-        color: #637fa3;
-        font-weight: 900;
-    }
-
-    .history-card h2 {
-        margin: 8px 0 0;
-        font-size: 24px;
-        font-weight: 900;
-        color: #182333;
-    }
-
-    .id-pill {
-        background: #ffe0a3;
-        color: #74500f;
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-weight: 900;
-        white-space: nowrap;
-    }
-
-    .record-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-    }
-
-    .record-box,
-    .prescription-card {
-        background: white;
-        border-radius: 18px;
-        padding: 16px;
-    }
-
-        .record-box.wide {
-            grid-column: 1 / -1;
-        }
-
-        .record-box span {
-            display: block;
-            color: #6b7a87;
-            font-weight: 900;
-            margin-bottom: 6px;
-        }
-
-        .record-box p,
-        .prescription-card p {
-            margin: 0 0 8px;
-            color: #182333;
-            line-height: 1.6;
-        }
-
-    .prescription-section {
-        margin-top: 20px;
-    }
-
-        .prescription-section h3 {
-            font-size: 20px;
-            font-weight: 900;
-            margin: 0 0 12px;
-            color: #182333;
-        }
-
-    .prescription-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-    }
-
-    .prescription-card h4 {
-        font-size: 18px;
-        font-weight: 900;
-        margin: 0 0 12px;
-        color: #182333;
-    }
-
-    .muted {
-        color: #6b7a87;
-        margin: 0;
-    }
-
-    .empty-box {
-        background: #f8fafc;
-        border: 1px solid #e5edf2;
-        border-radius: 18px;
-        padding: 18px 22px;
-        margin-top: 20px;
-    }
-
-        .empty-box h3 {
-            margin: 0 0 6px;
-            font-size: 20px;
-            font-weight: 800;
-            color: #182333;
-        }
-
-        .empty-box p {
-            margin: 0;
-            font-size: 15px;
-            color: #6b7a87;
-            line-height: 1.5;
-        }
-
-    @@media (max-width: 800px) {
-        .history-page {
-            padding: 30px 18px 60px;
-        }
-
-        .page-card {
-            padding: 30px 22px;
-        }
-
-        .history-top {
-            display: block;
-        }
-
-        .id-pill {
-            display: inline-block;
-            margin-top: 14px;
-        }
-
-        .record-grid,
-        .prescription-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .page-header-custom h1 {
-            margin: 0;
-            font-size: 34px;
-            font-weight: 900;
-            color: #182333;
-        }
-    }
-</style>
+</div>
