@@ -1,5 +1,5 @@
 using ClinicReportingApp.Models;
-using ClinicReportingApp.Services;
+using ClinicReportingApp.Services.Interfaces;
 using ClinicReportingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,7 @@ namespace ClinicReportingApp.Controllers
             return (true, _tokenService.GetToken(HttpContext)!, null);
         }
 
-        // ── Appointments Report ───────────────────────────────────────────────
+        //Appointments Report
         public async Task<IActionResult> Appointments(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -35,6 +35,9 @@ namespace ClinicReportingApp.Controllers
             var stats = await _api.GetAppointmentStatsAsync(token, from, to);
             var daily = await _api.GetDailySummaryAsync(token);
             var byPeriod = await _api.GetAppointmentsByPeriodAsync(token, from, to);
+            var specs = await _api.GetSpecializationStatsAsync(token, from, to);
+            var cancellationReasons = await _api.GetCancellationReasonsAsync(token, from, to);
+
 
             return View(new AppointmentReportViewModel
             {
@@ -42,11 +45,15 @@ namespace ClinicReportingApp.Controllers
                 DailySummary = daily,
                 Filter      = new DateRangeFilter { From = from, To = to },
                 ByPeriod = byPeriod,
+                SpecializationStats = specs,
+                CancellationReasons = cancellationReasons,
+
+
             });
         }
 
 
-        // ── Doctor Load Report ─────────────────────────────────────────
+        //Doctor Load Report
         public async Task<IActionResult> DoctorWorkload(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -57,16 +64,18 @@ namespace ClinicReportingApp.Controllers
 
             var doctors = await _api.GetDoctorWorkloadAsync(token, from, to);
             var specs   = await _api.GetSpecializationStatsAsync(token, from, to);
+            var leaveImpact = await _api.GetDoctorLeaveImpactAsync(token, from, to);
 
             return View(new DoctorReportViewModel
             {
                 DoctorWorkload      = doctors,
                 SpecializationStats = specs,
+                DoctorLeaveImpact = leaveImpact,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }
 
-        // ── Specialization Report ─────────────────────────────────────────────
+        //Specialization Report
         public async Task<IActionResult> Specializations(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -84,7 +93,7 @@ namespace ClinicReportingApp.Controllers
             });
         }
 
-        // ── Patients Report ───────────────────────────────────────────────────
+        //Patients Report
         public async Task<IActionResult> Patients(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -97,12 +106,12 @@ namespace ClinicReportingApp.Controllers
 
             return View(new PatientReportViewModel
             {
-                Stats  = stats,
+                PatientActivity = stats,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }
 
-        // ── Prescriptions Report ──────────────────────────────────────────────
+        //Prescriptions Report 
         public async Task<IActionResult> Prescriptions(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -112,10 +121,12 @@ namespace ClinicReportingApp.Controllers
             to   ??= DateTime.Today;
 
             var stats = await _api.GetPrescriptionStatsAsync(token, from, to);
+            var prescriptionVolume = await _api.GetPrescriptionVolumeAsync(token, from, to);
 
             return View(new PrescriptionReportViewModel
             {
                 Stats  = stats,
+                PrescriptionVolume = prescriptionVolume,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }
