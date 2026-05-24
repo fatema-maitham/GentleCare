@@ -4,406 +4,161 @@
     ViewData["Title"] = "Appointment Details";
 }
 
-<div class="details-page">
+<div class="doctor-page">
+    <div class="doctor-appointment-details-page">
+        <div class="manager-top">
+            @if (Model.CanUpdateStatus)
+            {
+                <a asp-controller="DoctorAppointment"
+                   asp-action="UpdateStatus"
+                   asp-route-id="@Model.AppointmentId"
+                   class="btn-main">
+                    Update Status
+                </a>
+            }
 
-    <div class="details-header">
-        <a asp-controller="DoctorAppointment"
-           asp-action="Appointments"
-           class="details-btn">
-            Back to Appointments
-        </a>
-    </div>
+            @if (Model.CanCreateVisitRecord)
+            {
+                <a asp-controller="VisitRecord"
+                   asp-action="CreateVisitRecord"
+                   asp-route-appointmentId="@Model.AppointmentId"
+                   class="btn-light">
+                    Create Visit Record
+                </a>
+            }
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @if (Model.CanEditVisitRecord)
+            {
+                <a asp-controller="VisitRecord"
+                   asp-action="EditVisitRecord"
+                   asp-route-appointmentId="@Model.AppointmentId"
+                   class="btn-light">
+                    Edit Visit Record
+                </a>
+            }
+
+            @if (Model.CanCreateFollowUpRequest)
+            {
+                <a asp-controller="Doctor"
+                   asp-action="FollowUpRequest"
+                   asp-route-id="@Model.AppointmentId"
+                   class="btn-light">
+                    Create Follow-Up Request
+                </a>
+            }
+
+            <a asp-controller="DoctorAppointment"
+               asp-action="Appointments"
+               class="btn-light">
+                Appointments
+            </a>
         </div>
-    }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+        @if (TempData["Success"] != null)
+        {
+            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
+        }
 
-    <div class="details-grid-top">
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
-        <div class="details-card">
-            <div class="details-card-header">
-                <h4>Appointment Information</h4>
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Appointment #@Model.AppointmentId</h2>
+                <span class="status-pill">@Model.StatusName</span>
             </div>
 
-            <div class="details-card-body">
-                <div class="info-list">
-                    <div class="info-row">
-                        <div class="info-label">Date</div>
-                        <div class="info-value">@Model.AppointmentDateDisplay</div>
-                    </div>
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>Date</span>
+                    <strong>@Model.AppointmentDateDisplay</strong>
+                </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Time</div>
-                        <div class="info-value">@Model.TimeDisplay</div>
-                    </div>
+                <div class="info-box">
+                    <span>Time</span>
+                    <strong>@Model.TimeDisplay</strong>
+                </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Status</div>
-                        <div class="info-value">
-                            <span class="status-badge">@Model.StatusName</span>
-                        </div>
-                    </div>
+                <div class="info-box">
+                    <span>Status</span>
+                    <strong>@Model.StatusName</strong>
+                </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Notes</div>
-                        <div class="info-value">
-                            @(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes recorded." : Model.Notes)
-                        </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="info-box full">
+                        <span>Notes</span>
+                        <strong>@Model.Notes</strong>
                     </div>
+                }
 
-                    @if (Model.HasCancellationReason)
-                    {
-                        <div class="info-row">
-                            <div class="info-label">Cancellation Reason</div>
-                            <div class="info-value">@Model.CancellationReason</div>
-                        </div>
-                    }
+                @if (Model.HasCancellationReason)
+                {
+                    <div class="info-box full">
+                        <span>Cancellation Reason</span>
+                        <strong>@Model.CancellationReason</strong>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Patient</h2>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>Name</span>
+                    <strong>@Model.PatientFullName</strong>
+                </div>
+
+                <div class="info-box">
+                    <span>Reference No.</span>
+                    <strong>@Model.PatientReferenceNumber</strong>
+                </div>
+
+                <div class="info-box">
+                    <span>CPR</span>
+                    <strong>@Model.PatientCprNumber</strong>
                 </div>
             </div>
         </div>
 
-        <div class="details-card">
-            <div class="details-card-header">
-                <h4>Patient Information</h4>
-            </div>
-
-            <div class="details-card-body">
-                <div class="info-list">
-                    <div class="info-row">
-                        <div class="info-label">Patient Name</div>
-                        <div class="info-value">@Model.PatientFullName</div>
-                    </div>
-
-                    <div class="info-row">
-                        <div class="info-label">CPR Number</div>
-                        <div class="info-value">@Model.PatientCprNumber</div>
-                    </div>
-
-                    <div class="info-row">
-                        <div class="info-label">Reference No.</div>
-                        <div class="info-value">@Model.PatientReferenceNumber</div>
-                    </div>
-                </div>
-
-                <div style="margin-top:18px;">
-                    <a asp-controller="DoctorAppointment"
-                       asp-action="PatientHistory"
-                       asp-route-patientId="@Model.PatientId"
-                       class="details-btn">
-                        View Patient History
-                    </a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="details-card">
-        <div class="details-card-header">
-            <h4>Appointment Actions</h4>
-        </div>
-
-        <div class="details-card-body">
-            <div class="actions-wrap">
-                @if (Model.CanUpdateStatus)
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Visit Record</h2>
+                @if (Model.HasVisitRecord)
                 {
-                    <a asp-controller="DoctorAppointment"
-                       asp-action="UpdateStatus"
-                       asp-route-id="@Model.AppointmentId"
-                       class="details-btn details-btn-main">
-                        Update Status
-                    </a>
-                }
-
-                @if (Model.CanCreateVisitRecord)
-                {
-<a asp-controller="VisitRecord"
-   asp-action="CreateVisitRecord"
-   asp-route-appointmentId="@Model.AppointmentId"
-   class="details-btn details-btn-success">
-    Create Visit Record
-</a>
-                }
-
-                @if (Model.CanEditVisitRecord)
-                {
-<a asp-controller="VisitRecord"
-   asp-action="EditVisitRecord"
-   asp-route-appointmentId="@Model.AppointmentId"
-   class="details-btn details-btn-success">
-    Edit Visit Record
-</a>
-                }
-
-                @if (Model.CanCreateFollowUpRequest)
-                {
-                    <a href="/Doctor/FollowUpRequest/@Model.AppointmentId"
-                       class="details-btn details-btn-main">
-                        Create Follow-Up Request
-                    </a>
+                    <span class="status-pill">Available</span>
                 }
             </div>
-        </div>
-    </div>
 
-    <div class="details-card">
-        <div class="details-card-header">
-            <h4>Visit Record</h4>
-        </div>
-
-        <div class="details-card-body">
             @if (Model.HasVisitRecord)
             {
-                <div class="info-list">
-                    <div class="info-row">
-                        <div class="info-label">Doctor Notes</div>
-                        <div class="info-value">@Model.DoctorNotes</div>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <span>Diagnosis</span>
+                        <strong>@Model.Diagnosis</strong>
                     </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Diagnosis</div>
-                        <div class="info-value">@Model.Diagnosis</div>
+                    <div class="info-box">
+                        <span>Treatment</span>
+                        <strong>@Model.Treatment</strong>
                     </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Treatment</div>
-                        <div class="info-value">
-                            @(string.IsNullOrWhiteSpace(Model.Treatment) ? "No treatment recorded." : Model.Treatment)
-                        </div>
+                    <div class="info-box">
+                        <span>Doctor Notes</span>
+                        <strong>@Model.DoctorNotes</strong>
                     </div>
                 </div>
             }
             else
             {
-                <div class="empty-box">
-                    No visit record has been created for this appointment yet.
-                </div>
+                <div class="empty-box">No visit record has been created for this appointment yet.</div>
             }
         </div>
     </div>
-
-    <div class="details-card">
-        <div class="details-card-header">
-            <h4>Prescriptions</h4>
-        </div>
-
-        <div class="details-card-body">
-            @if (Model.HasPrescriptions)
-            {
-                <div class="prescription-table-wrap">
-                    <table class="prescription-table">
-                        <thead>
-                            <tr>
-                                <th>Medication</th>
-                                <th>Dosage</th>
-                                <th>Frequency</th>
-                                <th>Duration</th>
-                                <th>Instructions</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach (var prescription in Model.Prescriptions)
-                            {
-                                <tr>
-                                    <td>@prescription.MedicationName</td>
-                                    <td>@prescription.Dosage</td>
-                                    <td>@prescription.Frequency</td>
-                                    <td>@prescription.DurationDisplay</td>
-                                    <td>
-                                        @(string.IsNullOrWhiteSpace(prescription.Instructions) ? "No instructions" : prescription.Instructions)
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="empty-box">
-                    No prescriptions recorded for this appointment.
-                </div>
-            }
-        </div>
-    </div>
-
 </div>
-
-<style>
-    .details-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 30px 20px 50px;
-    }
-
-    .details-header {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 24px;
-    }
-
-    .details-grid-top {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 22px;
-        margin-bottom: 24px;
-    }
-
-    .details-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 24px;
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .details-card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
-    }
-
-        .details-card-header h4 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 900;
-            color: #075168;
-        }
-
-    .details-card-body {
-        padding: 24px;
-    }
-
-    .info-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .info-row {
-        display: grid;
-        grid-template-columns: 170px 1fr;
-        gap: 16px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid #EDF1F2;
-    }
-
-    .info-label {
-        color: #687A80;
-        font-weight: 850;
-    }
-
-    .info-value {
-        color: #12262F;
-        font-weight: 700;
-    }
-
-    .status-badge {
-        padding: 6px 11px;
-        border-radius: 999px;
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-        font-size: 12px;
-        font-weight: 900;
-    }
-
-    .details-btn {
-        border-radius: 14px;
-        padding: 10px 17px;
-        border: 1px solid #C9DBDF;
-        background: #E7F1F3;
-        color: #075168;
-        font-weight: 900;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .details-btn-main {
-        background: #075168;
-        color: #ffffff;
-        border-color: #075168;
-    }
-
-    .details-btn-success {
-        background: #4C825C;
-        color: #ffffff;
-        border-color: #4C825C;
-    }
-
-    .actions-wrap {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 10px;
-    }
-
-    .empty-box {
-        padding: 16px;
-        border-radius: 16px;
-        background: #E7F1F3;
-        color: #075168;
-        font-weight: 800;
-    }
-
-    .prescription-table-wrap {
-        overflow-x: auto;
-    }
-
-    .prescription-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        .prescription-table th {
-            background: #F8FAFA;
-            padding: 15px 18px;
-            font-weight: 900;
-            border-bottom: 1px solid #D6DDDE;
-        }
-
-        .prescription-table td {
-            padding: 17px 18px;
-            border-bottom: 1px solid #EDF1F2;
-            font-weight: 600;
-        }
-
-    @@media (max-width: 900px) {
-        .details-grid-top {
-            grid-template-columns: 1fr;
-        }
-
-        .info-row {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .actions-wrap {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .actions-wrap .details-btn {
-        width: auto !important;
-        white-space: nowrap;
-    }
-
-    @@media (max-width: 700px) {
-        .actions-wrap {
-            flex-wrap: wrap !important;
-        }
-    }
-</style>

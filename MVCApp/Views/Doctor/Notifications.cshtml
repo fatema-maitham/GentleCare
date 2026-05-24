@@ -4,43 +4,48 @@
     ViewData["Title"] = "My Notifications";
 }
 
-<section class="doctor-notifications-page">
-
-    <div class="doctor-stats-grid">
-
-        <div class="doctor-stat-card">
-            <strong>@Model.TotalNotifications</strong>
-            <span>Total Notifications</span>
+<div class="doctor-page">
+    <div class="doctor-notifications-page">
+        <div class="manager-card dashboard-hero">
+            <div class="card-head">
+                <div>
+                    <h2>My Notifications</h2>
+                    <span class="muted">Manage unread and read notifications</span>
+                </div>
+            </div>
         </div>
 
-        <div class="doctor-stat-card">
-            <strong>@Model.UnreadCount</strong>
-            <span>Unread Notifications</span>
+        <div class="doctor-stats-grid">
+            <div class="doctor-stat-card">
+                <strong>@Model.TotalNotifications</strong>
+                <span>Total Notifications</span>
+            </div>
+
+            <div class="doctor-stat-card">
+                <strong>@Model.UnreadCount</strong>
+                <span>Unread Notifications</span>
+            </div>
         </div>
 
-    </div>
+        @if (Model.HasUnreadNotifications)
+        {
+            <div class="mark-all-row">
+                <form asp-controller="Doctor"
+                      asp-action="MarkAllNotificationsAsRead"
+                      method="post">
+                    @Html.AntiForgeryToken()
 
-    @if (Model.HasUnreadNotifications)
-    {
-        <div class="mark-all-row">
-            <form asp-controller="Doctor"
-                  asp-action="MarkAllNotificationsAsRead"
-                  method="post">
-                @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-main">
+                        Mark All as Read
+                    </button>
+                </form>
+            </div>
+        }
 
-                <button type="submit" class="primary-btn">
-                    Mark All as Read
-                </button>
-            </form>
-        </div>
-    }
-
-    <div class="clean-panel">
-        <div class="clean-panel-header">
-            <h2>Notification List</h2>
-        </div>
-
-        <div class="clean-panel-body">
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Notification List</h2>
+            </div>
 
             @if (Model.HasNotifications)
             {
@@ -54,11 +59,11 @@
 
                                     @if (notification.IsRead)
                                     {
-                                        <span class="pill muted">Read</span>
+                                        <span class="status-pill">Read</span>
                                     }
                                     else
                                     {
-                                        <span class="pill">Unread</span>
+                                        <span class="status-pill">Unread</span>
                                     }
                                 </div>
 
@@ -82,7 +87,7 @@
                                       method="post">
                                     @Html.AntiForgeryToken()
 
-                                    <button type="submit" class="outline-btn">
+                                    <button type="submit" class="btn-light">
                                         Mark Read
                                     </button>
                                 </form>
@@ -97,231 +102,6 @@
                     You do not have any notifications yet.
                 </div>
             }
-
         </div>
     </div>
-
-</section>
-
-<style>
-    :root {
-        --gc-main: #075168;
-        --gc-accent: #00779B;
-        --gc-soft: #E7F1F3;
-        --gc-bg: #F4F1EE;
-        --gc-card: #FFFFFF;
-        --gc-text: #12262F;
-        --gc-muted: #687A80;
-        --gc-border: #D6DDDE;
-        --gc-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-    }
-
-    body {
-        background: var(--gc-bg);
-    }
-
-    .doctor-notifications-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 30px 20px 50px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .doctor-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .doctor-stat-card {
-        background: var(--gc-card);
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
-        padding: 22px;
-        min-height: 116px;
-        box-shadow: var(--gc-shadow);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .doctor-stat-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 5px;
-        background: var(--gc-main);
-    }
-
-    .doctor-stat-card strong {
-        display: block;
-        color: var(--gc-main);
-        font-size: 40px;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 12px;
-    }
-
-    .doctor-stat-card span {
-        display: block;
-        color: var(--gc-text);
-        font-size: 15px;
-        font-weight: 800;
-    }
-
-    .mark-all-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 22px;
-    }
-
-    .mark-all-row form {
-        width: auto;
-    }
-
-    .primary-btn {
-        border-radius: 16px;
-        padding: 14px 24px;
-        min-width: 220px;
-        font-weight: 900;
-        border: 1px solid var(--gc-main);
-        background: var(--gc-main);
-        color: #fff;
-        white-space: nowrap;
-    }
-
-    .primary-btn:hover {
-        background: var(--gc-accent);
-        border-color: var(--gc-accent);
-        color: #fff;
-    }
-
-    .clean-panel {
-        background: var(--gc-card);
-        border: 1px solid var(--gc-border);
-        border-radius: 24px;
-        box-shadow: var(--gc-shadow);
-        overflow: hidden;
-    }
-
-    .clean-panel-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
-    }
-
-    .clean-panel-header h2 {
-        margin: 0;
-        color: var(--gc-main);
-        font-size: 24px;
-        font-weight: 900;
-    }
-
-    .clean-panel-body {
-        padding: 24px;
-    }
-
-    .notification-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .notification-item {
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
-        padding: 18px;
-        background: #fff;
-    }
-
-    .notification-title-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 8px;
-    }
-
-    .notification-title-row h3 {
-        margin: 0;
-        color: var(--gc-text);
-        font-size: 18px;
-        font-weight: 900;
-    }
-
-    .notification-main p {
-        margin: 0 0 10px;
-        color: var(--gc-text);
-        font-weight: 650;
-    }
-
-    .meta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        color: var(--gc-muted);
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .pill {
-        background: var(--gc-soft);
-        color: var(--gc-main);
-        border: 1px solid #C9DBDF;
-        border-radius: 999px;
-        padding: 6px 12px;
-        font-size: 12px;
-        font-weight: 900;
-        white-space: nowrap;
-    }
-
-    .pill.muted {
-        background: #EEF1F3;
-        color: var(--gc-muted);
-    }
-
-    .outline-btn {
-        border-radius: 14px;
-        padding: 10px 16px;
-        font-weight: 900;
-        border: 1px solid var(--gc-main);
-        background: #fff;
-        color: var(--gc-main);
-        white-space: nowrap;
-    }
-
-    .outline-btn:hover {
-        background: var(--gc-accent);
-        color: #fff;
-        border-color: var(--gc-accent);
-    }
-
-    .empty-box {
-        padding: 18px;
-        border-radius: 16px;
-        background: var(--gc-soft);
-        border: 1px solid #C9DBDF;
-        color: var(--gc-main);
-        font-weight: 800;
-    }
-
-    @@media (max-width: 900px) {
-        .doctor-stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .notification-item {
-            flex-direction: column;
-        }
-
-        .mark-all-row {
-            justify-content: stretch;
-        }
-
-        .mark-all-row form,
-        .primary-btn {
-            width: 100%;
-        }
-    }
-</style>
+</div>
