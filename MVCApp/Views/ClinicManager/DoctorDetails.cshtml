@@ -2,6 +2,22 @@
 
 @{
     ViewData["Title"] = "Doctor Details";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "available" => "status-completed",
+        "active" => "status-completed",
+        "inactive" => "status-cancelled",
+        "onleave" => "status-inprogress",
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -28,8 +44,8 @@
         <div class="card-head">
             <h2>Dr. @Model.FullName</h2>
             <div class="actions">
-                <span class="status-pill">@Model.StatusText</span>
-                <span class="status-pill">@Model.LeaveStatusText</span>
+                <span class="status-pill @StatusClass(Model.StatusText)">@Model.StatusText</span>
+                <span class="status-pill @StatusClass(Model.LeaveStatusText)">@Model.LeaveStatusText</span>
             </div>
         </div>
 
@@ -105,7 +121,8 @@
                             <tr>
                                 <td>@leave.LeaveDateText</td>
                                 <td>@leave.LeaveReason</td>
-                                <td><span class="status-pill">@leave.LeaveStatusText</span></td>
+                                <td>
+                                <td><span class="status-pill @StatusClass(leave.LeaveStatusText)">@leave.LeaveStatusText</span></td>
                             </tr>
                         }
                     </tbody>

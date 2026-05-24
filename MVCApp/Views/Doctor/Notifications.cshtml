@@ -1,9 +1,14 @@
 @model MVCApp.ViewModels.Doctor.DoctorNotificationsViewModel
-
 @{
     ViewData["Title"] = "My Notifications";
-}
 
+    string StatusClass(string status) => status?.ToLower() switch
+    {
+        "read" => "status-completed",
+        "unread" => "status-requested",
+        _ => "status-default"
+    };
+}
 <div class="doctor-page">
     <div class="doctor-notifications-page">
         <div class="manager-card dashboard-hero">
@@ -14,19 +19,16 @@
                 </div>
             </div>
         </div>
-
         <div class="doctor-stats-grid">
             <div class="doctor-stat-card">
                 <strong>@Model.TotalNotifications</strong>
                 <span>Total Notifications</span>
             </div>
-
             <div class="doctor-stat-card">
                 <strong>@Model.UnreadCount</strong>
                 <span>Unread Notifications</span>
             </div>
         </div>
-
         @if (Model.HasUnreadNotifications)
         {
             <div class="mark-all-row">
@@ -34,19 +36,16 @@
                       asp-action="MarkAllNotificationsAsRead"
                       method="post">
                     @Html.AntiForgeryToken()
-
                     <button type="submit" class="btn-main">
                         Mark All as Read
                     </button>
                 </form>
             </div>
         }
-
         <div class="manager-card">
             <div class="card-head">
                 <h2>Notification List</h2>
             </div>
-
             @if (Model.HasNotifications)
             {
                 <div class="notification-list">
@@ -56,29 +55,19 @@
                             <div class="notification-main">
                                 <div class="notification-title-row">
                                     <h3>@notification.Title</h3>
-
-                                    @if (notification.IsRead)
-                                    {
-                                        <span class="status-pill">Read</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-pill">Unread</span>
-                                    }
+                                    <span class="status-pill @StatusClass(notification.IsRead ? "Read" : "Unread")">
+                                        @(notification.IsRead ? "Read" : "Unread")
+                                    </span>
                                 </div>
-
                                 <p>@notification.Message</p>
-
                                 <div class="meta-row">
                                     <span>@notification.CreatedAtDisplay</span>
-
                                     @if (notification.HasRelatedEntity)
                                     {
                                         <span>Related to: @notification.RelatedEntityType</span>
                                     }
                                 </div>
                             </div>
-
                             @if (!notification.IsRead)
                             {
                                 <form asp-controller="Doctor"
@@ -86,7 +75,6 @@
                                       asp-route-id="@notification.NotificationId"
                                       method="post">
                                     @Html.AntiForgeryToken()
-
                                     <button type="submit" class="btn-light">
                                         Mark Read
                                     </button>

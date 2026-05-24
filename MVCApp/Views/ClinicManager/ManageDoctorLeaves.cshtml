@@ -1,7 +1,23 @@
 ﻿@model MVCApp.ViewModels.ClinicManager.ManageDoctorLeavesViewModel
 
 @{
-    ViewData["Title"] = "Manage Doctor Leaves";
+    ViewData["Title"] = "Appointment Impact";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "available" => "status-completed",
+        "active" => "status-completed",
+        "inactive" => "status-cancelled",
+        "onleave" => "status-inprogress",
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -45,7 +61,8 @@
                             <tr>
                                 <td>@leave.LeaveDateText</td>
                                 <td>@leave.LeaveReason</td>
-                                <td><span class="status-pill">@leave.LeaveStatusText</span></td>
+                                <td>
+                                <td><span class="status-pill @StatusClass(leave.LeaveStatusText)">@leave.LeaveStatusText</span></td>
                                 <td>
                                     <a asp-controller="ClinicManager" asp-action="EditDoctorLeave" asp-route-id="@leave.DoctorLeaveId" class="table-link">Edit</a>
                                     <form asp-controller="ClinicManager" asp-action="DeleteDoctorLeave" method="post" style="display:inline;">

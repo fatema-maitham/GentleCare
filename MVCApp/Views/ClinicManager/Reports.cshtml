@@ -2,6 +2,17 @@
 
 @{
     ViewData["Title"] = "Clinic Reports";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "low"        => "status-completed",   // green
+        "medium"     => "status-inprogress",  // amber
+        "high"       => "status-cancelled",   // red
+        "low workload"    => "status-completed",
+        "medium workload" => "status-inprogress",
+        "high workload"   => "status-cancelled",
+        _            => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -161,7 +172,7 @@
                                 <td>@item.RemainingAppointments</td>
                                 <td>@item.CompletionRate.ToString("0.##")%</td>
                                 <td>@item.UtilizationRate.ToString("0.##")%</td>
-                                <td><span class="pill">@item.WorkloadLevel</span></td>
+                                    <td><span class="pill @StatusClass(item.WorkloadLevel)">@item.WorkloadLevel</span></td>
                             </tr>
                         }
                     </tbody>
@@ -327,7 +338,7 @@
                                 <td>@item.MissedAppointments</td>
                                 <td>@item.MissedRate.ToString("0.##")%</td>
                                 <td>@item.LastMissedDateDisplay</td>
-                                <td><span class="pill danger">@item.RiskLevel</span></td>
+                                <td><span class="pill @StatusClass(item.RiskLevel)">@item.RiskLevel</span></td>
                             </tr>
                         }
                     </tbody>

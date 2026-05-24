@@ -13,6 +13,18 @@
     {
         remainingAppointments = 0;
     }
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "requested"  => "status-requested",
+        "confirmed"  => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin"  => "status-checkedin",
+        "completed"  => "status-completed",
+        "cancelled"  => "status-cancelled",
+        "missed"     => "status-missed",
+        _            => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -68,7 +80,7 @@
                                 <td>@appointment.TimeText</td>
                                 <td>@appointment.PatientName</td>
                                 <td>Dr. @appointment.DoctorName</td>
-                                <td><span class="status-pill">@appointment.StatusName</span></td>
+                                <td><span class="status-pill @StatusClass(appointment.StatusName)">@appointment.StatusName</span></td>
                                 <td>
                                     <a asp-controller="ClinicManager"
                                        asp-action="AppointmentDetails"

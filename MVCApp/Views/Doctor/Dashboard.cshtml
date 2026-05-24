@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = "Doctor Dashboard";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="doctor-page">
@@ -116,7 +128,7 @@
                                 <div class="appointment-main">
                                     <div class="appointment-top">
                                         <span class="appointment-name">@appointment.PatientFullName</span>
-                                        <span class="appointment-status">@appointment.StatusName</span>
+                                        <span class="appointment-status status-pill @StatusClass(appointment.StatusName)">@appointment.StatusName</span>
                                     </div>
 
                                     <div class="appointment-ref">

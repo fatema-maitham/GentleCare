@@ -2,6 +2,22 @@
 
 @{
     ViewData["Title"] = "Appointment Impact";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "available" => "status-completed",
+        "active" => "status-completed",
+        "inactive" => "status-cancelled",
+        "onleave" => "status-inprogress",
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -40,6 +56,7 @@
         <div class="card-head">
             <h2>Dr. @Model.DoctorName</h2>
             <span class="status-pill">@Model.DateRangeText</span>
+
         </div>
 
         <div class="info-grid">
@@ -80,7 +97,7 @@
                                 <td>@appointment.DateText</td>
                                 <td>@appointment.TimeText</td>
                                 <td>@appointment.PatientName</td>
-                                <td><span class="status-pill">@appointment.StatusName</span></td>
+                                <td> <span class="status-pill @StatusClass(appointment.StatusName)">@appointment.StatusName</span></td>
                                 <td>@appointment.ImpactType</td>
                                 <td>@appointment.ImpactReason</td>
 
@@ -100,7 +117,7 @@
                                                     </div>
 
                                                     <div style="margin-top:4px;">
-                                                        <span class="status-pill">@suggestion.SpecializationMatchText</span>
+                                                        <span class="status-pill @StatusClass(suggestion.SpecializationMatchText)">@suggestion.SpecializationMatchText</span>
                                                     </div>
 
                                                     <form asp-controller="ClinicManager" asp-action="RescheduleImpactedAppointment" method="post" style="margin-top:8px;">

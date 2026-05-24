@@ -570,7 +570,49 @@ main,
     font-size: 12px;
     font-weight: 900;
     white-space: nowrap;
+    border: 1px solid transparent;
 }
+
+    /* ===== Status Pill Color Variants ===== */
+    .status-pill.status-requested {
+        background: rgba(100, 116, 139, 0.12);
+        color: #475569;
+        border-color: rgba(100, 116, 139, 0.2);
+    }
+
+    .status-pill.status-confirmed {
+        background: rgba(3, 105, 161, 0.12);
+        color: #0369A1;
+        border-color: rgba(3, 105, 161, 0.2);
+    }
+
+    .status-pill.status-checkedin,
+    .status-pill.status-checked,
+    .status-pill.status-completed {
+        background: rgba(22, 163, 74, 0.12);
+        color: #16A34A;
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .status-pill.status-inprogress,
+    .status-pill.status-progress {
+        background: rgba(217, 119, 6, 0.12);
+        color: #D97706;
+        border-color: rgba(217, 119, 6, 0.2);
+    }
+
+    .status-pill.status-cancelled {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--gc-danger);
+        border-color: rgba(220, 38, 38, 0.2);
+    }
+
+    .status-pill.status-missed,
+    .status-pill.status-default {
+        background: rgba(100, 116, 139, 0.12);
+        color: #64748B;
+        border-color: rgba(100, 116, 139, 0.2);
+    }
 
 .empty-box {
     background: #FAFCFC;
@@ -901,6 +943,57 @@ main,
         font-weight: 900;
         white-space: nowrap;
     }
+
+        /* ===== Doctor-page Status Pill Color Variants ===== */
+        .doctor-page .status-pill.status-requested,
+        .doctor-page .appointment-status.status-requested {
+            background: rgba(100, 116, 139, 0.12);
+            color: #475569;
+            border-color: rgba(100, 116, 139, 0.2);
+        }
+
+        .doctor-page .status-pill.status-confirmed,
+        .doctor-page .appointment-status.status-confirmed {
+            background: rgba(3, 105, 161, 0.12);
+            color: #0369A1;
+            border-color: rgba(3, 105, 161, 0.2);
+        }
+
+        .doctor-page .status-pill.status-checkedin,
+        .doctor-page .status-pill.status-checked,
+        .doctor-page .status-pill.status-completed,
+        .doctor-page .appointment-status.status-checkedin,
+        .doctor-page .appointment-status.status-checked,
+        .doctor-page .appointment-status.status-completed {
+            background: rgba(22, 163, 74, 0.12);
+            color: #16A34A;
+            border-color: rgba(22, 163, 74, 0.2);
+        }
+
+        .doctor-page .status-pill.status-inprogress,
+        .doctor-page .status-pill.status-progress,
+        .doctor-page .appointment-status.status-inprogress,
+        .doctor-page .appointment-status.status-progress {
+            background: rgba(217, 119, 6, 0.12);
+            color: #D97706;
+            border-color: rgba(217, 119, 6, 0.2);
+        }
+
+        .doctor-page .status-pill.status-cancelled,
+        .doctor-page .appointment-status.status-cancelled {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--gc-danger);
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .doctor-page .status-pill.status-missed,
+        .doctor-page .status-pill.status-default,
+        .doctor-page .appointment-status.status-missed,
+        .doctor-page .appointment-status.status-default {
+            background: rgba(100, 116, 139, 0.12);
+            color: #64748B;
+            border-color: rgba(100, 116, 139, 0.2);
+        }
 
     .doctor-page .empty-box {
         background: #FAFCFC;
@@ -3395,9 +3488,7 @@ main,
     }
 }
 
-/* ADD AT THE END OF THE FILE - BEFORE ANY CLOSING TAGS */
-
-/* ===== MANAGER ACCOUNTS PAGE (NEW) ===== */
+/* ===== MANAGER ACCOUNTS PAGE ===== */
 .manager-page .accounts-page {
     display: flex;
     flex-direction: column;
@@ -3848,6 +3939,30 @@ main,
             border-color: rgba(220, 38, 38, 0.2);
         }
 
+        .manager-page .reports-page .pill.status-completed {
+            background: rgba(22, 163, 74, 0.12);
+            color: #16A34A;
+            border-color: rgba(22, 163, 74, 0.2);
+        }
+
+        .manager-page .reports-page .pill.status-inprogress {
+            background: rgba(217, 119, 6, 0.12);
+            color: #D97706;
+            border-color: rgba(217, 119, 6, 0.2);
+        }
+
+        .manager-page .reports-page .pill.status-cancelled {
+            background: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .manager-page .reports-page .pill.status-default {
+            background: rgba(100, 116, 139, 0.12);
+            color: #64748B;
+            border-color: rgba(100, 116, 139, 0.2);
+        }
+
     .manager-page .reports-page .empty-box {
         background: #FAFCFC;
         border: 1px dashed #B9CBD0;
@@ -4230,4 +4345,114 @@ main,
     .patient-page .patient-panel-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+    border: 1px solid transparent; /* required */
+}
+
+    .pill.status-completed {
+        background: rgba(22, 163, 74, 0.12);
+        color: #16A34A;
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .pill.status-inprogress {
+        background: rgba(217, 119, 6, 0.12);
+        color: #D97706;
+        border-color: rgba(217, 119, 6, 0.2);
+    }
+
+    .pill.status-cancelled {
+        background: rgba(220, 38, 38, 0.1);
+        color: #DC2626;
+        border-color: rgba(220, 38, 38, 0.2);
+    }
+
+    .pill.status-default {
+        background: rgba(100, 116, 139, 0.12);
+        color: #64748B;
+        border-color: rgba(100, 116, 139, 0.2);
+    }
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(3, 105, 161, 0.12);
+    color: var(--gc-accent);
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.pill.status-completed {
+    background: rgba(22,163,74,0.12);
+    color: #16A34A;
+    border-color: rgba(22,163,74,0.2);
+}
+
+.pill.status-inprogress {
+    background: rgba(217,119,6,0.12);
+    color: #D97706;
+    border-color: rgba(217,119,6,0.2);
+}
+
+.pill.status-cancelled {
+    background: rgba(220,38,38,0.1);
+    color: #DC2626;
+    border-color: rgba(220,38,38,0.2);
+}
+
+.pill.status-default {
+    background: rgba(100,116,139,0.12);
+    color: #64748B;
+    border-color: rgba(100,116,139,0.2);
+}
+
+.status-pill.status-requested {
+    background: rgba(100,116,139,0.12);
+    color: #475569;
+    border-color: rgba(100,116,139,0.2);
+}
+
+.status-pill.status-confirmed {
+    background: rgba(3,105,161,0.12);
+    color: #0369A1;
+    border-color: rgba(3,105,161,0.2);
+}
+
+.status-pill.status-checkedin,
+.status-pill.status-completed {
+    background: rgba(22,163,74,0.12);
+    color: #16A34A;
+    border-color: rgba(22,163,74,0.2);
+}
+
+.status-pill.status-inprogress {
+    background: rgba(217,119,6,0.12);
+    color: #D97706;
+    border-color: rgba(217,119,6,0.2);
+}
+
+.status-pill.status-cancelled {
+    background: rgba(220,38,38,0.1);
+    color: #DC2626;
+    border-color: rgba(220,38,38,0.2);
+}
+
+.status-pill.status-missed,
+.status-pill.status-default {
+    background: rgba(100,116,139,0.12);
+    color: #64748B;
+    border-color: rgba(100,116,139,0.2);
 }

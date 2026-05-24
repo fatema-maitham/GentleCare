@@ -2,6 +2,23 @@
 
 @{
     ViewData["Title"] = "Doctors";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "available" => "status-completed",
+        "active" => "status-completed",   
+        "inactive" => "status-cancelled",   
+        "onleave" => "status-inprogress",  
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
+
 }
 
 <div class="manager-page">
@@ -78,8 +95,8 @@
                                 </td>
                                 <td>@doctor.SpecializationsText</td>
                                 <td>
-                                    <span class="status-pill">@doctor.StatusText</span>
-                                    <span class="status-pill">@doctor.LeaveStatusText</span>
+                                    <span class="status-pill @StatusClass(doctor.StatusText)">@doctor.StatusText</span>
+                                    <span class="status-pill @StatusClass(doctor.LeaveStatusText)">@doctor.LeaveStatusText</span>
                                 </td>
                                 <td>@doctor.TodayAppointmentsCount</td>
                                 <td>@doctor.UpcomingAppointmentsCount</td>
