@@ -1,5 +1,5 @@
 using ClinicReportingApp.Models;
-using ClinicReportingApp.Services;
+using ClinicReportingApp.Services.Interfaces;
 using ClinicReportingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,7 @@ namespace ClinicReportingApp.Controllers
             return (true, _tokenService.GetToken(HttpContext)!, null);
         }
 
-        // ── Appointments Report ───────────────────────────────────────────────
+        //Appointments Report
         public async Task<IActionResult> Appointments(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -46,7 +46,7 @@ namespace ClinicReportingApp.Controllers
         }
 
 
-        // ── Doctor Load Report ─────────────────────────────────────────
+        //Doctor Load Report
         public async Task<IActionResult> DoctorWorkload(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -66,7 +66,7 @@ namespace ClinicReportingApp.Controllers
             });
         }
 
-        // ── Specialization Report ─────────────────────────────────────────────
+        //Specialization Report
         public async Task<IActionResult> Specializations(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -84,7 +84,7 @@ namespace ClinicReportingApp.Controllers
             });
         }
 
-        // ── Patients Report ───────────────────────────────────────────────────
+        //Patients Report
         public async Task<IActionResult> Patients(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();
@@ -97,12 +97,12 @@ namespace ClinicReportingApp.Controllers
 
             return View(new PatientReportViewModel
             {
-                Stats  = stats,
+                PatientActivity = stats,
                 Filter = new DateRangeFilter { From = from, To = to }
             });
         }
 
-        // ── Prescriptions Report ──────────────────────────────────────────────
+        //Prescriptions Report 
         public async Task<IActionResult> Prescriptions(DateTime? from, DateTime? to)
         {
             var (ok, token, redirect) = Guard();

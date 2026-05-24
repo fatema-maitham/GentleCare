@@ -4,93 +4,686 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] – Clinic Reporting</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* ── CSS Variables — GentleCare palette ── */
+        :root {
+            --main: #075168;
+            --main-dark: #043C4D;
+            --accent: #00779B;
+            --bg: #F4F1EE;
+            --card: #FFFFFF;
+            --soft: #F8FAFA;
+            --text: #12262F;
+            --muted: #687A80;
+            --border: #D6DDDE;
+            --shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background: var(--bg);
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* ── SIDEBAR ── */
+        #sidebar {
+            min-width: 230px;
+            min-height: 100vh;
+            background: var(--main);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 18px rgba(7, 81, 104, 0.13);
+            transition: min-width 0.2s;
+        }
+
+        /* Sidebar brand */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 22px 22px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            text-decoration: none;
+        }
+
+        .sidebar-brand-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand-name {
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.15;
+        }
+
+        .sidebar-brand-sub {
+            color: rgba(255,255,255,0.55);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        /* Sidebar nav */
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            padding: 10px 10px 6px;
+            margin-top: 6px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.80);
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+        }
+
+            .sidebar-link i {
+                font-size: 16px;
+                width: 20px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .sidebar-link:hover {
+                background: rgba(255,255,255,0.10);
+                color: #ffffff;
+            }
+
+            .sidebar-link.active {
+                background: rgba(255,255,255,0.18);
+                color: #ffffff;
+                font-weight: 800;
+            }
+
+                .sidebar-link.active i {
+                    color: #ffffff;
+                }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 14px 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-name {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .sidebar-user-role {
+            color: rgba(255,255,255,0.50);
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .sidebar-logout-btn {
+            width: 100%;
+            border: 1.5px solid rgba(255,255,255,0.30);
+            border-radius: 999px;
+            background: transparent;
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            font-weight: 800;
+            padding: 8px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+            .sidebar-logout-btn:hover {
+                background: rgba(255,255,255,0.12);
+                border-color: rgba(255,255,255,0.60);
+                color: #ffffff;
+            }
+
+        /* ── TOP BAR ── */
+        .top-bar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .top-bar-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .top-bar-badge {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Mobile toggle */
+        .sidebar-toggle-btn {
+            display: none;
+            border: none;
+            background: rgba(7,81,104,0.10);
+            color: var(--main);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 28px;
+        }
+
+        /* ── FOOTER ── */
+        .gc-footer {
+            background: var(--main);
+            color: rgba(255,255,255,0.70);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px 20px;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+            .page-header h1 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: 900;
+                color: var(--text);
+            }
+
+            .page-header p {
+                margin: 5px 0 0;
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+        /* ── BUTTONS ── */
+        .primary-btn, .cm-main-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 14px;
+            cursor: pointer;
+            background: var(--main);
+            color: #ffffff;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+            .primary-btn:hover, .cm-main-btn:hover {
+                background: var(--accent);
+                color: #ffffff;
+            }
+
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 14px;
+            cursor: pointer;
+            background: #E7EEF0;
+            color: var(--main);
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+            .secondary-btn:hover {
+                background: #DDE8EA;
+                color: var(--main);
+            }
+
+        /* ── CARDS ── */
+        .section-card, .dashboard-card, .cm-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        /* ── STAT BOXES ── */
+        .status-grid, .dashboard-grid, .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .status-box, .details-item {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+            .status-box span, .details-item span {
+                display: block;
+                color: var(--muted);
+                font-size: 13px;
+                font-weight: 800;
+            }
+
+            .status-box strong, .details-item strong {
+                display: block;
+                margin-top: 5px;
+                font-size: 22px;
+                font-weight: 900;
+                color: var(--text);
+            }
+
+        /* ── TABLES ── */
+        .cm-table-wrap {
+            overflow-x: auto;
+        }
+
+        .cm-table, .data-table, .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .cm-table th, .cm-table td,
+            .data-table th, .data-table td,
+            .clean-table th, .clean-table td {
+                padding: 13px 12px;
+                border-bottom: 1px solid var(--border);
+                text-align: left;
+                vertical-align: middle;
+                font-size: 13px;
+            }
+
+            .cm-table th, .data-table th, .clean-table th {
+                background: var(--soft);
+                font-weight: 900;
+                color: var(--text);
+            }
+
+        /* ── PILLS ── */
+        .cm-pill, .status-pill, .tag-pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 12px;
+            background: rgba(0,119,155,0.12);
+            color: var(--main);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+
+        .alert-success {
+            background: rgba(0,119,155,0.12);
+            color: var(--main);
+            border: none;
+        }
+
+        .alert-danger {
+            background: rgba(180,50,50,0.10);
+            color: #A33A3A;
+            border: none;
+        }
+
+        .text-danger {
+            color: #A33A3A !important;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* ── FORMS ── */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+            .form-group label {
+                font-weight: 900;
+                color: var(--text);
+                font-size: 14px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 11px 12px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                outline: none;
+                background: #ffffff;
+                font-family: inherit;
+                font-size: 14px;
+                color: var(--text);
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px rgba(0,119,155,0.14);
+                }
+
+        /* ── LINKS ── */
+        .btn-link, .table-link {
+            color: var(--main);
+            font-weight: 800;
+            margin-right: 8px;
+            text-decoration: none;
+        }
+
+            .btn-link:hover, .table-link:hover {
+                color: var(--accent);
+                text-decoration: underline;
+            }
+
+        /* ── MOBILE ── */
+        @@media (max-width: 900px) {
+            #sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                z-index: 1050;
+                transition: left 0.25s;
+            }
+
+                #sidebar.open {
+                    left: 0;
+                }
+
+            .sidebar-toggle-btn {
+                display: flex;
+            }
+
+            .content-body {
+                padding: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-@{
-    var isLoggedIn = Context.Session.GetString("jwt_token") != null;
-    var userName   = Context.Session.GetString("user_name") ?? "Manager";
-}
+    @{
+        var isLoggedIn = Context.Session.GetString("jwt_token") != null;
+        var userName = Context.Session.GetString("user_name") ?? "Manager";
 
-@if (isLoggedIn)
-{
-    <!-- Sidebar + Top Nav Layout -->
-    <div class="d-flex" id="wrapper">
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-        <!-- ── Sidebar ──────────────────────────────────────────────────── -->
-        <nav id="sidebar" class="bg-dark text-white d-flex flex-column p-3" style="min-width:230px; min-height:100vh;">
-            <div class="mb-4 text-center">
-                <i class="bi bi-heart-pulse-fill text-danger fs-2"></i>
-                <div class="fw-bold mt-1" style="font-size:1.05rem;">Clinic Reports</div>
-                <small class="text-secondary">Manager Dashboard</small>
+        string NavActive(string controller, string action)
+        => currentController == controller && currentAction == action ? "active" : "";
+        string NavActiveByAction(string action)
+        => currentAction == action ? "active" : "";
+    }
+
+    @if (isLoggedIn)
+    {
+        <div class="d-flex" id="wrapper">
+
+            <!-- ── SIDEBAR ──────────────────────────────────────── -->
+            <nav id="sidebar">
+
+                <!-- Brand -->
+                <a asp-controller="Dashboard" asp-action="Index" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        <span class="sidebar-brand-name">GentleCare</span>
+                        <span class="sidebar-brand-sub">Clinic Reports</span>
+                    </div>
+                </a>
+
+                <!-- Nav links -->
+                <div class="sidebar-nav">
+                    <div class="sidebar-label">Main</div>
+
+                    <a asp-controller="Dashboard" asp-action="Index"
+                       class="sidebar-link @NavActive("Dashboard", "Index")">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+
+                    <div class="sidebar-label">Reports</div>
+
+                    <a asp-controller="Reports" asp-action="Appointments"
+                       class="sidebar-link @NavActiveByAction("Appointments")">
+                        <i class="bi bi-calendar-check"></i> Appointments
+                    </a>
+
+                    <a asp-controller="Reports" asp-action="DoctorWorkload"
+                       class="sidebar-link @NavActiveByAction("DoctorWorkload")">
+                        <i class="bi bi-person-badge"></i> Doctor Workload
+                    </a>
+
+                    <a asp-controller="Reports" asp-action="Patients"
+                       class="sidebar-link @NavActiveByAction("Patients")">
+                        <i class="bi bi-people"></i> Patients
+                    </a>
+
+                    <a asp-controller="Reports" asp-action="Prescriptions"
+                       class="sidebar-link @NavActiveByAction("Prescriptions")">
+                        <i class="bi bi-capsule"></i> Prescriptions
+                    </a>
+                </div>
+
+                <!-- User + Logout -->
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <div class="sidebar-user-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="sidebar-user-name">@userName</div>
+                            <div class="sidebar-user-role">Clinic Manager</div>
+                        </div>
+                    </div>
+                    <form asp-controller="Auth" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="sidebar-logout-btn">
+                            <i class="bi bi-box-arrow-left"></i> Logout
+                        </button>
+                    </form>
+                </div>
+
+            </nav>
+            <!-- ── END SIDEBAR ──────────────────────────────────── -->
+            <!-- ── MAIN CONTENT ─────────────────────────────────── -->
+            <div class="main-content">
+
+                <!-- Top bar -->
+                <div class="top-bar">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="sidebar-toggle-btn" id="sidebarToggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <span class="top-bar-title">@(ViewData["Title"] ?? "Dashboard")</span>
+                    </div>
+                    <div class="top-bar-right">
+                        <div class="top-bar-badge">
+                            <i class="bi bi-person-circle"></i>
+                            @userName
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page body -->
+                <div class="content-body">
+                    @RenderBody()
+                </div>
+
+                <!-- Footer -->
+                <footer class="gc-footer">
+                    &copy; @DateTime.Now.Year GentleCare — Clinic Reporting
+                </footer>
+
             </div>
+            <!-- ── END MAIN CONTENT ──────────────────────────────── -->
 
-            <ul class="nav flex-column gap-1">
-                <li class="nav-item">
-                    <a class="nav-link text-white @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active bg-primary rounded" : "")"
-                       asp-controller="Dashboard" asp-action="Index">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white @(ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active bg-primary rounded" : "")"
-                       asp-controller="Reports" asp-action="Appointments">
-                        <i class="bi bi-calendar-check me-2"></i> Appointments
-                    </a>
-                </li>
-                <li class="nav-item">
-                        <a class="nav-link text-white @(ViewContext.RouteData.Values["action"]?.ToString() == "DoctorWorkload" ? "active bg-primary rounded" : "")"
-                           asp-controller="Reports" asp-action="DoctorWorkload">
-                            <i class="bi bi-person-badge me-2"></i> Doctor Workload
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white @(ViewContext.RouteData.Values["action"]?.ToString() == "Patients" ? "active bg-primary rounded" : "")"
-                       asp-controller="Reports" asp-action="Patients">
-                        <i class="bi bi-people me-2"></i> Patients
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white @(ViewContext.RouteData.Values["action"]?.ToString() == "Prescriptions" ? "active bg-primary rounded" : "")"
-                       asp-controller="Reports" asp-action="Prescriptions">
-                        <i class="bi bi-capsule me-2"></i> Prescriptions
-                    </a>
-                </li>
-            </ul>
-
-            <div class="mt-auto pt-3 border-top border-secondary">
-                <small class="text-secondary d-block mb-2"><i class="bi bi-person-circle me-1"></i>@userName</small>
-                <form asp-controller="Auth" asp-action="Logout" method="post">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                        <i class="bi bi-box-arrow-left me-1"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </nav>
-
-        <!-- ── Main Content ─────────────────────────────────────────────── -->
-        <div class="flex-grow-1 d-flex flex-column">
-            <div class="p-4 flex-grow-1">
-                @RenderBody()
-            </div>
-            <footer class="text-center text-muted py-2 small border-top">
-                &copy; @DateTime.Now.Year Clinic Reporting Application
-            </footer>
         </div>
-    </div>
-}
-else
-{
-    @RenderBody()
-}
+    }
+    else
+    {
+        @RenderBody()
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Mobile sidebar toggle
+        const toggleBtn = document.getElementById("sidebarToggle");
+        const sidebar   = document.getElementById("sidebar");
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("open");
+            });
+            // Close on outside click
+            document.addEventListener("click", (e) => {
+                if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove("open");
+                }
+            });
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

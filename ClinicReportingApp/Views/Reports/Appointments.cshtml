@@ -7,7 +7,7 @@
     <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Appointment Report</h4>
 </div>
 
-<!-- ── Date Filter ────────────────────────────────────────────────────────── -->
+  <!--Date Filter-->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
@@ -28,18 +28,22 @@
     </div>
 </div>
 
-<!-- ── KPI Cards ─────────────────────────────────────────────────────────── -->
+<!--KPI Cards-->
 <div class="row g-3 mb-4">
     @{
         var cards = new[]
-        {
+                {
             ("Total",       Model.Stats.TotalAppointments.ToString(), "primary",  "bi-calendar"),
             ("Completed",   Model.Stats.Completed.ToString(),         "success",  "bi-check-circle"),
-            ("Cancelled",   Model.Stats.Cancelled.ToString(),         "warning",  "bi-x-circle"),
-            ("Missed",      Model.Stats.Missed.ToString(),            "danger",   "bi-slash-circle"),
-            ("Pending",     Model.Stats.Pending.ToString(),           "info",     "bi-hourglass-split"),
-        };
-    }
+        ("Cancelled",   Model.Stats.Cancelled.ToString(),         "warning",  "bi-calendar-x"),
+        ("Missed",      Model.Stats.Missed.ToString(),            "danger",   "bi-x-circle"),
+        ("In Progress", Model.Stats.InProgress.ToString(),             "info",     "bi-heart-pulse"),
+            ("Checked In",  Model.Stats.CheckedIn.ToString(),         "info",     "bi-hourglass-split"),
+        ("Confirmed",   Model.Stats.Confirmed.ToString(),         "primary",     "bi-calendar-check"),
+        ("Requested",   Model.Stats.Requested.ToString(),         "secondary",     "bi-calendar-plus")
+              };
+     }
+
     @foreach (var (label, value, color, icon) in cards)
     {
         <div class="col-6 col-lg">
@@ -54,7 +58,7 @@
     }
 </div>
 
-<!-- ── Rates ──────────────────────────────────────────────────────────────── -->
+<!--Rates -->
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm">
@@ -91,7 +95,7 @@
     </div>
 </div>
 
-<!-- ── Trend Chart ────────────────────────────────────────────────────────── -->
+<!--Trend Chart -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-transparent fw-semibold border-bottom">
         <i class="bi bi-graph-up me-2 text-primary"></i>Monthly Appointment Trend
@@ -101,7 +105,7 @@
     </div>
 </div>
 
-<!-- ── Period Table ───────────────────────────────────────────────────────── -->
+<!--Period Table -->
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent fw-semibold border-bottom">
         <i class="bi bi-table me-2 text-primary"></i>Breakdown by Period
@@ -122,7 +126,7 @@
                 <tbody>
                     @foreach (var p in Model.ByPeriod)
                     {
-                        var rate = p.Total > 0 ? Math.Round((double)p.Completed / p.Total * 100, 1) : 0;
+                        var rate = p.Total > 0 ? Math.Round(((double)p.Completed / p.Total ) * 100, 1) : 0;
                         <tr>
                             <td class="fw-semibold">@p.Period</td>
                             <td class="text-center">@p.Total</td>

@@ -8,10 +8,13 @@ namespace ClinicReportingApp.ViewModels
         public List<DoctorloadDto> DoctorWorkload { get; set; } = new();
         public DailySummaryDto DailySummary          { get; set; } = new();
         public List<SpecializationStatsDto> SpecStats { get; set; } = new();
-        public PatientStatsDto PatientActivity { get; set; } = new();
+        public List<PatientStatsDto> PatientActivity { get; set; } = new();
         public PrescriptionStatsDto PrescriptionStats { get; set; } = new();
         public string ManagerName  { get; set; } = "";
         public string PeriodLabel  { get; set; } = "";
+        public int NewPatients =>                                   
+                    PatientActivity.Count(p => p.IsNewPatient);
+
     }
 
     public class AppointmentReportViewModel
@@ -27,6 +30,7 @@ namespace ClinicReportingApp.ViewModels
         public List<DoctorloadDto>  DoctorWorkload      { get; set; } = new();
         public List<SpecializationStatsDto> SpecializationStats { get; set; } = new();
         public DateRangeFilter Filter { get; set; } = new();
+
     }
 
     public class SpecializationReportViewModel
@@ -35,11 +39,25 @@ namespace ClinicReportingApp.ViewModels
         public DateRangeFilter Filter { get; set; } = new();
     }
 
-    public class PatientReportViewModel
+        public class PatientReportViewModel
     {
-        public PatientStatsDto Stats  { get; set; } = new();
+        // Report Data
+        public List<PatientStatsDto> PatientActivity { get; set; } = new();
+
+        // Filters
         public DateRangeFilter Filter { get; set; } = new();
-        public PatientStatsDto PatientActivity { get; set; } = new();
+
+        // Calculated summary cards not Calculated in WebAPI
+        public int TotalPatients => PatientActivity.Count;
+        public int NewPatients =>
+         PatientActivity.Count(p => p.IsNewPatient);
+        public int ActivePatients =>
+            PatientActivity.Count(p => p.TotalAppointments > 0);
+
+        public double AvgAppointmentsPerPatient =>
+            PatientActivity.Count == 0
+                ? 0
+                : PatientActivity.Average(p => p.TotalAppointments);
     }
 
     public class PrescriptionReportViewModel

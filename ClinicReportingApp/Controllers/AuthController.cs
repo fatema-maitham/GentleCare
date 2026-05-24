@@ -1,5 +1,5 @@
 using ClinicReportingApp.Models;
-using ClinicReportingApp.Services;
+using ClinicReportingApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicReportingApp.Controllers
