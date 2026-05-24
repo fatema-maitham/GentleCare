@@ -63,6 +63,30 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            Console.WriteLine($">>> RAW AUTH HEADER = {context.Request.Headers["Authorization"]}");
+            return Task.CompletedTask;
+        },
+
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($">>> JWT FAILED = {context.Exception}");
+            return Task.CompletedTask;
+        },
+
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine(">>> TOKEN VALIDATED");
+            return Task.CompletedTask;
+        }
+    };
+
+
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
