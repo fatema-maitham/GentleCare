@@ -14,6 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts3", "scripts3", "{02
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicReportingApp", "ClinicReportingApp\ClinicReportingApp.csproj", "{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4DA63D77-7217-4F8B-9C41-3B76C32DFAAC} = {4DA63D77-7217-4F8B-9C41-3B76C32DFAAC}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
