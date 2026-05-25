@@ -1,6 +1,8 @@
 using ClinicReportingApp.Services;
+using ClinicReportingApp.Services.Interfaces;
 using ClinicReportingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace ClinicReportingApp.Controllers
 {
@@ -22,7 +24,7 @@ namespace ClinicReportingApp.Controllers
 
             var token = _tokenService.GetToken(HttpContext)!;
 
-            // Default: last 30 days
+            // Default: last 30 days /like a filter
             var from = DateTime.Today.AddDays(-30);
             var to = DateTime.Today;
 
@@ -32,9 +34,11 @@ namespace ClinicReportingApp.Controllers
             var prescriptions = await _api.GetPrescriptionStatsAsync(token, from, to);
             var specs = await _api.GetSpecializationStatsAsync(token, from, to);
             var daily = await _api.GetDailySummaryAsync(token);
+            var busiestHours = await _api.GetBusiestHoursAsync(token, from, to);
 
             var vm = new DashboardViewModel
             {
+                BusiestHours = busiestHours,
                 AppointmentStats = stats,
                 DoctorWorkload = doctorStats,
                 PatientActivity = patientStats,
@@ -42,7 +46,8 @@ namespace ClinicReportingApp.Controllers
                 SpecStats = specs,
                 DailySummary = daily,
                 ManagerName = TokenService.GetUserName(HttpContext) ?? "Clinic Manager",
-                PeriodLabel = $"{from:dd MMM yyyy} – {to:dd MMM yyyy}"
+                PeriodLabel = $"{from.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} – " +
+                              $"{to.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)}"
             };
 
             return View(vm);

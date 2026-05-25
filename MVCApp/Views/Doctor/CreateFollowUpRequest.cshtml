@@ -4,251 +4,97 @@
     ViewData["Title"] = "Create Follow-Up Request";
 }
 
-<div class="follow-page">
-    <div class="follow-header">
-        <a asp-controller="DoctorAppointment"
-           asp-action="AppointmentDetails"
-           asp-route-id="@Model.OriginalAppointmentId"
-           class="follow-back">
-            Back to Appointment
-        </a>
-    </div>
-
-    <div class="follow-card">
-        <div class="follow-title">
-            <h1>Create Follow-Up Request</h1>
-            <p>Recommend another appointment for this patient.</p>
+<div class="doctor-page">
+    <div class="doctor-followup-page">
+        <div class="manager-top">
+            <a asp-controller="DoctorAppointment"
+               asp-action="AppointmentDetails"
+               asp-route-id="@Model.OriginalAppointmentId"
+               class="btn-light">
+                Back to Appointment
+            </a>
         </div>
 
-        <div class="follow-summary">
-            <div>
-                <span>Patient</span>
-                <strong>@Model.PatientFullName</strong>
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Create Follow-Up Request</h2>
+                <span class="muted">Recommend another appointment for this patient.</span>
             </div>
 
-            <div>
-                <span>Doctor</span>
-                <strong>@Model.DoctorFullName</strong>
-            </div>
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>Patient</span>
+                    <strong>@Model.PatientFullName</strong>
+                </div>
 
-            <div>
-                <span>Original Visit</span>
-                <strong>@Model.OriginalAppointmentDateDisplay</strong>
+                <div class="info-box">
+                    <span>Doctor</span>
+                    <strong>@Model.DoctorFullName</strong>
+                </div>
+
+                <div class="info-box">
+                    <span>Original Visit</span>
+                    <strong>@Model.OriginalAppointmentDateDisplay</strong>
+                </div>
             </div>
         </div>
 
-        <form asp-action="CreateFollowUpRequest" method="post" class="follow-form">
-            @Html.AntiForgeryToken()
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Follow-Up Details</h2>
+            </div>
 
-            <input asp-for="OriginalAppointmentId" type="hidden" />
-            <input asp-for="PatientId" type="hidden" />
-            <input asp-for="DoctorId" type="hidden" />
-            <input asp-for="PatientFullName" type="hidden" />
-            <input asp-for="DoctorFullName" type="hidden" />
-            <input asp-for="OriginalAppointmentDate" type="hidden" />
+            <form asp-controller="DoctorAppointment"
+                  asp-action="CreateFollowUpRequest"
+                  method="post"
+                  class="manager-form">
+                @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="OriginalAppointmentId" type="hidden" />
+                <input asp-for="PatientId" type="hidden" />
+                <input asp-for="DoctorId" type="hidden" />
+                <input asp-for="PatientFullName" type="hidden" />
+                <input asp-for="DoctorFullName" type="hidden" />
+                <input asp-for="OriginalAppointmentDate" type="hidden" />
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label asp-for="RecommendedDate">Recommended Date</label>
-                    <input asp-for="RecommendedDate" type="date" />
-                    <span asp-validation-for="RecommendedDate" class="text-danger"></span>
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="RecommendedDate">Recommended Date</label>
+                        <input asp-for="RecommendedDate" type="date" />
+                        <span asp-validation-for="RecommendedDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StartTime">Start Time</label>
+                        <input asp-for="StartTime" type="time" />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="StartTime">Start Time</label>
-                    <input asp-for="StartTime" type="time" />
-                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                    <label asp-for="Reason">Reason</label>
+                    <textarea asp-for="Reason" placeholder="Example: Review blood pressure after medication"></textarea>
+                    <span asp-validation-for="Reason" class="text-danger"></span>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="Reason">Reason</label>
-                <textarea asp-for="Reason" placeholder="Example: Review blood pressure after medication"></textarea>
-                <span asp-validation-for="Reason" class="text-danger"></span>
-            </div>
+                <div class="actions">
+                    <a asp-controller="DoctorAppointment"
+                       asp-action="AppointmentDetails"
+                       asp-route-id="@Model.OriginalAppointmentId"
+                       class="btn-light">
+                        Cancel
+                    </a>
 
-            <div class="follow-actions">
-                <a asp-controller="DoctorAppointment"
-                   asp-action="AppointmentDetails"
-                   asp-route-id="@Model.OriginalAppointmentId"
-                   class="btn-secondary-follow">
-                    Cancel
-                </a>
-
-                <button type="submit" class="btn-primary-follow">
-                    Create Follow-Up Request
-                </button>
-            </div>
-        </form>
+                    <button type="submit" class="btn-main">
+                        Create Follow-Up Request
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<style>
-    .follow-page {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 30px 20px 56px;
-    }
-
-    .follow-header {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 20px;
-    }
-
-    .follow-back,
-    .btn-secondary-follow,
-    .btn-primary-follow {
-        border-radius: 14px;
-        padding: 10px 17px;
-        font-weight: 900;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    .follow-back,
-    .btn-secondary-follow {
-        background: #E7F1F3;
-        color: #075168;
-        border: 1px solid #C9DBDF;
-    }
-
-    .btn-primary-follow {
-        background: #075168;
-        color: #ffffff;
-    }
-
-    .follow-card {
-        background: #ffffff;
-        border: 1px solid #D6DDDE;
-        border-radius: 24px;
-        padding: 28px;
-    }
-
-    .follow-title {
-        margin-bottom: 22px;
-    }
-
-        .follow-title h1 {
-            margin: 0;
-            font-size: 30px;
-            font-weight: 900;
-            color: #12262F;
-        }
-
-        .follow-title p {
-            margin: 8px 0 0;
-            color: #687A80;
-            font-weight: 700;
-        }
-
-    .follow-summary {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 14px;
-        margin-bottom: 24px;
-    }
-
-        .follow-summary div {
-            background: #F8FAFA;
-            border: 1px solid #E4EAEB;
-            border-radius: 18px;
-            padding: 16px;
-        }
-
-        .follow-summary span {
-            display: block;
-            color: #687A80;
-            font-size: 13px;
-            font-weight: 850;
-            margin-bottom: 6px;
-        }
-
-        .follow-summary strong {
-            color: #12262F;
-            font-weight: 900;
-        }
-
-    .follow-form {
-        display: grid;
-        gap: 18px;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-
-    .form-group {
-        display: grid;
-        gap: 7px;
-    }
-
-        .form-group label {
-            color: #12262F;
-            font-weight: 900;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            border: 1px solid #D6DDDE;
-            border-radius: 14px;
-            padding: 13px 14px;
-            color: #12262F;
-            background: #ffffff;
-            font-weight: 650;
-            outline: none;
-        }
-
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-            .form-group input:focus,
-            .form-group textarea:focus {
-                border-color: #00779B;
-                box-shadow: 0 0 0 4px rgba(0, 119, 155, 0.14);
-            }
-
-    .text-danger {
-        color: #B42318 !important;
-        font-size: 13px;
-        font-weight: 750;
-    }
-
-    .follow-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-top: 6px;
-    }
-
-    @@media (max-width: 760px) {
-        .follow-summary,
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .follow-actions {
-            justify-content: stretch;
-        }
-
-        .btn-secondary-follow,
-        .btn-primary-follow {
-            width: 100%;
-            text-align: center;
-        }
-    }
-</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
