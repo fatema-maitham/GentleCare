@@ -26,17 +26,6 @@
         <a asp-controller="ClinicManager" asp-action="CreateDoctor" class="btn-main">Add Doctor</a>
     </div>
 
-    
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
 
     <div class="manager-grid">
         <div class="manager-stat"><span>Total Doctors</span><strong>@Model.TotalDoctors</strong></div>

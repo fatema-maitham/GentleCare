@@ -15,16 +15,6 @@
             </div>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-        }
-
         <div class="dashboard-stats">
             <div class="dashboard-stat">
                 <strong>@Model.ConfirmedCount</strong>
@@ -91,15 +81,15 @@
                                     <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post" class="queue-action-form">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                        <input type="hidden" name="newStatus" value="CheckedIn" />
-                                        <button type="submit" class="btn-main">Check In</button>
+                                        <input type="hidden" name="newStatus" value="Missed" />
+                                        <button type="submit" class="btn-light">Mark Missed</button>
                                     </form>
 
                                     <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post" class="queue-action-form">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                        <input type="hidden" name="newStatus" value="Missed" />
-                                        <button type="submit" class="btn-light">Mark Missed</button>
+                                        <input type="hidden" name="newStatus" value="CheckedIn" />
+                                        <button type="submit" class="btn-main">Check In</button>
                                     </form>
                                 }
 

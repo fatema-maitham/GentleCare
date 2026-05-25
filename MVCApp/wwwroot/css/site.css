@@ -150,7 +150,7 @@ main,
 }
 
 #sidebar {
-    background: var(--gc-main-dark);
+    background: var(--gc-main);
     color: #ffffff;
     min-width: 230px;
     max-height: 100vh;
@@ -841,8 +841,6 @@ main,
     .manager-table tr:last-child td {
         border-bottom: none;
     }
-
-/* chunk 1 ends before doctor / receptionist / patient sections */
 
 /* ===== Doctor Pages Base ===== */
 .doctor-page {
@@ -2792,6 +2790,16 @@ main,
     }
 }
 
+.receptionist-page .receptionist-search-form .search-actions {
+    margin-top: 10px;
+}
+
+.receptionist-page .queue-item h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 4px 0;
+}
+
 @media (max-width: 768px) {
     .receptionist-page {
         padding: 20px 16px 40px;
@@ -2829,6 +2837,39 @@ main,
         border: 1px solid #E2E8EA;
         border-radius: 8px;
     }
+
+.receptionist-page .appointment-actions,
+.receptionist-page .queue-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+    .receptionist-page .appointment-actions .btn-light,
+    .receptionist-page .appointment-actions .btn-main,
+    .receptionist-page .queue-actions .btn-light,
+    .receptionist-page .queue-actions .btn-main {
+        min-width: 120px;
+    }
+
+.receptionist-page .queue-action-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+    .receptionist-page .queue-action-form .btn-main,
+    .receptionist-page .queue-action-form .btn-light {
+        width: auto;
+        min-width: 120px;
+    }
+
+.receptionist-page .appointment-actions .status-pill,
+.receptionist-page .queue-actions .status-pill {
+    align-self: center;
+}
 
 /* ===== Patient Pages ===== */
 .patient-page {
@@ -2952,6 +2993,12 @@ main,
             font-size: 14px;
             line-height: 1.5;
             margin: 0;
+        }
+
+        .patient-page .info-box h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 4px 0;
         }
 
     .patient-page .notes-box {
@@ -3486,6 +3533,30 @@ main,
         display: inline-block;
         margin-top: 12px;
     }
+}
+
+.patient-page .patient-notification-item h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.patient-page .patient-notification-item p {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--gc-muted);
+    margin: 0 0 6px;
+}
+
+.patient-page .patient-notification-item .notification-time {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gc-muted);
+}
+
+.patient-page .patient-info-value {
+    color: var(--gc-text);
+    font-weight: 600;
 }
 
 /* ===== MANAGER ACCOUNTS PAGE ===== */
@@ -4294,7 +4365,77 @@ main,
     }
 }
 
-/* ===== PATIENT DASHBOARD - NUMBER CARDS (FIX) ===== */
+/* ===== PATIENT DASHBOARD - NUMBER CARDS ===== */
+
+.patient-page .patient-info-list {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid #E5ECEE;
+}
+
+.patient-page .patient-info-row {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid #EEF2F3;
+    align-items: start;
+}
+
+.patient-page .patient-label {
+    color: var(--gc-muted);
+    font-weight: 700;
+}
+
+.patient-page .patient-profile-top h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.patient-page .patient-profile-top p {
+    font-size: 14px;
+    color: var(--gc-muted);
+    margin: 4px 0 0;
+}
+
+.patient-page .patient-profile-grid .card-head h2 {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.patient-page .patient-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+    .patient-page .patient-profile-actions .btn-main {
+        min-width: 140px;
+    }
+
+.patient-page .patient-value {
+    color: var(--gc-text);
+    font-weight: 600;
+    word-break: break-word;
+}
+
+
+.patient-page .patient-profile-actions,
+.patient-page .patient-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+    .patient-page .patient-profile-actions .btn-main,
+    .patient-page .patient-card-actions .btn-main,
+    .patient-page .patient-edit-actions .btn-main {
+        min-width: 120px;
+    }
+
 .patient-page .patient-dashboard-page {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,4 @@
-﻿@model MVCApp.ViewModels.Patient.PatientProfileViewModel
-
-@{
+﻿@{
     ViewData["Title"] = "Patient Profile";
 
     var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
@@ -10,13 +8,6 @@
 
 <div class="patient-page">
     <div class="patient-profile-page">
-
-        <div class="manager-top">
-            <a asp-controller="Patient" asp-action="EditProfile" class="btn-light">
-                Edit Profile
-            </a>
-        </div>
-
         <div class="manager-card">
             <div class="patient-profile-header">
                 <div class="patient-profile-top">
@@ -35,68 +26,74 @@
             {
                 <div class="manager-alert manager-alert-success">@TempData["SuccessMessage"]</div>
             }
-        </div>
 
-        <div class="patient-profile-grid">
-            <div class="manager-card">
-                <div class="card-head">
-                    <h2>Account Information</h2>
+            <div class="patient-profile-grid">
+                <div class="manager-card">
+                    <div class="card-head">
+                        <h2>Account Information</h2>
+                    </div>
+
+                    <div class="patient-info-list">
+                        <div class="patient-info-row">
+                            <span>Full Name</span>
+                            <span class="patient-info-value">@Model.FullName</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Email</span>
+                            <span class="patient-info-value">@Model.Email</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>CPR Number</span>
+                            <span class="patient-info-value">@Model.CPRNumber</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Reference Number</span>
+                            <span class="patient-info-value">@Model.ReferenceNumber</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="patient-info-list">
-                    <div class="patient-info-row">
-                        <span>Full Name</span>
-                        <strong>@Model.FullName</strong>
+                <div class="manager-card">
+                    <div class="card-head">
+                        <h2>Medical & Contact Details</h2>
                     </div>
 
-                    <div class="patient-info-row">
-                        <span>Email</span>
-                        <strong>@Model.Email</strong>
-                    </div>
+                    <div class="patient-info-list">
+                        <div class="patient-info-row">
+                            <span>Date of Birth</span>
+                            <span class="patient-info-value">@Model.DateOfBirth.ToString("dd MMM yyyy")</span>
+                        </div>
 
-                    <div class="patient-info-row">
-                        <span>CPR Number</span>
-                        <strong>@Model.CPRNumber</strong>
-                    </div>
+                        <div class="patient-info-row">
+                            <span>Blood Type</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.BloodType) ? "Not provided" : Model.BloodType)</span>
+                        </div>
 
-                    <div class="patient-info-row">
-                        <span>Reference Number</span>
-                        <strong>@Model.ReferenceNumber</strong>
+                        <div class="patient-info-row">
+                            <span>Address</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.Address) ? "Not provided" : Model.Address)</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Emergency Contact Name</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyContactName) ? "Not provided" : Model.EmergencyContactName)</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Emergency Contact Phone</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyContactPhone) ? "Not provided" : Model.EmergencyContactPhone)</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="manager-card">
-                <div class="card-head">
-                    <h2>Medical & Contact Details</h2>
-                </div>
-
-                <div class="patient-info-list">
-                    <div class="patient-info-row">
-                        <span>Date of Birth</span>
-                        <strong>@Model.DateOfBirth.ToString("dd MMM yyyy")</strong>
-                    </div>
-
-                    <div class="patient-info-row">
-                        <span>Blood Type</span>
-                        <strong>@(string.IsNullOrWhiteSpace(Model.BloodType) ? "Not provided" : Model.BloodType)</strong>
-                    </div>
-
-                    <div class="patient-info-row">
-                        <span>Address</span>
-                        <strong>@(string.IsNullOrWhiteSpace(Model.Address) ? "Not provided" : Model.Address)</strong>
-                    </div>
-
-                    <div class="patient-info-row">
-                        <span>Emergency Contact Name</span>
-                        <strong>@(string.IsNullOrWhiteSpace(Model.EmergencyContactName) ? "Not provided" : Model.EmergencyContactName)</strong>
-                    </div>
-
-                    <div class="patient-info-row">
-                        <span>Emergency Contact Phone</span>
-                        <strong>@(string.IsNullOrWhiteSpace(Model.EmergencyContactPhone) ? "Not provided" : Model.EmergencyContactPhone)</strong>
-                    </div>
-                </div>
+            <div class="patient-profile-actions">
+                <a asp-controller="Patient" asp-action="EditProfile" class="btn-main">
+                    Edit Profile
+                </a>
             </div>
         </div>
     </div>
