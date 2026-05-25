@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using MVCApp.Services.Interfaces;
 using MVCApp.ViewModels.Receptionist;
+using System.Security.Claims;
 using WebAPI.Data;
 using WebAPI.Hubs;
 using WebAPI.Models;
@@ -14,15 +17,111 @@ namespace MVCApp.Services
         private readonly ApplicationDbContext _context;
         private readonly IClinicNotificationService _notificationService;
         private readonly IHubContext<AppointmentHub> _hubContext;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
         public ReceptionistService(
             ApplicationDbContext context,
             IClinicNotificationService notificationService,
-            IHubContext<AppointmentHub> hubContext)
+            IHubContext<AppointmentHub> hubContext,
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment environment)
         {
             _context = context;
             _notificationService = notificationService;
             _hubContext = hubContext;
+            _userManager = userManager;
+            _environment = environment;
+        }
+
+        public async Task<ReceptionistProfileViewModel?> GetProfileAsync(ClaimsPrincipal userPrincipal)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new ReceptionistProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                CreatedAt = user.CreatedAt,
+                IsActive = user.IsActive,
+                ProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<ReceptionistEditProfileViewModel?> GetEditProfileAsync(ClaimsPrincipal userPrincipal)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new ReceptionistEditProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                CurrentProfilePicture = user.ProfilePicture
+            };
+        }
+
+        public async Task<(bool Success, string Message)> UpdateProfileAsync(
+            ClaimsPrincipal userPrincipal,
+            ReceptionistEditProfileViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+
+            if (user == null)
+            {
+                return (false, "Receptionist profile was not found.");
+            }
+
+            user.FullName = model.FullName;
+            user.PhoneNumber = model.PhoneNumber;
+
+            if (model.ProfileImageFile != null && model.ProfileImageFile.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.ProfileImageFile.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return (false, "Only JPG, PNG, or WEBP images are allowed.");
+                }
+
+                var imagesFolder = Path.Combine(_environment.WebRootPath, "images", "receptionists");
+
+                if (!Directory.Exists(imagesFolder))
+                {
+                    Directory.CreateDirectory(imagesFolder);
+                }
+
+                var fileName = $"receptionist-{user.Id}-{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(imagesFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProfileImageFile.CopyToAsync(stream);
+                }
+
+                user.ProfilePicture = $"/images/receptionists/{fileName}";
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return (false, "Profile could not be updated.");
+            }
+
+            return (true, "Profile updated successfully.");
         }
 
         public async Task<ReceptionistDashboardViewModel> GetDashboardAsync()
@@ -117,7 +216,14 @@ namespace MVCApp.Services
             }
 
             model.Appointments = await query
-                .OrderByDescending(a => a.AppointmentDate)
+                .OrderBy(a => a.Status.Name == "Requested" ? 1 :
+                              a.Status.Name == "Confirmed" ? 2 :
+                              a.Status.Name == "CheckedIn" ? 3 :
+                              a.Status.Name == "InProgress" ? 4 :
+                              a.Status.Name == "Completed" ? 5 :
+                              a.Status.Name == "Cancelled" ? 6 :
+                              a.Status.Name == "Missed" ? 7 : 8)
+                .ThenBy(a => a.AppointmentDate)
                 .ThenBy(a => a.StartTime)
                 .Select(a => new ReceptionistAppointmentListItemViewModel
                 {
@@ -137,7 +243,6 @@ namespace MVCApp.Services
 
             return model;
         }
-
         public async Task<ReceptionistBookAppointmentViewModel> GetBookAppointmentModelAsync(
             int? patientId,
             int? specializationId,

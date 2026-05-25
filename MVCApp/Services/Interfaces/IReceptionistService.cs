@@ -1,10 +1,19 @@
 ﻿using MVCApp.ViewModels.Receptionist;
+using System.Security.Claims;
 
 namespace MVCApp.Services.Interfaces
 {
     public interface IReceptionistService
     {
         Task<ReceptionistDashboardViewModel> GetDashboardAsync();
+
+        Task<ReceptionistProfileViewModel?> GetProfileAsync(ClaimsPrincipal user);
+
+        Task<ReceptionistEditProfileViewModel?> GetEditProfileAsync(ClaimsPrincipal user);
+
+        Task<(bool Success, string Message)> UpdateProfileAsync(
+            ClaimsPrincipal user,
+            ReceptionistEditProfileViewModel model);
 
         Task<ReceptionistAppointmentsPageViewModel> GetAppointmentsAsync(
             string? searchText,
@@ -20,12 +29,14 @@ namespace MVCApp.Services.Interfaces
         Task<(bool Success, string Message)> BookAppointmentAsync(
             ReceptionistBookAppointmentViewModel model);
 
-        Task<ReceptionistUpdateAppointmentStatusViewModel?> GetUpdateStatusModelAsync(int appointmentId);
+        Task<ReceptionistUpdateAppointmentStatusViewModel?> GetUpdateStatusModelAsync(
+            int appointmentId);
 
         Task<(bool Success, string Message, ReceptionistUpdateAppointmentStatusViewModel? Model)> UpdateStatusAsync(
             ReceptionistUpdateAppointmentStatusViewModel model);
 
-        Task<ReceptionistPatientSearchViewModel> SearchPatientsAsync(string? searchText);
+        Task<ReceptionistPatientSearchViewModel> SearchPatientsAsync(
+            string? searchText);
 
         Task<ReceptionistLiveQueueViewModel> GetLiveQueueAsync();
 
