@@ -23,6 +23,67 @@ namespace MVCApp.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var model = await _receptionistService.GetProfileAsync(User);
+
+            if (model == null)
+            {
+                return NotFound("Receptionist profile not found.");
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var model = await _receptionistService.GetEditProfileAsync(User);
+
+            if (model == null)
+            {
+                return NotFound("Receptionist profile not found.");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(ReceptionistEditProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var currentModel = await _receptionistService.GetEditProfileAsync(User);
+
+                if (currentModel != null)
+                {
+                    model.CurrentProfilePicture = currentModel.CurrentProfilePicture;
+                }
+
+                return View(model);
+            }
+
+            var result = await _receptionistService.UpdateProfileAsync(User, model);
+
+            if (!result.Success)
+            {
+                var currentModel = await _receptionistService.GetEditProfileAsync(User);
+
+                if (currentModel != null)
+                {
+                    model.CurrentProfilePicture = currentModel.CurrentProfilePicture;
+                }
+
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Appointments(string? searchText, DateTime? selectedDate, string? selectedStatus)
         {
             var model = await _receptionistService.GetAppointmentsAsync(searchText, selectedDate, selectedStatus);
