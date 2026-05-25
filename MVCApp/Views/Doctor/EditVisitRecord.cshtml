@@ -15,16 +15,6 @@
             </a>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-        }
-
         <form asp-controller="VisitRecord"
               asp-action="EditVisitRecord"
               method="post"

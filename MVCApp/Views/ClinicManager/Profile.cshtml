@@ -9,60 +9,51 @@
 }
 
 <div class="manager-page">
-<div class="manager-profile-page">
+    <div class="manager-profile-page">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-    }
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-    }
+        <section class="manager-profile-card">
 
-    <section class="manager-profile-card">
-
-        <div class="manager-avatar-area">
-            <img src="@profileImage"
-                 alt="Clinic manager profile picture"
-                 class="manager-avatar-img"
-                 onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
-        </div>
-
-        <div class="manager-name-block">
-            <h2>@Model.FullName</h2>
-            <span class="manager-badge">Clinic Manager Account</span>
-        </div>
-
-        <div class="manager-info-list">
-            <div class="manager-info-row">
-                <div class="manager-label">Full Name</div>
-                <div class="manager-value">@Model.FullName</div>
+            <div class="manager-avatar-area">
+                <img src="@profileImage"
+                     alt="Clinic manager profile picture"
+                     class="manager-avatar-img"
+                     onerror="this.onerror=null; this.src='@Url.Content("~/images/managers/default-manager.png")';" />
             </div>
 
-            <div class="manager-info-row">
-                <div class="manager-label">Email</div>
-                <div class="manager-value">@Model.Email</div>
+            <div class="manager-name-block">
+                <h2>@Model.FullName</h2>
+                <span class="manager-badge">Clinic Manager Account</span>
             </div>
 
-            <div class="manager-info-row">
-                <div class="manager-label">Phone Number</div>
-                <div class="manager-value">
-                    @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added yet." : Model.PhoneNumber)
+            <div class="manager-info-list">
+                <div class="manager-info-row">
+                    <div class="manager-label">Full Name</div>
+                    <div class="manager-value">@Model.FullName</div>
+                </div>
+
+                <div class="manager-info-row">
+                    <div class="manager-label">Email</div>
+                    <div class="manager-value">@Model.Email</div>
+                </div>
+
+                <div class="manager-info-row">
+                    <div class="manager-label">Phone Number</div>
+                    <div class="manager-value">
+                        @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not added yet." : Model.PhoneNumber)
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="manager-profile-actions">
+            <div class="manager-profile-actions">
 
-            <a asp-controller="ClinicManager"
-               asp-action="EditProfile"
-               class="manager-btn manager-btn-primary">
-                Edit Profile
-            </a>
-        </div>
+                <a asp-controller="ClinicManager"
+                   asp-action="EditProfile"
+                   class="manager-btn manager-btn-primary">
+                    Edit Profile
+                </a>
+            </div>
 
-    </section>
-</div>
+        </section>
+    </div>
 </div>

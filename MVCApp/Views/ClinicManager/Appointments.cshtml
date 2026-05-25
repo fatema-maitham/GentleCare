@@ -3,19 +3,21 @@
 @{
     ViewData["Title"] = "Clinic Appointments";
     var selectedDateValue = Model.SelectedDate?.ToString("yyyy-MM-dd");
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
-    
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
 
 
     <div class="manager-grid">
@@ -88,7 +90,7 @@
                                 </td>
                                 <td>Dr. @appointment.DoctorName</td>
                                 <td>@appointment.SpecializationName</td>
-                                <td><span class="status-pill">@appointment.StatusName</span></td>
+                                <td><span class="status-pill @StatusClass(appointment.StatusName)">@appointment.StatusName</span></td>
                                 <td>
                                     <a asp-controller="ClinicManager" asp-action="AppointmentDetails" asp-route-id="@appointment.AppointmentId" class="table-link">Details</a>
                                     @if (appointment.CanUpdateStatus)
