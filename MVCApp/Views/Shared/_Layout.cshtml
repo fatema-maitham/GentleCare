@@ -47,9 +47,7 @@
 <body>
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
-        <!-- Authenticated User - Sidebar Layout -->
         <div id="wrapper">
-            <!-- ── Sidebar ──────────────────────────────────────────────────── -->
             <nav id="sidebar">
                 <div class="sidebar-header">
                     <i class="bi bi-heart-pulse-fill sidebar-icon"></i>
@@ -97,6 +95,7 @@
                             </a>
                         </li>
                     }
+
                     @if (User.IsInRole("Doctor"))
                     {
                         <li class="nav-item">
@@ -136,6 +135,7 @@
                             </a>
                         </li>
                     }
+
                     @if (User.IsInRole("Receptionist"))
                     {
                         <li class="nav-item">
@@ -168,7 +168,14 @@
                                 <i class="bi bi-queue-front"></i> Live Queue
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="Profile">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                        </li>
                     }
+
                     @if (User.IsInRole("ClinicManager"))
                     {
                         <li class="nav-item">
@@ -233,7 +240,6 @@
                 </div>
             </nav>
 
-            <!-- ── Main Content ─────────────────────────────────────────────── -->
             <div class="main-content">
                 <div class="content-area">
                     <partial name="_AlertMessages" />
@@ -247,7 +253,6 @@
     }
     else
     {
-        <!-- Unauthenticated User - Simple Layout -->
         @RenderBody()
     }
 
