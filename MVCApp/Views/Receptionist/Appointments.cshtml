@@ -79,13 +79,21 @@
                             _ => item.Status
                         };
 
+                        var isFinalOrLockedStatus =
+                        item.Status == "Completed" ||
+                        item.Status == "Cancelled" ||
+                        item.Status == "Missed" ||
+                        item.Status == "InProgress";
+
                         <div class="receptionist-appointment-item">
                             <div class="appointment-main">
                                 <span class="appointment-date">@item.AppointmentDate.ToString("dd MMM yyyy")</span>
                                 <h3>@item.PatientName</h3>
+
                                 <p class="appointment-meta-text">
                                     CPR: @item.CPRNumber | Reference: @item.ReferenceNumber
                                 </p>
+
                                 <p class="appointment-meta-text">
                                     Dr. @item.DoctorName • @item.StartTime - @item.EndTime
                                 </p>
@@ -104,12 +112,24 @@
                             <div class="appointment-actions">
                                 <span class="status-pill status-@item.Status.ToLower()">@displayStatus</span>
 
-                                <a asp-controller="Receptionist"
-                                   asp-action="UpdateStatus"
-                                   asp-route-id="@item.AppointmentId"
-                                   class="btn-light">
-                                    Update Status
-                                </a>
+                                @if (isFinalOrLockedStatus)
+                                {
+                                    <a asp-controller="Receptionist"
+                                       asp-action="UpdateStatus"
+                                       asp-route-id="@item.AppointmentId"
+                                       class="btn-light">
+                                        View Details
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Receptionist"
+                                       asp-action="UpdateStatus"
+                                       asp-route-id="@item.AppointmentId"
+                                       class="btn-light">
+                                        Update Status
+                                    </a>
+                                }
                             </div>
                         </div>
                     }

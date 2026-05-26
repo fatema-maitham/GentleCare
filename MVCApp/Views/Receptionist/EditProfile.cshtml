@@ -1,0 +1,123 @@
+﻿@model MVCApp.ViewModels.Receptionist.ReceptionistEditProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Receptionist Profile";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.CurrentProfilePicture)
+        ? "/images/default-patient.png"
+        : Model.CurrentProfilePicture;
+}
+
+<div class="patient-page">
+    <div class="patient-edit-profile-page">
+
+        <div class="manager-top">
+            <a asp-controller="Receptionist"
+               asp-action="Profile"
+               class="btn-light">
+                Back to Profile
+            </a>
+        </div>
+
+        <div class="manager-card">
+            <div class="card-head">
+                <div>
+                    <h2>Edit Profile</h2>
+                    <span class="muted">Update your profile photo and contact information.</span>
+                </div>
+            </div>
+
+            <form asp-controller="Receptionist"
+                  asp-action="EditProfile"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="patient-edit-form">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <div class="patient-photo-section">
+                    <div class="patient-avatar-upload">
+                        <img src="@profileImage"
+                             id="receptionistImagePreview"
+                             class="patient-edit-avatar"
+                             alt="Receptionist profile image" />
+
+                        <label for="ProfileImageFile" class="patient-upload-icon" title="Change picture">
+                            📷
+                        </label>
+
+                        <input asp-for="ProfileImageFile"
+                               id="ProfileImageFile"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               class="d-none" />
+                    </div>
+
+                    <div class="patient-profile-basic-info">
+                        <h3>@Model.FullName</h3>
+                        <p>@Model.Email</p>
+                    </div>
+                </div>
+
+                <div class="patient-edit-grid">
+                    <div class="patient-edit-row">
+                        <label asp-for="FullName"></label>
+                        <input asp-for="FullName" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="patient-edit-row readonly-field">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" readonly />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="patient-edit-row">
+                        <label asp-for="PhoneNumber"></label>
+                        <input asp-for="PhoneNumber" placeholder="Enter phone number" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="patient-edit-actions">
+                    <a asp-controller="Receptionist"
+                       asp-action="Profile"
+                       class="btn-light">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn-main">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const fileInput = document.getElementById("ProfileImageFile");
+        const preview = document.getElementById("receptionistImagePreview");
+
+        if (fileInput && preview) {
+            fileInput.addEventListener("change", function () {
+                const file = this.files && this.files[0];
+
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}
