@@ -4,281 +4,88 @@
     ViewData["Title"] = "My Prescriptions";
 }
 
-<section class="doctor-prescriptions-page">
+<div class="doctor-page">
+    <div class="doctor-prescriptions-page">
+        <div class="manager-card dashboard-hero">
+            <div class="card-head">
+                <div>
+                    <h2>My Prescriptions</h2>
+                    <span class="muted">Prescription records for your patients</span>
+                </div>
+            </div>
+        </div>
 
-    <div class="prescription-summary">
-        <div class="summary-card">
-            <span>Total Prescriptions</span>
-            <strong>@Model.Count</strong>
+        <div class="doctor-stats-grid one-card">
+            <div class="doctor-stat-card">
+                <strong>@Model.Count</strong>
+                <span>Total Prescriptions</span>
+            </div>
+        </div>
+
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Prescription Records</h2>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="table-wrap">
+                    <table class="prescription-table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Reference No.</th>
+                                <th>Appointment Date</th>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Duration</th>
+                                <th>Instructions</th>
+                                <th class="action-col">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var prescription in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@prescription.PatientFullName</td>
+                                    <td>@prescription.PatientReferenceNumber</td>
+                                    <td>@prescription.AppointmentDateDisplay</td>
+                                    <td>@prescription.MedicationName</td>
+                                    <td>@prescription.Dosage</td>
+                                    <td>@prescription.Frequency</td>
+                                    <td>@prescription.DurationDisplay</td>
+                                    <td>
+                                        @if (prescription.HasInstructions)
+                                        {
+                                            @prescription.Instructions
+                                        }
+                                        else
+                                        {
+                                            <span class="muted-text">No instructions</span>
+                                        }
+                                    </td>
+                                    <td class="action-col">
+                                        <a asp-controller="DoctorAppointment"
+                                           asp-action="AppointmentDetails"
+                                           asp-route-id="@prescription.AppointmentId"
+                                           class="table-btn table-btn-main">
+                                            Appointment
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-box">
+                    No prescriptions have been recorded yet.
+                </div>
+            }
         </div>
     </div>
-
-    <div class="prescription-panel">
-        <h2>Prescription Records</h2>
-
-        @if (TempData["Success"] != null)
-        {
-            <div class="prescription-alert success">
-                @TempData["Success"]
-            </div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="prescription-alert error">
-                @TempData["Error"]
-            </div>
-        }
-
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="prescription-table">
-                    <thead>
-                        <tr>
-                            <th>Patient</th>
-                            <th>Reference No.</th>
-                            <th>Appointment Date</th>
-                            <th>Medication</th>
-                            <th>Dosage</th>
-                            <th>Frequency</th>
-                            <th>Duration</th>
-                            <th>Instructions</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var prescription in Model)
-                        {
-                            <tr>
-                                <td class="fw-bold">
-                                    @prescription.PatientFullName
-                                </td>
-
-                                <td>
-                                    @prescription.PatientReferenceNumber
-                                </td>
-
-                                <td>
-                                    @prescription.AppointmentDateDisplay
-                                </td>
-
-                                <td>
-                                    @prescription.MedicationName
-                                </td>
-
-                                <td>
-                                    @prescription.Dosage
-                                </td>
-
-                                <td>
-                                    @prescription.Frequency
-                                </td>
-
-                                <td>
-                                    @prescription.DurationDisplay
-                                </td>
-
-                                <td>
-                                    @if (prescription.HasInstructions)
-                                    {
-                                        @prescription.Instructions
-                                    }
-                                    else
-                                    {
-                                        <span class="muted-text">No instructions</span>
-                                    }
-                                </td>
-
-                                <td>
-                                    <a asp-controller="DoctorAppointment"
-                                       asp-action="AppointmentDetails"
-                                       asp-route-id="@prescription.AppointmentId"
-                                       class="table-btn">
-                                        Appointment
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="empty-box">
-                No prescriptions have been recorded yet.
-            </div>
-        }
-    </div>
-
-</section>
-
-<style>
-    .doctor-prescriptions-page {
-        min-height: calc(100vh - 90px);
-        padding: 38px 22px;
-        background: #f1efed;
-    }
-
-    .prescription-summary {
-        max-width: 1120px;
-        margin: 0 auto 24px auto;
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 18px;
-    }
-
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 18px;
-        padding: 22px;
-        min-height: 116px;
-        text-align: left;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-    }
-
-    .summary-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 5px;
-        background: #075168;
-    }
-
-        .summary-card span {
-        display: block;
-        color: #12262F;
-        font-size: 15px;
-        font-weight: 800;
-    }
-
-        .summary-card strong {
-        display: block;
-        color: #075168;
-        font-size: 40px;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 12px;
-    }
-
-        
-
-    .prescription-panel {
-        max-width: 1120px;
-        margin: 0 auto 24px auto;
-        background: #ffffff;
-        border: 1px solid #d9e2e4;
-        border-radius: 22px;
-        padding: 24px;
-    }
-
-        .prescription-panel h2 {
-            color: #06485F;
-            font-size: 22px;
-            font-weight: 900;
-            margin-bottom: 18px;
-        }
-
-    .prescription-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        overflow: hidden;
-        border: 1px solid #d9e2e4;
-        border-radius: 16px;
-        background: #ffffff;
-    }
-
-        .prescription-table thead th {
-            background: #eaf3f6;
-            color: #06485F;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 14px;
-            border-bottom: 1px solid #d9e2e4;
-            white-space: nowrap;
-        }
-
-        .prescription-table tbody td {
-            color: #102a36;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 14px;
-            border-bottom: 1px solid #edf1f2;
-            vertical-align: middle;
-        }
-
-        .prescription-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .prescription-table tbody tr:hover {
-            background: #f8fafb;
-        }
-
-    .table-btn {
-        display: inline-block;
-        text-decoration: none;
-        background: #ffffff;
-        color: #06485F;
-        border: 1px solid #06485F;
-        border-radius: 12px;
-        padding: 7px 12px;
-        font-size: 13px;
-        font-weight: 800;
-        white-space: nowrap;
-    }
-
-        .table-btn:hover {
-            background: #06485F;
-            color: #ffffff;
-        }
-
-    .muted-text {
-        color: #7f8e93;
-        font-weight: 600;
-    }
-
-    .prescription-alert {
-        margin-bottom: 16px;
-        padding: 14px 18px;
-        border-radius: 14px;
-        font-weight: 700;
-    }
-
-        .prescription-alert.success {
-            background: #e8f7ef;
-            color: #1f7a45;
-            border: 1px solid #bce3cc;
-        }
-
-        .prescription-alert.error {
-            background: #fdecec;
-            color: #b42318;
-            border: 1px solid #fac5c5;
-        }
-
-    .empty-box {
-        background: #f8fafb;
-        border: 1px dashed #93acb4;
-        color: #06485F;
-        border-radius: 16px;
-        padding: 18px;
-        text-align: center;
-        font-weight: 800;
-    }
-
-    @@media (max-width: 900px) {
-        .prescription-panel
-
-    {
-        padding: 18px;
-    }
-
-    }
-</style>
+</div>

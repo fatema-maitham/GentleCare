@@ -1,0 +1,262 @@
+@model ClinicReportingApp.ViewModels.AppointmentReportViewModel
+
+@{
+    ViewData["Title"] = "Appointment Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="bi bi-calendar-check me-2 text-primary"></i>
+        Appointment Report
+    </h4>
+</div>
+
+<!-- Date Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-muted small">From</label>
+                <input type="date" name="from" value="@Model.Filter.FromStr" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted small">To</label>
+                <input type="date" name="to" value="@Model.Filter.ToStr" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Apply Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    @{
+        var cards = new[]
+        {
+        ("Total",       Model.Stats.TotalAppointments.ToString(), "primary",   "bi-calendar"),
+        ("Completed",   Model.Stats.Completed.ToString(),         "success",   "bi-check-circle"),
+        ("Cancelled",   Model.Stats.Cancelled.ToString(),         "warning",   "bi-calendar-x"),
+        ("Missed",      Model.Stats.Missed.ToString(),            "danger",    "bi-x-circle"),
+        ("In Progress", Model.Stats.InProgress.ToString(),        "info",      "bi-heart-pulse"),
+        ("Checked In",  Model.Stats.CheckedIn.ToString(),         "info",      "bi-hourglass-split"),
+        ("Confirmed",   Model.Stats.Confirmed.ToString(),         "primary",   "bi-calendar-check"),
+        ("Requested",   Model.Stats.Requested.ToString(),         "secondary", "bi-calendar-plus")
+        };
+    }
+
+    @foreach (var (label, value, color, icon) in cards)
+    {
+        <div class="col-6 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi @icon text-@color fs-3"></i>
+                    <h3 class="fw-bold my-1">@value</h3>
+                    <small class="text-muted">@label</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Rates -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Completion Rate</p>
+                <h4 class="text-success fw-bold">@Model.Stats.CompletionRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-success" style="width:@Model.Stats.CompletionRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Cancellation Rate</p>
+                <h4 class="text-warning fw-bold">@Model.Stats.CancellationRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-warning" style="width:@Model.Stats.CancellationRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Missed Rate</p>
+                <h4 class="text-danger fw-bold">@Model.Stats.MissedRate%</h4>
+                <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-danger" style="width:@Model.Stats.MissedRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Breakdown by Period -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent fw-semibold border-bottom">
+        <i class="bi bi-table me-2 text-primary"></i>
+        Breakdown by Period
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Period</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">Completed</th>
+                        <th class="text-center">Cancelled</th>
+                        <th class="text-center">Missed</th>
+                        <th>Completion %</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var p in Model.ByPeriod)
+                    {
+                        var rate = p.Total > 0
+                        ? Math.Round((double)p.Completed / p.Total * 100, 1)
+                        : 0;
+
+                        <tr>
+                            <td class="fw-semibold">@p.Period</td>
+                            <td class="text-center">@p.Total</td>
+                            <td class="text-center text-success">@p.Completed</td>
+                            <td class="text-center text-warning">@p.Cancelled</td>
+                            <td class="text-center text-danger">@p.Missed</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height:6px;">
+                                        <div class="progress-bar bg-success" style="width:@rate%"></div>
+                                    </div>
+                                    <small>@rate%</small>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Specialization Demand + Cancellation Reasons -->
+<div class="row g-3 mb-4">
+
+    <!-- Specialization Demand -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-diagram-3 me-2 text-primary"></i>
+                Specialization Demand Report
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Specialization</th>
+                                <th class="text-center">Appointments</th>
+                                <th class="text-center">Completed</th>
+                                <th class="text-center">Demand</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @{
+                                var totalSpecAppointments =
+                                Model.SpecializationStats.Sum(x => x.TotalAppointments);
+                            }
+
+                            @foreach (var s in Model.SpecializationStats.OrderByDescending(x => x.TotalAppointments))
+                            {
+                                var demandRate = totalSpecAppointments > 0
+                                ? Math.Round((double)s.TotalAppointments / totalSpecAppointments * 100, 1)
+                                : 0;
+
+                                <tr>
+                                    <td class="fw-semibold">@s.SpecializationName</td>
+                                    <td class="text-center">@s.TotalAppointments</td>
+                                    <td class="text-center text-success">@s.CompletedAppointments</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">@demandRate%</span>
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (!Model.SpecializationStats.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        No specialization demand data found.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Reasons -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-x-circle me-2 text-danger"></i>
+                Cancellation Reason Report
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reason</th>
+                                <th class="text-center">Count</th>
+                                <th class="text-center">Rate</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var c in Model.CancellationReasons)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@c.Reason</td>
+                                    <td class="text-center">@c.Count</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-danger">@c.Rate%</span>
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (!Model.CancellationReasons.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        No cancellation reasons found.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -13,6 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts3", "scripts3", "{02
 		seed.sql = seed.sql
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicReportingApp", "ClinicReportingApp\ClinicReportingApp.csproj", "{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4DA63D77-7217-4F8B-9C41-3B76C32DFAAC} = {4DA63D77-7217-4F8B-9C41-3B76C32DFAAC}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +32,10 @@ Global
 		{DC8AA018-C73E-494F-8211-18772C2C535F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC8AA018-C73E-494F-8211-18772C2C535F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC8AA018-C73E-494F-8211-18772C2C535F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0582B98-22A4-A9BD-C6CF-FCAE3218E33F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,190 @@
+@model ClinicReportingApp.ViewModels.PrescriptionReportViewModel
+@{
+    ViewData["Title"] = "Prescription Report";
+}
+
+<div class="mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-capsule me-2 text-primary"></i>Prescription Report</h4>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-muted small">From</label>
+                <input type="date" name="from" value="@Model.Filter.FromStr" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-muted small">To</label>
+                <input type="date" name="to" value="@Model.Filter.ToStr" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Apply Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-capsule text-primary fs-2"></i>
+                <h3 class="fw-bold my-2">@Model.Stats.TotalPrescriptions</h3>
+                <small class="text-muted">Total Prescriptions Issued</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-award text-warning fs-2"></i>
+                <h3 class="fw-bold my-2">@Model.Stats.MostPrescribedMedication</h3>
+                <small class="text-muted">Most Prescribed Medication</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-bar-chart me-2 text-primary"></i>Top Medications
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Medication</th>
+                            <th class="text-center">Count</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rank = 1;
+                            var maxCount = Model.Stats.TopMedications.Any()
+                            ? Model.Stats.TopMedications.Max(m => m.Count) : 1;
+                        }
+
+                        @foreach (var m in Model.Stats.TopMedications)
+                        {
+                            var pct = maxCount > 0 ? (double)m.Count / maxCount * 100 : 0;
+
+                            <tr>
+                                <td><span class="badge bg-secondary">@rank</span></td>
+                                <td class="fw-semibold">@m.MedicationName</td>
+                                <td class="text-center">@m.Count</td>
+                                <td style="min-width:120px;">
+                                    <div class="progress" style="height:6px;">
+                                        <div class="progress-bar bg-primary" style="width:@pct%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold border-bottom">
+                <i class="bi bi-pie-chart me-2 text-primary"></i>Distribution Chart
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <div style="height:360px; width:100%; max-width:520px;">
+                    <canvas id="medChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent fw-semibold border-bottom">
+        <i class="bi bi-person-badge me-2 text-primary"></i>
+        Prescription Volume Report
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Specializations</th>
+                        <th class="text-center">Visits</th>
+                        <th class="text-center">Prescriptions</th>
+                        <th class="text-center">Avg / Visit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PrescriptionVolume)
+                    {
+                        var avg = item.VisitRecords > 0
+                        ? Math.Round((double)item.PrescriptionCount / item.VisitRecords, 2)
+                        : 0;
+
+                        <tr>
+                            <td class="fw-semibold">Dr. @item.DoctorName</td>
+                            <td>
+                                <small class="text-muted">@item.Specializations</small>
+                            </td>
+                            <td class="text-center">@item.VisitRecords</td>
+                            <td class="text-center fw-semibold">@item.PrescriptionCount</td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">@avg</span>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Model.PrescriptionVolume.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No prescription volume data found for this period.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const meds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.TopMedications.Select(m => m.MedicationName)));
+        const counts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.TopMedications.Select(m => m.Count)));
+
+        new Chart(document.getElementById('medChart'), {
+            type: 'doughnut',
+            data: {
+                labels: meds,
+                datasets: [
+                    {
+                        data: counts,
+                        backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#a855f7']
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>
+}

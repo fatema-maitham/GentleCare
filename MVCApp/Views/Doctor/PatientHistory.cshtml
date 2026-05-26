@@ -4,32 +4,21 @@
     ViewData["Title"] = "Patient History";
 }
 
-<div class="patient-history-page">
-
-    <div class="history-header">
-        <a asp-controller="DoctorAppointment"
-           asp-action="Appointments"
-           class="history-btn">
-            Back to Appointments
-        </a>
-    </div>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="page-alert success">@TempData["Success"]</div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="page-alert error">@TempData["Error"]</div>
-    }
-
-    <div class="history-card">
-        <div class="history-card-header">
-            <h4>Patient Information</h4>
+<div class="doctor-page">
+    <div class="doctor-patient-history-page">
+        <div class="manager-top">
+            <a asp-controller="DoctorAppointment"
+               asp-action="Appointments"
+               class="btn-light">
+                Back to Appointments
+            </a>
         </div>
 
-        <div class="history-card-body">
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Patient Information</h2>
+            </div>
+
             <div class="info-list">
                 <div class="info-row">
                     <div class="info-label">Patient Name</div>
@@ -96,21 +85,19 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="doctor-stats-grid one-card">
-        <div class="doctor-stat-card">
-            <strong>@Model.TotalVisits</strong>
-            <span>Total Visits</span>
-        </div>
-    </div>
-
-    <div class="history-card">
-        <div class="history-card-header">
-            <h4>Visit Records</h4>
+        <div class="doctor-stats-grid one-card">
+            <div class="doctor-stat-card">
+                <strong>@Model.TotalVisits</strong>
+                <span>Total Visits</span>
+            </div>
         </div>
 
-        <div class="history-card-body">
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Visit Records</h2>
+            </div>
+
             @if (Model.HasVisits)
             {
                 <div class="history-table-wrap">
@@ -133,19 +120,15 @@
                                 <tr>
                                     <td>@visit.AppointmentDateDisplay</td>
                                     <td>@visit.TimeDisplay</td>
-
                                     <td>
-                                        <span class="status-badge">@visit.StatusName</span>
+                                        <span class="status-pill">@visit.StatusName</span>
                                     </td>
-
                                     <td>
                                         @(string.IsNullOrWhiteSpace(visit.Diagnosis) ? "No diagnosis" : visit.Diagnosis)
                                     </td>
-
                                     <td>
                                         @(string.IsNullOrWhiteSpace(visit.Treatment) ? "No treatment" : visit.Treatment)
                                     </td>
-
                                     <td>
                                         @if (visit.HasPrescriptions)
                                         {
@@ -158,12 +141,11 @@
                                             <span class="muted-text">None</span>
                                         }
                                     </td>
-
                                     <td class="action-col">
                                         <a asp-controller="DoctorAppointment"
                                            asp-action="AppointmentDetails"
                                            asp-route-id="@visit.AppointmentId"
-                                           class="details-btn">
+                                           class="table-btn table-btn-main">
                                             Details
                                         </a>
                                     </td>
@@ -194,236 +176,4 @@
             }
         </div>
     </div>
-
 </div>
-
-<style>
-    :root {
-        --gc-main: #075168;
-        --gc-accent: #00779B;
-        --gc-soft: #E7F1F3;
-        --gc-bg: #F4F1EE;
-        --gc-card: #FFFFFF;
-        --gc-text: #12262F;
-        --gc-muted: #687A80;
-        --gc-border: #D6DDDE;
-        --gc-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-    }
-
-    body { background: var(--gc-bg); }
-
-    .patient-history-page {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 30px 20px 50px;
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    }
-
-    .history-header {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 24px;
-    }
-
-    .history-card {
-        background: var(--gc-card);
-        border: 1px solid var(--gc-border);
-        border-radius: 24px;
-        box-shadow: var(--gc-shadow);
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .history-card-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E9EEEE;
-    }
-
-    .history-card-header h4 {
-        margin: 0;
-        color: var(--gc-main);
-        font-size: 24px;
-        font-weight: 900;
-    }
-
-    .history-card-body { padding: 24px; }
-
-    .info-list { display: grid; gap: 14px; }
-
-    .info-row {
-        display: grid;
-        grid-template-columns: 190px 1fr;
-        gap: 18px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid #EDF1F2;
-    }
-
-    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-
-    .info-label {
-        color: var(--gc-muted);
-        font-weight: 850;
-    }
-
-    .info-value {
-        color: var(--gc-text);
-        font-weight: 800;
-    }
-
-    .doctor-stats-grid.one-card {
-        display: grid;
-        grid-template-columns: 1fr;
-        margin-bottom: 24px;
-    }
-
-    .doctor-stat-card {
-        background: var(--gc-card);
-        border: 1px solid var(--gc-border);
-        border-radius: 18px;
-        padding: 22px;
-        min-height: 116px;
-        box-shadow: var(--gc-shadow);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .doctor-stat-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 5px;
-        background: var(--gc-main);
-    }
-
-    .doctor-stat-card strong {
-        display: block;
-        color: var(--gc-main);
-        font-size: 40px;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 12px;
-    }
-
-    .doctor-stat-card span {
-        color: var(--gc-text);
-        font-size: 15px;
-        font-weight: 800;
-    }
-
-    .history-table-wrap { overflow-x: auto; }
-
-    .history-table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-    }
-
-    .history-table th {
-        background: #F8FAFA;
-        color: var(--gc-text);
-        padding: 16px 18px;
-        font-weight: 900;
-        border-bottom: 1px solid var(--gc-border);
-        text-align: left;
-    }
-
-    .history-table td {
-        padding: 18px;
-        border-bottom: 1px solid #EDF1F2;
-        color: var(--gc-text);
-        font-weight: 700;
-        vertical-align: middle;
-    }
-
-    .status-badge,
-    .prescription-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: fit-content;
-        white-space: nowrap;
-        border-radius: 999px;
-        background: var(--gc-soft);
-        color: var(--gc-main);
-        border: 1px solid #C9DBDF;
-        padding: 7px 13px;
-        font-size: 13px;
-        font-weight: 900;
-    }
-
-    .history-btn,
-    .details-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        padding: 10px 18px;
-        border: 1px solid #C9DBDF;
-        background: var(--gc-soft);
-        color: var(--gc-main);
-        font-weight: 900;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .history-btn:hover,
-    .details-btn:hover {
-        background: var(--gc-main);
-        color: #fff;
-    }
-
-    .action-col { text-align: right; }
-
-    .doctor-notes-row {
-        padding: 0 !important;
-        background: #F8FAFA;
-    }
-
-    .doctor-notes-box {
-        padding: 18px;
-        color: var(--gc-text);
-        font-weight: 700;
-    }
-
-    .doctor-notes-box strong {
-        color: var(--gc-text);
-        font-weight: 900;
-        margin-right: 5px;
-    }
-
-    .muted-text {
-        color: var(--gc-muted);
-        font-weight: 700;
-    }
-
-    .page-alert,
-    .empty-box {
-        padding: 16px 18px;
-        border-radius: 16px;
-        margin-bottom: 18px;
-        font-weight: 800;
-    }
-
-    .page-alert.success {
-        background: #E8F7EF;
-        color: #1F7A45;
-        border: 1px solid #BCE3CC;
-    }
-
-    .page-alert.error {
-        background: #FDECEC;
-        color: #B42318;
-        border: 1px solid #FAC5C5;
-    }
-
-    .empty-box {
-        background: var(--gc-soft);
-        color: var(--gc-main);
-        border: 1px solid #C9DBDF;
-    }
-
-    @@media (max-width: 900px) {
-        .info-row { grid-template-columns: 1fr; }
-        .history-table { table-layout: auto; }
-    }
-</style>

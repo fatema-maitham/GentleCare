@@ -1,6 +1,6 @@
 ﻿namespace WebAPI.Models
 {
-    public class Notification
+    public class Notification : AuditableEntity
     {
         public int Id { get; set; }
         public string UserId { get; set; } = string.Empty;
@@ -10,9 +10,9 @@
         public int? NotificationTypeId { get; set; }  
         public int? RelatedEntityId { get; set; }
         public string? RelatedEntityType { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        
+
         public ApplicationUser User { get; set; } = null!;
         public NotificationType? NotificationType { get; set; }
     }

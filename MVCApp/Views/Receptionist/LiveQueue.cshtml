@@ -4,120 +4,117 @@
     ViewData["Title"] = "Live Queue";
 }
 
-<section class="queue-page">
-    <div class="queue-card">
-
-        <div class="page-header-custom">
-            <h1>Live Queue</h1>
-            <p>Monitor today’s patient flow from arrival to doctor consultation.</p>
+<div class="receptionist-page">
+    <div class="receptionist-queue-page">
+        <div class="manager-card">
+            <div class="card-head">
+                <div>
+                    <h2>Live Queue</h2>
+                    <span class="muted">Monitor today's patient flow from arrival to doctor consultation.</span>
+                </div>
+            </div>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="success-message">@TempData["Success"]</div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="error-message">@TempData["Error"]</div>
-        }
-
-        <div class="queue-stats">
-            <div class="stat-card">
-                <span>Confirmed</span>
+        <div class="dashboard-stats">
+            <div class="dashboard-stat">
                 <strong>@Model.ConfirmedCount</strong>
+                <span>Confirmed</span>
             </div>
 
-            <div class="stat-card">
-                <span>Checked In</span>
+            <div class="dashboard-stat">
                 <strong>@Model.CheckedInCount</strong>
+                <span>Checked In</span>
             </div>
 
-            <div class="stat-card">
-                <span>In Progress</span>
+            <div class="dashboard-stat">
                 <strong>@Model.InProgressCount</strong>
+                <span>In Progress</span>
             </div>
 
-            <div class="stat-card">
-                <span>Completed</span>
+            <div class="dashboard-stat">
                 <strong>@Model.CompletedCount</strong>
+                <span>Completed</span>
             </div>
         </div>
 
-        @if (Model.QueueItems == null || !Model.QueueItems.Any())
-        {
-            <div class="empty-box">
-                <h3>No active queue for today</h3>
-                <p>Today’s confirmed and active appointments will appear here.</p>
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Queue List</h2>
             </div>
-        }
-        else
-        {
-            <div class="queue-list">
-                @foreach (var item in Model.QueueItems)
-                {
-                    var displayStatus = item.Status switch
+
+            @if (Model.QueueItems == null || !Model.QueueItems.Any())
+            {
+                <div class="empty-box">
+                    No active queue for today
+                </div>
+            }
+            else
+            {
+                <div class="queue-list">
+                    @foreach (var item in Model.QueueItems)
                     {
-                        "CheckedIn" => "Checked In",
-                        "InProgress" => "In Progress",
-                        _ => item.Status
-                    };
+                        var displayStatus = item.Status switch
+                        {
+                            "CheckedIn" => "Checked In",
+                            "InProgress" => "In Progress",
+                            _ => item.Status
+                        };
 
-                    <div class="queue-item">
-                        <div class="queue-main">
-                            <span class="queue-time">@item.StartTime - @item.EndTime</span>
-                            <h2>@item.PatientName</h2>
-                            <p>CPR: @item.CPRNumber</p>
-                            <p>Dr. @item.DoctorName</p>
+                        <div class="queue-item">
+                            <div class="queue-main">
+                                <span class="appointment-date">@item.StartTime - @item.EndTime</span>
+                                <h3>@item.PatientName</h3>
+                                <p class="appointment-meta-text">CPR: @item.CPRNumber</p>
+                                <p class="appointment-meta-text">Dr. @item.DoctorName</p>
 
-                            @if (!string.IsNullOrWhiteSpace(item.Notes))
-                            {
-                                <p class="notes">Notes: @item.Notes</p>
-                            }
+                                @if (!string.IsNullOrWhiteSpace(item.Notes))
+                                {
+                                    <p class="notes">Notes: @item.Notes</p>
+                                }
+                            </div>
+
+                            <div class="queue-actions">
+                                <span class="status-pill status-@item.Status.ToLower()">@displayStatus</span>
+
+                                @if (item.Status == "Confirmed")
+                                {
+                                    <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post" class="queue-action-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                        <input type="hidden" name="newStatus" value="Missed" />
+                                        <button type="submit" class="btn-light">Mark Missed</button>
+                                    </form>
+
+                                    <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post" class="queue-action-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                        <input type="hidden" name="newStatus" value="CheckedIn" />
+                                        <button type="submit" class="btn-main">Check In</button>
+                                    </form>
+                                }
+
+                                @if (item.Status == "CheckedIn")
+                                {
+                                    <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post" class="queue-action-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                        <input type="hidden" name="newStatus" value="InProgress" />
+                                        <button type="submit" class="btn-main">Start Visit</button>
+                                    </form>
+                                }
+
+                                @if (item.Status == "Completed")
+                                {
+                                    <span class="helper-text">Visit completed.</span>
+                                }
+                            </div>
                         </div>
-
-                        <div class="queue-actions">
-                            <span class="status-pill status-@item.Status.ToLower()">@displayStatus</span>
-
-                            @if (item.Status == "Confirmed")
-                            {
-                                <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="CheckedIn" />
-                                    <button type="submit" class="gc-btn-primary small">Check In</button>
-                                </form>
-
-                                <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="Missed" />
-                                    <button type="submit" class="gc-btn-light small">Mark Missed</button>
-                                </form>
-                            }
-
-                            @if (item.Status == "CheckedIn")
-                            {
-                                <form asp-controller="Receptionist" asp-action="UpdateQueueStatus" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                    <input type="hidden" name="newStatus" value="InProgress" />
-                                    <button type="submit" class="gc-btn-primary small">Start Visit</button>
-                                </form>
-                            }
-
-                            @if (item.Status == "Completed")
-                            {
-                                <span class="helper-text completed-text">Visit completed.</span>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-
+                    }
+                </div>
+            }
+        </div>
     </div>
-</section>
+</div>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
@@ -141,262 +138,3 @@
             });
     </script>
 }
-
-<style>
-    .queue-page {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 32px 10px 70px;
-    }
-
-    .queue-card {
-        background: white;
-        border-radius: 32px;
-        padding: 42px;
-        box-shadow: 0 18px 45px rgba(99,127,163,0.12);
-    }
-
-    .page-header-custom {
-        margin-bottom: 26px;
-    }
-
-        .page-header-custom h1 {
-            margin: 0;
-            font-size: 38px;
-            font-weight: 900;
-            color: #182333;
-        }
-
-        .page-header-custom p {
-            color: #6b7a87;
-            margin: 10px 0 0;
-            font-size: 16px;
-        }
-
-    .queue-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .stat-card {
-        background: #f5f8fa;
-        border-radius: 22px;
-        padding: 22px 24px;
-    }
-
-        .stat-card span {
-            color: #6b7a87;
-            font-weight: 800;
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .stat-card strong {
-            display: block;
-            font-size: 36px;
-            color: #182333;
-            line-height: 1;
-        }
-
-    .queue-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .queue-item {
-        background: #f5f8fa;
-        border-radius: 22px;
-        padding: 22px;
-        border: 1px solid #e5edf2;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .queue-time {
-        color: #637fa3;
-        font-weight: 900;
-    }
-
-    .queue-main h2 {
-        margin: 8px 0 8px;
-        color: #182333;
-        font-size: 22px;
-        font-weight: 900;
-    }
-
-    .queue-main p {
-        margin: 6px 0;
-        color: #526273;
-        font-weight: 700;
-    }
-
-    .notes {
-        color: #637fa3 !important;
-    }
-
-    .queue-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 10px;
-    }
-
-    .status-pill {
-        display: inline-block;
-        border-radius: 999px;
-        padding: 7px 13px;
-        font-size: 13px;
-        font-weight: 900;
-        white-space: nowrap;
-        background: #e9edf2;
-        color: #4b5563;
-    }
-
-    .status-confirmed {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .status-checkedin {
-        background: #cffafe;
-        color: #0e7490;
-    }
-
-    .status-inprogress {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-completed {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .gc-btn-primary,
-    .gc-btn-light {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 999px;
-        padding: 10px 18px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: 0.2s ease;
-        border: 0;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .gc-btn-primary {
-        background: #637fa3;
-        color: white;
-    }
-
-        .gc-btn-primary:hover {
-            background: #71999f;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-    .gc-btn-light {
-        background: white;
-        color: #637fa3;
-        border: 1px solid #dce5e8;
-    }
-
-        .gc-btn-light:hover {
-            color: #182333;
-            transform: translateY(-2px);
-        }
-
-        .gc-btn-primary.small,
-        .gc-btn-light.small {
-            width: 130px;
-            padding: 9px 14px;
-            font-size: 14px;
-        }
-
-    .helper-text {
-        color: #6b7a87;
-        font-weight: 800;
-        font-size: 13px;
-        text-align: right;
-        max-width: 160px;
-    }
-
-    .completed-text {
-        color: #166534;
-    }
-
-    .success-message {
-        background: #e8f7ef;
-        color: #1d6b42;
-        border-radius: 18px;
-        padding: 14px 18px;
-        font-weight: 900;
-        margin-bottom: 18px;
-    }
-
-    .error-message {
-        background: #fee2e2;
-        color: #991b1b;
-        border-radius: 18px;
-        padding: 14px 18px;
-        font-weight: 900;
-        margin-bottom: 18px;
-    }
-
-    .empty-box {
-        background: #f5f8fa;
-        border-radius: 22px;
-        padding: 24px;
-    }
-
-        .empty-box h3 {
-            margin: 0 0 8px;
-            color: #182333;
-            font-weight: 900;
-        }
-
-        .empty-box p {
-            margin: 0;
-            color: #6b7a87;
-        }
-
-    @@media (max-width: 900px) {
-        .queue-stats {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .queue-item {
-            display: block;
-        }
-
-        .queue-actions {
-            align-items: flex-start;
-            margin-top: 16px;
-        }
-
-        .helper-text {
-            text-align: left;
-        }
-    }
-
-    @@media (max-width: 700px) {
-        .queue-card {
-            padding: 30px 22px;
-        }
-
-        .queue-stats {
-            grid-template-columns: 1fr;
-        }
-
-        .page-header-custom h1 {
-            font-size: 32px;
-        }
-    }
-</style>
