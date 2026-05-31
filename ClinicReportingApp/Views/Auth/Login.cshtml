@@ -9,70 +9,190 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - GentleCare Reporting</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
     <style>
-        body { background: #0f172a; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 420px; }
-        .login-card h2 { color: #f1f5f9; }
-        .form-control { background: #0f172a; border: 1px solid #475569; color: #f1f5f9; }
-        .form-control:focus { background: #0f172a; border-color: #3b82f6; color: #f1f5f9; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
-        .form-label { color: #94a3b8; }
-        .btn-login { background: #3b82f6; border: none; padding: .65rem; font-weight: 600; }
-        .btn-login:hover { background: #2563eb; }
-        .hint { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: .75rem 1rem; font-size: .8rem; color: #93c5fd; }
+        :root {
+            --gc-bg: #F1F5F9;
+            --gc-card: #FFFFFF;
+            --gc-text: #0F172A;
+            --gc-muted: #64748B;
+            --gc-border: #E2E8F0;
+            --gc-primary: #0369A1;
+            --gc-primary-dark: #0284C7;
+            --gc-shadow: 0 20px 25px -5px rgba(8, 47, 73, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: var(--gc-bg);
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: var(--gc-text);
+        }
+
+        /* ===== Auth Page ===== */
+        .auth-page {
+            min-height: 100vh;
+            background: var(--gc-bg);
+            padding: 40px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--gc-card);
+            border: 1px solid var(--gc-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--gc-shadow);
+        }
+
+        .auth-header {
+            padding: 32px 28px;
+            border-bottom: 1px solid var(--gc-border);
+            background: #F8FAFC;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            margin: 0;
+            color: var(--gc-text);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .auth-header p {
+            margin: 6px 0 0;
+            color: var(--gc-muted);
+            font-size: 14px;
+        }
+
+        .auth-form {
+            padding: 32px 28px;
+        }
+
+        .auth-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .auth-field label {
+            font-weight: 600;
+            color: var(--gc-text);
+            font-size: 14px;
+        }
+
+        .auth-field input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gc-border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--gc-card);
+            font-family: inherit;
+            color: var(--gc-text);
+        }
+
+        .auth-field input:focus {
+            outline: none;
+            border-color: var(--gc-primary);
+            box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
+        }
+
+        .auth-field input::placeholder {
+            color: #94A3B8;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--gc-primary);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .auth-btn:hover {
+            background: var(--gc-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);
+        }
+
+        .auth-validation {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #FCA5A5;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            color: #7F1D1D;
+            font-size: 13px;
+        }
+
+        .auth-validation ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="text-center mb-4">
-            <i class="bi bi-heart-pulse-fill text-danger" style="font-size:2rem;"></i>
-            <h2 class="mt-2 mb-0">GentleCare Reporting Application</h2>
-            <small class="text-secondary">Manager Access Only</small>
+        <section class="auth-page">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="bi bi-heart-pulse-fill text-danger" style="font-size: 2.5rem;"></i>
+                <h1 class="mt-3 mb-0">GentleCare</h1>
+                <p>Reporting Application</p>
+            </div>
+
+            <div class="auth-form">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="auth-validation"></div>
+                }
+
+                <form asp-controller="Auth" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                    <div class="auth-field">
+                        <label asp-for="Email">Email Address</label>
+                        <input asp-for="Email" type="email" placeholder="manager@gentlecare.com" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Password">Password</label>
+                        <input asp-for="Password" type="password" placeholder="••••••••" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="auth-btn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </button>
+                </form>
+            </div>
         </div>
+    </section>
 
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                @Html.ValidationSummary(false, "", new { @class = "mb-0" })
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-            </div>
-        }
-
-        <form asp-controller="Auth" asp-action="Login" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
-
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label">Email Address</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-secondary">
-                        <i class="bi bi-envelope"></i>
-                    </span>
-                    <input asp-for="Email" class="form-control" placeholder="manager@hcars.com" autocomplete="email" />
-                </div>
-                <span asp-validation-for="Email" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-4">
-                <label asp-for="Password" class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-secondary">
-                        <i class="bi bi-lock"></i>
-                    </span>
-                    <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
-                </div>
-                <span asp-validation-for="Password" class="text-danger small"></span>
-            </div>
-
-            <button type="submit" class="btn btn-login btn-primary w-100">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-            </button>
-        </form>
-
-        
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
