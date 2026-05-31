@@ -5,42 +5,50 @@
 }
 
 <div class="manager-page">
-<div class="announcement-page">
-  
+    <div class="announcement-page">
 
-    <div class="announcement-card">
-        <form asp-action="CreateAnnouncement" method="post" class="announcement-form">
-            @Html.AntiForgeryToken()
+        @if (TempData["Error"] != null)
+        {
+            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
+        }
 
-            <div asp-validation-summary="ModelOnly"></div>
-
-            <div class="form-group">
-                <label asp-for="Title">Announcement Title</label>
-                <input asp-for="Title" placeholder="Enter announcement title" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+        <div class="manager-card">
+            <div class="card-head">
+                <h2>Create Announcement</h2>
             </div>
 
-            <div class="form-group">
-                <label asp-for="SelectedAudience">Send To</label>
-                <select asp-for="SelectedAudience" asp-items="Model.AudienceOptions">
-                    <option value="">Select audience</option>
-                </select>
-                <span asp-validation-for="SelectedAudience" class="text-danger"></span>
-            </div>
+            <form asp-action="CreateAnnouncement" method="post" class="announcement-form">
+                @Html.AntiForgeryToken()
 
-            <div class="form-group">
-                <label asp-for="Message">Message</label>
-                <textarea asp-for="Message" placeholder="Write the announcement message"></textarea>
-                <span asp-validation-for="Message" class="text-danger"></span>
-            </div>
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-            <div class="announcement-actions">
-                <a asp-action="Notifications" class="secondary-action">Cancel</a>
-                <button type="submit" class="primary-action">Send Announcement</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label asp-for="Title">Announcement Title</label>
+                    <input asp-for="Title" placeholder="Enter announcement title" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SelectedAudience">Send To</label>
+                    <select asp-for="SelectedAudience" asp-items="Model.AudienceOptions">
+                        <option value="">Select audience</option>
+                    </select>
+                    <span asp-validation-for="SelectedAudience" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Message">Message</label>
+                    <textarea asp-for="Message" placeholder="Write the announcement message"></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+
+                <div class="announcement-actions">
+                    <a asp-action="Notifications" class="btn-light">Cancel</a>
+                    <button type="submit" class="btn-main">Send Announcement</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 </div>
 
 @section Scripts {

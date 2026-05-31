@@ -20,16 +20,6 @@
             </div>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-        }
-
         <div class="manager-card doctor-stat-card-wrap">
             <div class="doctor-stat-card">
                 <strong>@Model.TotalAppointments</strong>

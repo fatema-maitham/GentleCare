@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = "Update Appointment Status";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="doctor-page">
@@ -18,7 +30,7 @@
         <div class="manager-card">
             <div class="card-head">
                 <h2>Status Update Form</h2>
-                <span class="status-pill">@Model.CurrentStatusDisplay</span>
+                <span class="status-pill @StatusClass(Model.CurrentStatusDisplay)">@Model.CurrentStatusDisplay</span>
             </div>
 
             <form asp-controller="DoctorAppointment"

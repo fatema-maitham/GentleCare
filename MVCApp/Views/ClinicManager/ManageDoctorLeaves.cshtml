@@ -1,7 +1,23 @@
 ﻿@model MVCApp.ViewModels.ClinicManager.ManageDoctorLeavesViewModel
 
 @{
-    ViewData["Title"] = "Manage Doctor Leaves";
+    ViewData["Title"] = "Appointment Impact";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "available" => "status-completed",
+        "active" => "status-completed",
+        "inactive" => "status-cancelled",
+        "onleave" => "status-inprogress",
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
@@ -9,18 +25,6 @@
         <a asp-controller="ClinicManager" asp-action="CreateDoctorLeave" asp-route-doctorId="@Model.DoctorId" class="btn-main">Add Leave</a>
         <a asp-controller="ClinicManager" asp-action="AppointmentImpact" asp-route-doctorId="@Model.DoctorId" class="btn-light">Check Impact</a>
     </div>
-
-    
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
 
     <div class="manager-card">
         <div class="card-head"><h2>Dr. @Model.DoctorName</h2></div>
@@ -45,7 +49,8 @@
                             <tr>
                                 <td>@leave.LeaveDateText</td>
                                 <td>@leave.LeaveReason</td>
-                                <td><span class="status-pill">@leave.LeaveStatusText</span></td>
+                                <td>
+                                <td><span class="status-pill @StatusClass(leave.LeaveStatusText)">@leave.LeaveStatusText</span></td>
                                 <td>
                                     <a asp-controller="ClinicManager" asp-action="EditDoctorLeave" asp-route-id="@leave.DoctorLeaveId" class="table-link">Edit</a>
                                     <form asp-controller="ClinicManager" asp-action="DeleteDoctorLeave" method="post" style="display:inline;">

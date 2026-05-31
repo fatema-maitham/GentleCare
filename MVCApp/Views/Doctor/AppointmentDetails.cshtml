@@ -2,6 +2,19 @@
 
 @{
     ViewData["Title"] = "Appointment Details";
+
+    string StatusClass(string status) => status?.ToLower().Replace(" ", "") switch
+    {
+        "requested" => "status-requested",
+        "confirmed" => "status-confirmed",
+        "inprogress" => "status-inprogress",
+        "checkedin" => "status-checkedin",
+        "completed" => "status-completed",
+        "cancelled" => "status-cancelled",
+        "missed" => "status-missed",
+        "available" => "status-completed",
+        _ => "status-default"
+    };
 }
 
 <div class="doctor-page">
@@ -54,20 +67,11 @@
             </a>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="manager-alert manager-alert-success">@TempData["Success"]</div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="manager-alert manager-alert-danger">@TempData["Error"]</div>
-        }
-
         <div class="manager-card">
             <div class="card-head">
                 <h2>Appointment #@Model.AppointmentId</h2>
-                <span class="status-pill">@Model.StatusName</span>
+                <span class="status-pill @StatusClass(Model.StatusName)">@Model.StatusName</span>
+
             </div>
 
             <div class="info-grid">
@@ -132,7 +136,7 @@
                 <h2>Visit Record</h2>
                 @if (Model.HasVisitRecord)
                 {
-                    <span class="status-pill">Available</span>
+                    <span class="status-pill status-completed">Available</span>
                 }
             </div>
 

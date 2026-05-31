@@ -2,19 +2,16 @@
 
 @{
     ViewData["Title"] = "Notifications";
+
+    string StatusClass(string status) => status?.ToLower() switch
+    {
+        "read" => "status-completed",  // green
+        "unread" => "status-requested",  // gray
+        _ => "status-default"
+    };
 }
 
 <div class="manager-page">
-    
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
 
 
     <div class="manager-grid">
@@ -47,7 +44,7 @@
                                 <td>@notification.Title</td>
                                 <td>@notification.Message</td>
                                 <td>@notification.NotificationTypeName</td>
-                                <td><span class="status-pill">@notification.StatusText</span></td>
+                                <td><td><span class="status-pill @StatusClass(notification.StatusText)">@notification.StatusText</span></td>
                                 <td>@notification.CreatedAtText</td>
                                 <td>
                                     @if (!notification.IsRead)

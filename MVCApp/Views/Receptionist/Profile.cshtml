@@ -1,5 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Patient Profile";
+﻿@model MVCApp.ViewModels.Receptionist.ReceptionistProfileViewModel
+
+@{
+    ViewData["Title"] = "Receptionist Profile";
 
     var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
         ? "/images/default-patient.png"
@@ -13,7 +15,7 @@
                 <div class="patient-profile-top">
                     <img src="@profileImage"
                          class="patient-profile-avatar"
-                         alt="Patient profile image" />
+                         alt="Receptionist profile image" />
 
                     <div>
                         <h2>@Model.FullName</h2>
@@ -45,53 +47,38 @@
                         </div>
 
                         <div class="patient-info-row">
-                            <span>CPR Number</span>
-                            <span class="patient-info-value">@Model.CPRNumber</span>
+                            <span>Phone Number</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</span>
                         </div>
 
                         <div class="patient-info-row">
-                            <span>Reference Number</span>
-                            <span class="patient-info-value">@Model.ReferenceNumber</span>
+                            <span>Role</span>
+                            <span class="patient-info-value">Receptionist</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="manager-card">
                     <div class="card-head">
-                        <h2>Medical & Contact Details</h2>
+                        <h2>System Details</h2>
                     </div>
 
                     <div class="patient-info-list">
                         <div class="patient-info-row">
-                            <span>Date of Birth</span>
-                            <span class="patient-info-value">@Model.DateOfBirth.ToString("dd MMM yyyy")</span>
+                            <span>Account Created</span>
+                            <span class="patient-info-value">@Model.CreatedAt.ToString("dd MMM yyyy")</span>
                         </div>
 
                         <div class="patient-info-row">
-                            <span>Blood Type</span>
-                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.BloodType) ? "Not provided" : Model.BloodType)</span>
-                        </div>
-
-                        <div class="patient-info-row">
-                            <span>Address</span>
-                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.Address) ? "Not provided" : Model.Address)</span>
-                        </div>
-
-                        <div class="patient-info-row">
-                            <span>Emergency Contact Name</span>
-                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyContactName) ? "Not provided" : Model.EmergencyContactName)</span>
-                        </div>
-
-                        <div class="patient-info-row">
-                            <span>Emergency Contact Phone</span>
-                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.EmergencyContactPhone) ? "Not provided" : Model.EmergencyContactPhone)</span>
+                            <span>Account Status</span>
+                            <span class="patient-info-value">@(Model.IsActive ? "Active" : "Inactive")</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="patient-profile-actions">
-                <a asp-controller="Patient" asp-action="EditProfile" class="btn-main">
+                <a asp-controller="Receptionist" asp-action="EditProfile" class="btn-main">
                     Edit Profile
                 </a>
             </div>
