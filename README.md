@@ -1,4 +1,4 @@
-<img width="634" height="439" alt="image" src="https://github.com/user-attachments/assets/8ae4ca34-295b-483b-9150-6514800676af" /># GentleCare
+# GentleCare
 
 ## Care that feels personal, simple, and close to you
 
