@@ -1,3 +1,8 @@
+:root {
+    --bs-primary: #082F49;
+    --bs-primary-rgb: 8, 47, 73;
+}
+
 /* ── Global ─────────────────────────────────────────────────────────────── */
 body {
     background-color: #f8fafc;
@@ -19,6 +24,33 @@ body {
 
 #sidebar .nav-link:hover {
     background: rgba(255,255,255,.1);
+}
+
+/* ── Primary color overrides ───────────────────────────────────────────── */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:disabled {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #ffffff;
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+    background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+
+.badge.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.progress-bar.bg-primary {
+    background-color: var(--bs-primary) !important;
 }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
