@@ -1,4 +1,4 @@
-# GentleCare
+<img width="634" height="439" alt="image" src="https://github.com/user-attachments/assets/8ae4ca34-295b-483b-9150-6514800676af" /># GentleCare
 
 ## Care that feels personal, simple, and close to you
 
@@ -561,26 +561,28 @@ The MVC application uses a service layer to keep business logic separate from co
 
 ## API Endpoints
 
-| Route                                     | Method | Auth                                | Purpose                                                                                 |
-| ----------------------------------------- | ------ | ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `/api/auth/login`                         | POST   | None                                | Login and return JWT token.                                                             |
-| `/api/appointments/lookup`                | GET    | None                                | Public patient lookup by CPR and optional patient reference number.                     |
-| `/api/appointments`                       | GET    | JWT                                 | Get all appointments.                                                                   |
-| `/api/appointments/my`                    | GET    | JWT + Patient                       | Get current patient's appointments.                                                     |
-| `/api/appointments/today`                 | GET    | JWT + Receptionist / Clinic Manager | Get today's appointment queue.                                                          |
-| `/api/appointments/available-slots`       | GET    | JWT                                 | Get available time slots for a doctor on a selected date.                               |
-| `/api/appointments`                       | POST   | JWT + Patient / Receptionist        | Create a new appointment.                                                               |
-| `/api/appointments/{id}/status`           | PUT    | JWT                                 | Update appointment status, such as confirm, check-in, cancel, complete, or mark missed. |
-| `/api/doctors`                            | GET    | JWT                                 | Get all active doctors.                                                                 |
-| `/api/doctors/{id}`                       | GET    | JWT                                 | Get doctor by ID with availability.                                                     |
-| `/api/doctors/by-specialization/{specId}` | GET    | JWT                                 | Get doctors filtered by specialization.                                                 |
-| `/api/specializations`                    | GET    | JWT                                 | List all specializations.                                                               |
-| `/api/patients/me`                        | GET    | JWT + Patient                       | Get current patient's profile.                                                          |
-| `/api/patients/me/medical-records`        | GET    | JWT + Patient                       | Get patient's visit records and prescriptions.                                          |
-| `/api/patients/search`                    | GET    | JWT + Receptionist                  | Search patient by CPR.                                                                  |
-| `/api/reports/appointment-stats`          | GET    | JWT + Clinic Manager                | Appointment counts by status.                                                           |
-| `/api/reports/doctor-utilization`         | GET    | JWT + Clinic Manager                | Appointment workload per doctor.                                                        |
-
+| Route | Method | Auth | Purpose |
+| --- | --- | --- | --- |
+| `/api/Auth/register` | POST | None | Register a new user account. |
+| `/api/Auth/login` | POST | None | Login and return JWT token. |
+| `/api/Appointment/lookup` | GET | None | Public patient lookup by CPR and reference number. |
+| `/api/Appointment` | GET | JWT + Receptionist / Clinic Manager | Get all appointments. |
+| `/api/Appointment/my` | GET | JWT + Patient | Get current patient's appointments. |
+| `/api/Appointment/{id}/status` | PUT | JWT + Doctor / Receptionist / Clinic Manager | Update appointment status. |
+| `/api/Doctor` | GET | JWT | Get all active doctors. |
+| `/api/Doctor` | POST | JWT + Clinic Manager | Create a new doctor profile. |
+| `/api/Doctor/{id}` | GET | JWT | Get doctor details by ID. |
+| `/api/Doctor/{id}/availability` | GET | JWT | Get available time slots for a doctor on a date. |
+| `/api/Patient` | POST | JWT + Patient / Receptionist / Clinic Manager | Create a patient profile. |
+| `/api/Patient` | GET | JWT + Receptionist / Clinic Manager | Get all patients. |
+| `/api/Patient/{id}` | GET | JWT + Doctor / Receptionist / Clinic Manager | Get patient details by ID. |
+| `/api/Patient/{id}` | PUT | JWT + Patient / Receptionist / Clinic Manager | Update patient information. |
+| `/api/Patient/my` | GET | JWT + Patient | Get the current patient's profile. |
+| `/api/Patient/{id}/history` | GET | JWT + Doctor / Receptionist / Clinic Manager | Get patient visit history with prescriptions. |
+| `/api/Report/appointment-stats` | GET | JWT + Clinic Manager | Appointment statistics by status and date range. |
+| `/api/Report/doctor-workload` | GET | JWT + Clinic Manager | Doctor workload and appointment distribution. |
+| `/api/Report/specialization-stats` | GET | JWT + Clinic Manager | Appointment statistics grouped by specialization. |
+| `/api/Report/daily-summary` | GET | JWT + Clinic Manager | Daily clinic appointment summary. |
 ---
 
 ## Routing Table
