@@ -59,7 +59,7 @@ public static class DbSeeder
             new { FullName = "Mohamed Baqer", Email = "mohamed@gmail.com", Password = "Mohamed@123", Role = "Patient" },
             new { FullName = "Zahraa Ahmed", Email = "zahraa@gmail.com", Password = "Zahraa@123", Role = "Patient" },
             new { FullName = "Mohsen Ali", Email = "mohsen@gmail.com", Password = "Mohsen@123", Role = "Patient" },
-            new { FullName = "Zainab Abbas", Email = "zainab@gmail.com", Password = "Maryam@123", Role = "Patient" },
+            new { FullName = "Zainab Abbas", Email = "zainab@gmail.com", Password = "Maryam@456", Role = "Patient" },
             new { FullName = "Sajjad Ali", Email = "sajjad@gmail.com", Password = "Sajjad@123", Role = "Patient" },
             new { FullName = "Mahdi Mohamed", Email = "mahdi@gmail.com", Password = "Mahdi@123", Role = "Patient" },
             new { FullName = "Hadi Ali", Email = "hadi@gmail.com", Password = "Hadi@123", Role = "Patient" }
@@ -67,7 +67,9 @@ public static class DbSeeder
 
         foreach (var item in users)
         {
+            // Try to find by email first, then by username as fallback
             var user = await userManager.FindByEmailAsync(item.Email);
+            user ??= await userManager.FindByNameAsync(item.Email);
 
             if (user == null)
             {
@@ -85,7 +87,8 @@ public static class DbSeeder
 
                 if (!result.Succeeded)
                 {
-                    throw new Exception("Failed to create seed user: " + item.Email);
+                    var errors = string.Join(", ", result.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                    throw new Exception($"Failed to create seed user '{item.Email}': {errors}");
                 }
             }
             else
