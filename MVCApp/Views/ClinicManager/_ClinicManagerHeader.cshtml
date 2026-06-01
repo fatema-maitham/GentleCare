@@ -1,0 +1,14 @@
+@{
+    var pageTitle = ViewData["Title"] as string ?? "Clinic Manager";
+    var userName = User?.Identity?.Name ?? "Clinic Manager";
+}
+
+<div class="manager-card">
+    <div class="card-head">
+        <h2>@pageTitle</h2>
+        <span class="status-pill">
+            <i class="bi bi-person-circle"></i>
+            @userName
+        </span>
+    </div>
+</div>

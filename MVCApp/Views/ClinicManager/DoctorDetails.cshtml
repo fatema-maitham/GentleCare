@@ -21,6 +21,16 @@
 }
 
 <div class="manager-page">
+    <div class="manager-card">
+        <div class="card-head">
+            <h2>@(ViewData["Title"] ?? "Clinic Manager")</h2>
+            <span class="status-pill">
+                <i class="bi bi-person-circle"></i>
+                @User.Identity?.Name
+            </span>
+        </div>
+    </div>
+
     <div class="manager-top">
         <a asp-controller="ClinicManager" asp-action="EditDoctor" asp-route-id="@Model.DoctorId" class="btn-main">Edit Doctor</a>
         <a asp-controller="ClinicManager" asp-action="ManageDoctorSpecializations" asp-route-doctorId="@Model.DoctorId" class="btn-light">Specializations</a>

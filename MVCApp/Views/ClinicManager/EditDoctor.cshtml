@@ -4,8 +4,12 @@
     ViewData["Title"] = "Edit Doctor";
 }
 
-
 <div class="manager-page">
+    <div class="manager-card">
+        <div class="card-head">
+            <h2>@(ViewData["Title"] ?? "Clinic Manager")</h2>
+        </div>
+    </div>
 
     <div class="manager-card">
         <form asp-controller="ClinicManager" asp-action="EditDoctor" method="post" class="manager-form">

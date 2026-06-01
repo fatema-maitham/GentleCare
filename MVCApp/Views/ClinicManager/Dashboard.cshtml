@@ -1,5 +1,6 @@
 ﻿@model MVCApp.ViewModels.ClinicManager.ClinicManagerDashboardViewModel
 
+
 @{
     ViewData["Title"] = "Clinic Manager Dashboard";
 
@@ -28,6 +29,14 @@
 }
 
 <div class="manager-page">
+    <div class="manager-card">
+        <div class="card-head">
+            <h2>@(ViewData["Title"] ?? "Clinic Manager")</h2>
+            <span class="status-pill">
+                @DateTime.Today.ToString("dd MMM yyyy")
+            </span>
+        </div>
+    </div>
 
 
     <div class="manager-grid">
