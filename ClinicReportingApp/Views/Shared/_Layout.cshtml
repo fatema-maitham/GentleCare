@@ -166,52 +166,12 @@
                     color: #ffffff;
                 }
 
-        /* ── TOP BAR ── */
-        .top-bar {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
-        }
-
-        .top-bar-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--text);
-        }
-
-        .top-bar-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .top-bar-badge {
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 5px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
         /* Mobile toggle */
         .sidebar-toggle-btn {
             display: none;
             border: none;
-            background: rgba(7,81,104,0.10);
-            color: var(--main);
+            background: rgba(8, 47, 73, 0.10);
+            color: var(--gc-main);
             width: 40px;
             height: 40px;
             border-radius: 10px;
@@ -234,6 +194,7 @@
         .content-body {
             flex: 1;
             padding: 28px;
+            padding-top: 18px;
         }
 
         /* ── FOOTER ── */
@@ -267,6 +228,54 @@
                 color: var(--muted);
                 font-size: 14px;
             }
+
+        /* ── PAGE HEADER (MVC card-head look) ── */
+        .page-header-card {
+            background: #ffffff;
+            border: 1px solid var(--gc-border);
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(8, 47, 73, 0.06);
+            margin: 18px 28px 0;
+            padding: 22px;
+        }
+
+        .page-header-card .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            margin: 0;
+        }
+
+        .page-header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .page-header-card .card-head h2 {
+            margin: 0;
+            color: var(--gc-text);
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .page-header-card .status-pill {
+            background: var(--gc-soft);
+            border: 1px solid var(--gc-border);
+            border-radius: 999px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gc-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
 
         /* ── BUTTONS ── */
         .primary-btn, .cm-main-btn {
@@ -573,19 +582,19 @@
             <!-- ── MAIN CONTENT ─────────────────────────────────── -->
             <div class="main-content">
 
-                <!-- Top bar -->
-                <div class="top-bar">
-                    <div class="d-flex align-items-center gap-3">
-                        <button class="sidebar-toggle-btn" id="sidebarToggle">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <span class="top-bar-title">@(ViewData["Title"] ?? "Dashboard")</span>
-                    </div>
-                    <div class="top-bar-right">
-                        <div class="top-bar-badge">
+                <!-- Page header -->
+                <div class="page-header-card">
+                    <div class="card-head">
+                        <div class="page-header-title">
+                            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                                <i class="bi bi-list"></i>
+                            </button>
+                            <h2>@(ViewData["Title"] ?? "Dashboard")</h2>
+                        </div>
+                        <span class="status-pill">
                             <i class="bi bi-person-circle"></i>
                             @userName
-                        </div>
+                        </span>
                     </div>
                 </div>
 
