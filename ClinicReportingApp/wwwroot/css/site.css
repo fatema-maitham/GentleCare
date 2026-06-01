@@ -1,6 +1,7 @@
 :root {
     --bs-primary: #082F49;
     --bs-primary-rgb: 8, 47, 73;
+    --gc-accent: #0369A1;
 }
 
 /* ── Global ─────────────────────────────────────────────────────────────── */
@@ -27,10 +28,20 @@ body {
 }
 
 /* ── Primary color overrides ───────────────────────────────────────────── */
-.btn-primary,
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #ffffff;
+}
+
 .btn-primary:hover,
 .btn-primary:focus,
-.btn-primary:active,
+.btn-primary:active {
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
+    color: #ffffff;
+}
+
 .btn-primary:disabled {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
@@ -87,4 +98,17 @@ body {
 .badge {
     font-weight: 500;
     font-size: .78rem;
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
+    color: #ffffff;
 }
