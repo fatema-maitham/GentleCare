@@ -4,13 +4,18 @@
     ViewData["Title"] = "Create Doctor";
 }
 
+
 <div class="manager-page">
+    <div class="manager-card">
+        <div class="card-head">
+            <h2>@(ViewData["Title"] ?? "Clinic Manager")</h2>
+        </div>
+    </div>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
 
     <div class="manager-card">
         <form asp-controller="ClinicManager" asp-action="CreateDoctor" method="post" class="manager-form">

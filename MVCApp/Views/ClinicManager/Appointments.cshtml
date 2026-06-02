@@ -18,7 +18,11 @@
 }
 
 <div class="manager-page">
-
+    <div class="manager-card">
+        <div class="card-head">
+            <h2>@(ViewData["Title"] ?? "Clinic Manager")</h2>
+        </div>
+    </div>
 
     <div class="manager-grid">
         <div class="manager-stat"><span>Total</span><strong>@Model.TotalAppointments</strong></div>
