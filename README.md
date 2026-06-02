@@ -1,18 +1,8 @@
 # GentleCare
 
-## Care that feels personal, simple, and close to you
+Care that feels personal, simple, and close to you
 
-GentleCare is a web-based healthcare clinic management system built using ASP.NET Core. The system helps a clinic manage appointments, doctors, patients, schedules, medical records, prescriptions, notifications, clinic announcements, account access, and operational reports.
-
-The system is designed to reduce manual scheduling problems, prevent double-booking, improve appointment tracking, and give the clinic manager clear operational visibility.
-
----
-
-## Project Overview
-
-GentleCare supports the full clinic workflow from appointment booking to completed visit records.
-
-Patients and receptionists can book appointments by selecting specialization, doctor, date, and available time slot. Doctors can view appointments, update status, create visit records, record prescriptions, and request follow-up appointments. Clinic managers can manage doctors, schedules, leaves, appointments, accounts, reports, notifications, and announcements.
+GentleCare is a modern healthcare clinic management system built with ASP.NET Core MVC, Web API, and a Reporting Application for managing appointments, doctors, patients, schedules, medical records, notifications, and clinic reports.
 
 ---
 
@@ -428,48 +418,6 @@ GentleCare/
 | User Account Controls      | Manager can activate or deactivate doctor, receptionist, and patient accounts.                    |
 | Notifications              | Manager can view notifications and mark them as read.                                             |
 | Profile Management         | Manager can view and update their profile information and profile picture.                        |
-
----
-
-## Clinic Manager Reports Dashboard
-
-Improved the Clinic Manager reports dashboard and added a cleaner reports layout with multiple operational report sections.
-
-Reports included:
-
-### 1. Monthly Clinic Performance Report
-
-Shows total appointments, completed appointments, cancelled appointments, missed appointments, completion rate, cancellation rate, and missed rate.
-
-### 2. Doctor Utilization Report
-
-Shows each doctor's total appointments, completed visits, cancellations, missed appointments, remaining appointments, completion rate, utilization rate, and workload level.
-
-### 3. Specialization Demand Report
-
-Shows which specializations have the highest appointment demand and how many doctors are linked to each specialization.
-
-### 4. Busiest Hours Report
-
-Shows the most crowded appointment time slots to support better scheduling and clinic workflow planning.
-
-### 5. Doctor Leave Impact Report
-
-Shows doctor leave periods and how many appointments are affected by each leave.
-
-### 6. Missed Appointment Risk Report
-
-Shows patients with missed appointments, missed count, missed rate, last missed date, and risk level.
-
-### 7. Cancellation Reason Analysis Report
-
-Shows common appointment cancellation reasons, count, and percentage rate.
-
-### 8. Prescription Volume Report
-
-Shows prescription activity by doctor, including visit records, prescription count, and prescription rate.
-
-This update improves management visibility into clinic operations, appointment performance, doctor workload, patient attendance, and treatment activity.
 
 ---
 
@@ -925,14 +873,7 @@ Examples include:
 
 ## Deployment
 
-The final system is designed to be deployed using Microsoft Azure.
-
-| Component             | Deployment Target  |
-| --------------------- | ------------------ |
-| MVC Application       | Azure App Service  |
-| Web API               | Azure App Service  |
-| Reporting Application | Azure App Service  |
-| Database              | Azure SQL Database |
+The system has been deployed on Microsoft Azure, with the MVC Application, Web API, and Reporting Application hosted on Azure App Service and the database hosted on Azure SQL Database.
 
 ---
 
@@ -945,32 +886,3 @@ The final system is designed to be deployed using Microsoft Azure.
 5. Start the WebAPI project.
 6. Start the MVCApp project.
 7. Login using the seeded demo accounts.
-
----
-
-## Project Quality Notes
-
-GentleCare was designed with:
-
-* Clear MVC structure.
-* Separated controllers, services, and view models.
-* Role-based access control.
-* Strongly typed views.
-* Business logic placed in services instead of directly inside views.
-* Appointment validation and schedule conflict checking.
-* Operational reports for management decision-making.
-* Real-time updates using SignalR.
-* Public lookup through API consumption.
-* Account activation and deactivation controls.
-* Clinic announcement workflow.
-* Follow-up appointment request workflow.
-
----
-
-## Final Summary
-
-GentleCare is a complete healthcare clinic appointment and resource management system.
-
-It supports appointment booking, doctor scheduling, patient history, prescriptions, notifications, public lookup, real-time appointment tracking, account management, clinic announcements, follow-up requests, and advanced reports.
-
-The system is designed to support real clinic workflows and provide each role with the tools they need to manage appointments and patient care efficiently.
