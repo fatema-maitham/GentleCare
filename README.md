@@ -24,8 +24,8 @@ GentleCare is a modern healthcare clinic management system built with ASP.NET Co
 |---|---|---|
 | Fatema Maitham | MVC Developer | Clinic Manager MVC features including dashboard, doctor management, schedule management, appointment management, reports dashboard, account activation/deactivation controls, clinic announcements, doctor follow-up request workflow, and appointment workflow improvements. |
 | Maram Shubbar | MVC Developer | Patient MVC pages including dashboard, booking, appointments, visit history, prescriptions, profile management. Receptionist MVC pages including dashboard, booking, appointment status management, live queue. Doctor MVC pages for appointment viewing and status updates. Role-based dashboards, authentication-related MVC views, and clinic workflow features. |
-| Malak Almajed | API and Backend Developer | RESTful Web API design and implementation, EF Core database layer and entity relationships, JWT authentication and token service, public appointment lookup endpoint, API security, and backend integration with MVC application. |
-| Zainab Almahdi | UI/UX Designer | Layout styling, responsiveness across all devices, navigation improvements, consistent design system, overall user experience enhancement, and visual design for all role-based interfaces. |
+| Malak Almajed | API and Backend Developer | ERD design, database schema planning, EF Core database layer and entity relationships, RESTful Web API design and implementation, JWT authentication and token service, public appointment lookup endpoint, API security, and backend integration with MVC application. |
+| Zainab Almahdi | UI/UX, Testing, Deployment and Documentation | Layout styling, responsiveness across all devices, navigation improvements, consistent design system, overall user experience enhancement, visual design for all role-based interfaces, system testing, Azure deployment support, screenshots, and project documentation. |
 | Kawther Abdulla | Reporting Developer | Reporting application development, HttpClient API consumption for data retrieval, report views and dashboards, and read-only reporting enforcement for secure data access. |
 
 ---
