@@ -6,6 +6,7 @@ using System.Globalization;
 
 namespace ClinicReportingApp.Controllers
 {
+    // Dashboard Controller
     public class DashboardController : Controller
     {
         private readonly IClinicApiService _api;

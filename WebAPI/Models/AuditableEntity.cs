@@ -1,5 +1,6 @@
 ﻿namespace WebAPI.Models
 {
+    // Audit tracking
     public abstract class AuditableEntity
     {
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
