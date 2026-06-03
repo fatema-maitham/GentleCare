@@ -94,15 +94,13 @@ GentleCare/
 │   ├── appsettings.json                           // API configuration and connection string
 │   ├── appsettings.Development.json               // Development configuration
 │   ├── WebAPI.http                                // API testing requests
-│   ├── WeatherForecast.cs                         // Default generated weather model
 │   │
 │   ├── Controllers/                               // API controllers
 │   │   ├── AppointmentController.cs               // Appointment API endpoints
 │   │   ├── AuthController.cs                      // Login and JWT authentication endpoints
 │   │   ├── DoctorController.cs                    // Doctor-related API endpoints
 │   │   ├── PatientController.cs                   // Patient-related API endpoints
-│   │   ├── ReportController.cs                    // Report data endpoints
-│   │   └── WeatherForecastController.cs           // Default generated test controller
+│   │   └── ReportController.cs                    // Report data endpoints
 │   │
 │   ├── DTO/                                       // API data transfer objects
 │   │   ├── AppointmentDTOs.cs                     // Appointment request and response DTOs
