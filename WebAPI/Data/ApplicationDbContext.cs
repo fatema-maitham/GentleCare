@@ -5,6 +5,7 @@ using WebAPI.Models;
 
 namespace WebAPI.Data
 {
+    // application dbContext
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IHttpContextAccessor? _httpContextAccessor;
@@ -30,6 +31,7 @@ namespace WebAPI.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationType> NotificationTypes { get; set; }
 
+        // On model creating function
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -176,6 +178,7 @@ namespace WebAPI.Data
             return base.SaveChangesAsync(cancellationToken);
         }
 
+        // getting the current user
         private string GetCurrentUser()
         {
             return _httpContextAccessor?.HttpContext?.User?

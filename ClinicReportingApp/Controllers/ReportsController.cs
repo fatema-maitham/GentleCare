@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicReportingApp.Controllers
 {
+    // Reports Controller
     public class ReportsController : Controller
     {
         private readonly IClinicApiService _api;

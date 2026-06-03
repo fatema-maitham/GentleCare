@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicReportingApp.Controllers
 {
+    // the Auth controller
     public class AuthController : Controller
     {
         private readonly IClinicApiService _api;
