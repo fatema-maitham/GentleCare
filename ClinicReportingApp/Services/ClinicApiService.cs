@@ -66,8 +66,8 @@ namespace ClinicReportingApp.Services
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Login failed: {Message}", ex.Message);
-                return null;
+                _logger.LogError(ex, "WebAPI is unreachable.");
+                throw;
             }
         }
 
