@@ -1,0 +1,87 @@
+﻿@model MVCApp.ViewModels.Receptionist.ReceptionistProfileViewModel
+
+@{
+    ViewData["Title"] = "Receptionist Profile";
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.ProfilePicture)
+        ? "/images/default-patient.png"
+        : Model.ProfilePicture;
+}
+
+<div class="patient-page">
+    <div class="patient-profile-page">
+        <div class="manager-card">
+            <div class="patient-profile-header">
+                <div class="patient-profile-top">
+                    <img src="@profileImage"
+                         class="patient-profile-avatar"
+                         alt="Receptionist profile image" />
+
+                    <div>
+                        <h2>@Model.FullName</h2>
+                        <p>@Model.Email</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="manager-alert manager-alert-success">@TempData["SuccessMessage"]</div>
+            }
+
+            <div class="patient-profile-grid">
+                <div class="manager-card">
+                    <div class="card-head">
+                        <h2>Account Information</h2>
+                    </div>
+
+                    <div class="patient-info-list">
+                        <div class="patient-info-row">
+                            <span>Full Name</span>
+                            <span class="patient-info-value">@Model.FullName</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Email</span>
+                            <span class="patient-info-value">@Model.Email</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Phone Number</span>
+                            <span class="patient-info-value">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Role</span>
+                            <span class="patient-info-value">Receptionist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="manager-card">
+                    <div class="card-head">
+                        <h2>System Details</h2>
+                    </div>
+
+                    <div class="patient-info-list">
+                        <div class="patient-info-row">
+                            <span>Account Created</span>
+                            <span class="patient-info-value">@Model.CreatedAt.ToString("dd MMM yyyy")</span>
+                        </div>
+
+                        <div class="patient-info-row">
+                            <span>Account Status</span>
+                            <span class="patient-info-value">@(Model.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-profile-actions">
+                <a asp-controller="Receptionist" asp-action="EditProfile" class="btn-main">
+                    Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

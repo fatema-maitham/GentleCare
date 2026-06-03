@@ -8,222 +8,63 @@
         : Url.Content("~/images/doctors/" + System.IO.Path.GetFileName(Model.ProfilePicture) + "?v=" + DateTime.Now.Ticks);
 }
 
-<style>
-    .doctor-profile-page {
-        max-width: 760px;
-        margin: 28px auto 55px;
-        padding: 0 18px;
-    }
+<div class="doctor-page">
+    <div class="doctor-profile-page">
+        <div class="manager-card">
+            <div class="doctor-profile-hero">
+                <div class="doctor-avatar-wrap">
+                    <img src="@profileImage"
+                         alt="Doctor profile picture"
+                         class="doctor-avatar-img"
+                         onerror="this.onerror=null; this.src='@Url.Content("~/images/doctors/default-doctor.png")';" />
+                </div>
 
-    .doctor-profile-card {
-        background: #ffffff;
-        border: 1px solid #d6ddde;
-        border-radius: 24px;
-        padding: 34px;
-        box-shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-    }
-
-    .doctor-profile-header {
-        text-align: center;
-        margin-bottom: 26px;
-    }
-
-        .doctor-profile-header h1 {
-            margin: 0;
-            color: #075168;
-            font-size: 34px;
-            font-weight: 900;
-        }
-
-        .doctor-profile-header p {
-            margin: 8px 0 0;
-            color: #657b82;
-            font-weight: 600;
-        }
-
-    .doctor-avatar-area {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-
-    .doctor-avatar-img {
-        width: 145px;
-        height: 145px;
-        border-radius: 50%;
-        object-fit: cover;
-        object-position: center;
-        background: #ffffff;
-        border: 5px solid #e7f1f3;
-        display: block;
-    }
-
-    .doctor-name-block {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-        .doctor-name-block h2 {
-            margin: 0;
-            color: #071f2a;
-            font-size: 30px;
-            font-weight: 900;
-        }
-
-    .doctor-badge {
-        display: inline-block;
-        margin-top: 10px;
-        background: #e7f1f3;
-        color: #075168;
-        padding: 8px 18px;
-        border-radius: 999px;
-        font-weight: 850;
-        font-size: 14px;
-    }
-
-    .doctor-info-list {
-        display: grid;
-        gap: 14px;
-    }
-
-    .doctor-info-row {
-        display: grid;
-        grid-template-columns: 190px 1fr;
-        gap: 18px;
-        align-items: center;
-        border: 1px solid #edf2f3;
-        background: #fbfdfd;
-        border-radius: 16px;
-        padding: 16px 18px;
-    }
-
-    .doctor-label {
-        color: #657b82;
-        font-weight: 850;
-    }
-
-    .doctor-value {
-        color: #071f2a;
-        font-weight: 800;
-        word-break: break-word;
-    }
-
-    .doctor-profile-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 28px;
-    }
-
-    .doctor-btn {
-        border: none;
-        border-radius: 14px;
-        padding: 12px 20px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: 0.2s ease;
-    }
-
-    .doctor-btn-primary {
-        background: #075168;
-        color: #ffffff;
-    }
-
-        .doctor-btn-primary:hover {
-            background: #00779b;
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-
-    .doctor-btn-secondary {
-        background: #e7f1f3;
-        color: #075168;
-    }
-
-        .doctor-btn-secondary:hover {
-            background: #dce8ea;
-            color: #075168;
-            transform: translateY(-2px);
-        }
-
-    @@media (max-width: 700px) {
-        .doctor-profile-card {
-            padding: 24px;
-        }
-
-        .doctor-info-row {
-            grid-template-columns: 1fr;
-            gap: 6px;
-        }
-
-        .doctor-profile-actions {
-            flex-direction: column;
-        }
-
-        .doctor-btn {
-            width: 100%;
-            text-align: center;
-        }
-    }
-</style>
-
-<div class="doctor-profile-page">
-    <section class="doctor-profile-card">
-
-        <div class="doctor-avatar-area">
-            <img src="@profileImage"
-                 alt="Doctor profile picture"
-                 class="doctor-avatar-img"
-                 onerror="this.onerror=null; this.src='@Url.Content("~/images/doctors/default-doctor.png")';" />
-        </div>
-
-        <div class="doctor-name-block">
-            <h2>@Model.FullName</h2>
-            <span class="doctor-badge">Doctor Account</span>
-        </div>
-
-        <div class="doctor-info-list">
-
-            <div class="doctor-info-row">
-                <div class="doctor-label">Full Name</div>
-                <div class="doctor-value">@Model.FullName</div>
-            </div>
-
-            <div class="doctor-info-row">
-                <div class="doctor-label">Email</div>
-                <div class="doctor-value">@Model.Email</div>
-            </div>
-
-            <div class="doctor-info-row">
-                <div class="doctor-label">License Number</div>
-                <div class="doctor-value">@Model.LicenseNumber</div>
-            </div>
-
-            <div class="doctor-info-row">
-                <div class="doctor-label">Specializations</div>
-                <div class="doctor-value">
-                    @(Model.HasSpecializations
-                                        ? string.Join(", ", Model.Specializations)
-                                        : "No specializations assigned yet.")
+                <div class="doctor-name-block">
+                    <h2>@Model.FullName</h2>
+                    <span class="doctor-badge">Doctor Account</span>
                 </div>
             </div>
 
-            <div class="doctor-info-row">
-                <div class="doctor-label">Bio</div>
-                <div class="doctor-value">
-                    @(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio added yet." : Model.Bio)
+            <div class="doctor-info-list">
+                <div class="doctor-info-row">
+                    <div class="doctor-label">Full Name</div>
+                    <div class="doctor-value">@Model.FullName</div>
+                </div>
+
+                <div class="doctor-info-row">
+                    <div class="doctor-label">Email</div>
+                    <div class="doctor-value">@Model.Email</div>
+                </div>
+
+                <div class="doctor-info-row">
+                    <div class="doctor-label">License Number</div>
+                    <div class="doctor-value">@Model.LicenseNumber</div>
+                </div>
+
+                <div class="doctor-info-row">
+                    <div class="doctor-label">Specializations</div>
+                    <div class="doctor-value">
+                        @(Model.HasSpecializations
+                            ? string.Join(", ", Model.Specializations)
+                            : "No specializations assigned yet.")
+                    </div>
+                </div>
+
+                <div class="doctor-info-row">
+                    <div class="doctor-label">Bio</div>
+                    <div class="doctor-value">
+                        @(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio added yet." : Model.Bio)
+                    </div>
                 </div>
             </div>
 
+            <div class="doctor-profile-actions">
+                <a asp-controller="Doctor"
+                   asp-action="EditProfile"
+                   class="btn-main">
+                    Edit Profile
+                </a>
+            </div>
         </div>
-
-        <div class="doctor-profile-actions">
-            <a asp-controller="Doctor"
-               asp-action="EditProfile"
-               class="doctor-btn doctor-btn-primary">
-                Edit Profile
-            </a>
-        </div>
-
-    </section>
+    </div>
 </div>

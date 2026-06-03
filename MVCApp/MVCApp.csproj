@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +12,10 @@
     <Content Remove="ViewModels\NewFolder\**" />
     <EmbeddedResource Remove="ViewModels\NewFolder\**" />
     <None Remove="ViewModels\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\ClinicManager\_ClinicManagerHeader.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

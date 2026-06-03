@@ -1,18 +1,8 @@
 # GentleCare
 
-## Care that feels personal, simple, and close to you
+Care that feels personal, simple, and close to you
 
-GentleCare is a web-based healthcare clinic management system built using ASP.NET Core. The system helps a clinic manage appointments, doctors, patients, schedules, medical records, prescriptions, notifications, clinic announcements, account access, and operational reports.
-
-The system is designed to reduce manual scheduling problems, prevent double-booking, improve appointment tracking, and give the clinic manager clear operational visibility.
-
----
-
-## Project Overview
-
-GentleCare supports the full clinic workflow from appointment booking to completed visit records.
-
-Patients and receptionists can book appointments by selecting specialization, doctor, date, and available time slot. Doctors can view appointments, update status, create visit records, record prescriptions, and request follow-up appointments. Clinic managers can manage doctors, schedules, leaves, appointments, accounts, reports, notifications, and announcements.
+GentleCare is a modern healthcare clinic management system built with ASP.NET Core MVC, Web API, and a Reporting Application for managing appointments, doctors, patients, schedules, medical records, notifications, and clinic reports.
 
 ---
 
@@ -34,8 +24,8 @@ Patients and receptionists can book appointments by selecting specialization, do
 |---|---|---|
 | Fatema Maitham | MVC Developer | Clinic Manager MVC features including dashboard, doctor management, schedule management, appointment management, reports dashboard, account activation/deactivation controls, clinic announcements, doctor follow-up request workflow, and appointment workflow improvements. |
 | Maram Shubbar | MVC Developer | Patient MVC pages including dashboard, booking, appointments, visit history, prescriptions, profile management. Receptionist MVC pages including dashboard, booking, appointment status management, live queue. Doctor MVC pages for appointment viewing and status updates. Role-based dashboards, authentication-related MVC views, and clinic workflow features. |
-| Malak Almajed | API and Backend Developer | RESTful Web API design and implementation, EF Core database layer and entity relationships, JWT authentication and token service, public appointment lookup endpoint, API security, and backend integration with MVC application. |
-| Zainab Almahdi | UI/UX Designer | Layout styling, responsiveness across all devices, navigation improvements, consistent design system, overall user experience enhancement, and visual design for all role-based interfaces. |
+| Malak Almajed | API and Backend Developer | ERD design, database schema planning, EF Core database layer and entity relationships, RESTful Web API design and implementation, JWT authentication and token service, public appointment lookup endpoint, API security, and backend integration with MVC application. |
+| Zainab Almahdi | UI/UX, Testing, Deployment and Documentation | Layout styling, responsiveness across all devices, navigation improvements, consistent design system, overall user experience enhancement, visual design for all role-based interfaces, system testing, Azure deployment support, screenshots, and project documentation. |
 | Kawther Abdulla | Reporting Developer | Reporting application development, HttpClient API consumption for data retrieval, report views and dashboards, and read-only reporting enforcement for secure data access. |
 
 ---
@@ -431,48 +421,6 @@ GentleCare/
 
 ---
 
-## Clinic Manager Reports Dashboard
-
-Improved the Clinic Manager reports dashboard and added a cleaner reports layout with multiple operational report sections.
-
-Reports included:
-
-### 1. Monthly Clinic Performance Report
-
-Shows total appointments, completed appointments, cancelled appointments, missed appointments, completion rate, cancellation rate, and missed rate.
-
-### 2. Doctor Utilization Report
-
-Shows each doctor's total appointments, completed visits, cancellations, missed appointments, remaining appointments, completion rate, utilization rate, and workload level.
-
-### 3. Specialization Demand Report
-
-Shows which specializations have the highest appointment demand and how many doctors are linked to each specialization.
-
-### 4. Busiest Hours Report
-
-Shows the most crowded appointment time slots to support better scheduling and clinic workflow planning.
-
-### 5. Doctor Leave Impact Report
-
-Shows doctor leave periods and how many appointments are affected by each leave.
-
-### 6. Missed Appointment Risk Report
-
-Shows patients with missed appointments, missed count, missed rate, last missed date, and risk level.
-
-### 7. Cancellation Reason Analysis Report
-
-Shows common appointment cancellation reasons, count, and percentage rate.
-
-### 8. Prescription Volume Report
-
-Shows prescription activity by doctor, including visit records, prescription count, and prescription rate.
-
-This update improves management visibility into clinic operations, appointment performance, doctor workload, patient attendance, and treatment activity.
-
----
-
 ## Advanced Features
 
 | # | Advanced Feature | Description |
@@ -482,6 +430,7 @@ This update improves management visibility into clinic operations, appointment p
 | 3 | Manager Account Activation and Deactivation | Allows the Clinic Manager to activate or deactivate doctor, receptionist, and patient accounts. Inactive users cannot log in. |
 | 4 | Smart Rescheduling and Leave Impact Handling | Shows appointments affected by doctor leave or schedule changes, suggests replacement slots based on availability, conflicts, leave periods, and specializations, and re-validates the selected slot before rescheduling. |
 | 5 | Enhanced Clinic Reports Dashboard | Provides advanced reports including monthly performance, doctor utilization, specialization demand, busiest hours, doctor leave impact, missed appointment risk, cancellation reason analysis, and prescription volume. |
+| 6 | Service Layer Architecture | Uses service classes and Dependency Injection to keep controllers clean, separate business logic from controller actions, and improve maintainability and reusability. |
 
 ---
 
@@ -561,26 +510,28 @@ The MVC application uses a service layer to keep business logic separate from co
 
 ## API Endpoints
 
-| Route                                     | Method | Auth                                | Purpose                                                                                 |
-| ----------------------------------------- | ------ | ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `/api/auth/login`                         | POST   | None                                | Login and return JWT token.                                                             |
-| `/api/appointments/lookup`                | GET    | None                                | Public patient lookup by CPR and optional patient reference number.                     |
-| `/api/appointments`                       | GET    | JWT                                 | Get all appointments.                                                                   |
-| `/api/appointments/my`                    | GET    | JWT + Patient                       | Get current patient's appointments.                                                     |
-| `/api/appointments/today`                 | GET    | JWT + Receptionist / Clinic Manager | Get today's appointment queue.                                                          |
-| `/api/appointments/available-slots`       | GET    | JWT                                 | Get available time slots for a doctor on a selected date.                               |
-| `/api/appointments`                       | POST   | JWT + Patient / Receptionist        | Create a new appointment.                                                               |
-| `/api/appointments/{id}/status`           | PUT    | JWT                                 | Update appointment status, such as confirm, check-in, cancel, complete, or mark missed. |
-| `/api/doctors`                            | GET    | JWT                                 | Get all active doctors.                                                                 |
-| `/api/doctors/{id}`                       | GET    | JWT                                 | Get doctor by ID with availability.                                                     |
-| `/api/doctors/by-specialization/{specId}` | GET    | JWT                                 | Get doctors filtered by specialization.                                                 |
-| `/api/specializations`                    | GET    | JWT                                 | List all specializations.                                                               |
-| `/api/patients/me`                        | GET    | JWT + Patient                       | Get current patient's profile.                                                          |
-| `/api/patients/me/medical-records`        | GET    | JWT + Patient                       | Get patient's visit records and prescriptions.                                          |
-| `/api/patients/search`                    | GET    | JWT + Receptionist                  | Search patient by CPR.                                                                  |
-| `/api/reports/appointment-stats`          | GET    | JWT + Clinic Manager                | Appointment counts by status.                                                           |
-| `/api/reports/doctor-utilization`         | GET    | JWT + Clinic Manager                | Appointment workload per doctor.                                                        |
-
+| Route | Method | Auth | Purpose |
+| --- | --- | --- | --- |
+| `/api/Auth/register` | POST | None | Register a new user account. |
+| `/api/Auth/login` | POST | None | Login and return JWT token. |
+| `/api/Appointment/lookup` | GET | None | Public patient lookup by CPR and reference number. |
+| `/api/Appointment` | GET | JWT + Receptionist / Clinic Manager | Get all appointments. |
+| `/api/Appointment/my` | GET | JWT + Patient | Get current patient's appointments. |
+| `/api/Appointment/{id}/status` | PUT | JWT + Doctor / Receptionist / Clinic Manager | Update appointment status. |
+| `/api/Doctor` | GET | JWT | Get all active doctors. |
+| `/api/Doctor` | POST | JWT + Clinic Manager | Create a new doctor profile. |
+| `/api/Doctor/{id}` | GET | JWT | Get doctor details by ID. |
+| `/api/Doctor/{id}/availability` | GET | JWT | Get available time slots for a doctor on a date. |
+| `/api/Patient` | POST | JWT + Patient / Receptionist / Clinic Manager | Create a patient profile. |
+| `/api/Patient` | GET | JWT + Receptionist / Clinic Manager | Get all patients. |
+| `/api/Patient/{id}` | GET | JWT + Doctor / Receptionist / Clinic Manager | Get patient details by ID. |
+| `/api/Patient/{id}` | PUT | JWT + Patient / Receptionist / Clinic Manager | Update patient information. |
+| `/api/Patient/my` | GET | JWT + Patient | Get the current patient's profile. |
+| `/api/Patient/{id}/history` | GET | JWT + Doctor / Receptionist / Clinic Manager | Get patient visit history with prescriptions. |
+| `/api/Report/appointment-stats` | GET | JWT + Clinic Manager | Appointment statistics by status and date range. |
+| `/api/Report/doctor-workload` | GET | JWT + Clinic Manager | Doctor workload and appointment distribution. |
+| `/api/Report/specialization-stats` | GET | JWT + Clinic Manager | Appointment statistics grouped by specialization. |
+| `/api/Report/daily-summary` | GET | JWT + Clinic Manager | Daily clinic appointment summary. |
 ---
 
 ## Routing Table
@@ -923,14 +874,7 @@ Examples include:
 
 ## Deployment
 
-The final system is designed to be deployed using Microsoft Azure.
-
-| Component             | Deployment Target  |
-| --------------------- | ------------------ |
-| MVC Application       | Azure App Service  |
-| Web API               | Azure App Service  |
-| Reporting Application | Azure App Service  |
-| Database              | Azure SQL Database |
+The system has been deployed on Microsoft Azure, with the MVC Application, Web API, and Reporting Application hosted on Azure App Service and the database hosted on Azure SQL Database.
 
 ---
 
@@ -943,32 +887,3 @@ The final system is designed to be deployed using Microsoft Azure.
 5. Start the WebAPI project.
 6. Start the MVCApp project.
 7. Login using the seeded demo accounts.
-
----
-
-## Project Quality Notes
-
-GentleCare was designed with:
-
-* Clear MVC structure.
-* Separated controllers, services, and view models.
-* Role-based access control.
-* Strongly typed views.
-* Business logic placed in services instead of directly inside views.
-* Appointment validation and schedule conflict checking.
-* Operational reports for management decision-making.
-* Real-time updates using SignalR.
-* Public lookup through API consumption.
-* Account activation and deactivation controls.
-* Clinic announcement workflow.
-* Follow-up appointment request workflow.
-
----
-
-## Final Summary
-
-GentleCare is a complete healthcare clinic appointment and resource management system.
-
-It supports appointment booking, doctor scheduling, patient history, prescriptions, notifications, public lookup, real-time appointment tracking, account management, clinic announcements, follow-up requests, and advanced reports.
-
-The system is designed to support real clinic workflows and provide each role with the tools they need to manage appointments and patient care efficiently.

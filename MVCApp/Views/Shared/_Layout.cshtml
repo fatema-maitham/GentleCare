@@ -1,4 +1,4 @@
-@{
+﻿@{
     var pageTitle = ViewData["Title"] as string ?? "GentleCare";
 
     var homeController = "Public";
@@ -40,379 +40,221 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-
-    <style>
-        :root {
-            --main: #075168;
-            --main-dark: #043C4D;
-            --accent: #00779B;
-            --bg: #F4F1EE;
-            --card: #FFFFFF;
-            --soft: #F8FAFA;
-            --text: #12262F;
-            --muted: #687A80;
-            --border: #D6DDDE;
-            --shadow: 0 10px 24px rgba(7, 81, 104, 0.08);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            min-height: 100%;
-            background: var(--bg);
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
-            color: var(--text);
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        .main-navbar {
-            background: var(--main);
-            min-height: 72px;
-            box-shadow: 0 6px 18px rgba(7, 81, 104, 0.18);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .main-navbar-inner {
-            max-width: 1180px;
-            margin: 0 auto;
-            min-height: 72px;
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 28px;
-        }
-
-        .text-logo {
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-        }
-
-        .text-logo-name {
-            color: #ffffff;
-            font-size: 29px;
-            font-weight: 900;
-            letter-spacing: -1px;
-        }
-
-        .layout-main {
-            max-width: 1180px;
-            margin: 28px auto 0;
-            padding: 0 22px 56px;
-        }
-
-        .layout-footer {
-            max-width: 1180px;
-            margin: 0 auto;
-            padding: 18px 22px 28px;
-            color: var(--muted);
-            font-size: 13px;
-            text-align: center;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .page-header h1 {
-            margin: 0;
-            font-size: 31px;
-            font-weight: 900;
-            color: var(--text);
-        }
-
-        .page-header p {
-            margin: 6px 0 0;
-            color: var(--muted);
-        }
-
-        .primary-btn,
-        .secondary-btn,
-        .cm-main-btn {
-            display: inline-block;
-            border: none;
-            border-radius: 999px;
-            padding: 10px 18px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        .primary-btn,
-        .cm-main-btn {
-            background: var(--main);
-            color: #ffffff;
-        }
-
-        .primary-btn:hover,
-        .cm-main-btn:hover {
-            background: var(--accent);
-            color: #ffffff;
-        }
-
-        .secondary-btn {
-            background: #E7EEF0;
-            color: var(--main);
-        }
-
-        .secondary-btn:hover {
-            background: #DDE8EA;
-            color: var(--main);
-        }
-
-        .section-card,
-        .dashboard-card,
-        .doctor-card,
-        .workload-item,
-        .leave-item,
-        .action-card,
-        .cm-panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-        }
-
-        .details-grid,
-        .form-grid,
-        .status-grid,
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-        }
-
-        .details-item,
-        .status-box {
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 15px;
-        }
-
-        .details-item span,
-        .status-box span {
-            display: block;
-            color: var(--muted);
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .details-item strong,
-        .status-box strong {
-            display: block;
-            margin-top: 5px;
-            font-size: 21px;
-            font-weight: 900;
-            color: var(--text);
-        }
-
-        .btn-link,
-        .table-link {
-            color: var(--main);
-            font-weight: 800;
-            margin-right: 8px;
-        }
-
-        .btn-link:hover,
-        .table-link:hover {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
-        .danger-button {
-            border: none;
-            background: transparent;
-            color: var(--main);
-            cursor: pointer;
-            padding: 0;
-            font: inherit;
-            font-weight: 800;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            font-weight: 900;
-            color: var(--text);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 11px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            outline: none;
-            background: #ffffff;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 119, 155, 0.14);
-        }
-
-        .filter-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            align-items: end;
-        }
-
-        .cm-table-wrap {
-            overflow-x: auto;
-        }
-
-        .cm-table,
-        .data-table,
-        .clean-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .cm-table th,
-        .cm-table td,
-        .data-table th,
-        .data-table td,
-        .clean-table th,
-        .clean-table td {
-            padding: 13px 12px;
-            border-bottom: 1px solid var(--border);
-            text-align: left;
-            vertical-align: middle;
-            font-size: 13px;
-        }
-
-        .cm-table th,
-        .data-table th,
-        .clean-table th {
-            background: var(--soft);
-            font-weight: 900;
-            color: var(--text);
-        }
-
-        .cm-pill,
-        .status-pill,
-        .clean-pill,
-        .tag-pill {
-            display: inline-block;
-            border-radius: 999px;
-            padding: 6px 11px;
-            background: rgba(0, 119, 155, 0.12);
-            color: var(--main);
-            font-size: 12px;
-            font-weight: 900;
-        }
-
-        .alert {
-            padding: 12px 14px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            font-weight: 800;
-        }
-
-        .alert-success {
-            background: rgba(0, 119, 155, 0.12);
-            color: var(--main);
-        }
-
-        .alert-danger {
-            background: rgba(180, 50, 50, 0.10);
-            color: #A33A3A;
-        }
-
-        .text-danger {
-            color: #A33A3A !important;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .gc-footer {
-            width: 100%;
-            margin-top: auto;
-            padding: 18px 20px;
-            background: #075168;
-            color: #ffffff;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        @@media (max-width: 960px) {
-            .main-navbar {
-                position: relative;
-            }
-
-            .main-navbar-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                padding-top: 14px;
-                padding-bottom: 14px;
-                gap: 12px;
-            }
-
-            .text-logo-name {
-                font-size: 26px;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .page-header h1 {
-                font-size: 26px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/public.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 </head>
 
 <body>
-    <header class="main-navbar">
-        <div class="main-navbar-inner">
-            <a asp-controller="@homeController" asp-action="@homeAction" class="text-logo">
-                <span class="text-logo-name">GentleCare</span>
-            </a>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <div id="wrapper">
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <i class="bi bi-heart-pulse-fill sidebar-icon"></i>
+                    <div class="sidebar-title">GentleCare</div>
+                    <small class="sidebar-subtitle">Healthcare System</small>
+                </div>
 
-            <partial name="_Navbar" />
+                <ul class="nav flex-column">
+                    @if (User.IsInRole("Patient"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                               asp-controller="Patient" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "BookAppointment" ? "active" : "")"
+                               asp-controller="Patient" asp-action="BookAppointment">
+                                <i class="bi bi-calendar-plus"></i> Book Appointment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : "")"
+                               asp-controller="Patient" asp-action="Appointments">
+                                <i class="bi bi-calendar-check"></i> Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : "")"
+                               asp-controller="Patient" asp-action="History">
+                                <i class="bi bi-clock-history"></i> History
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "Notifications" ? "active" : "")"
+                               asp-controller="Patient" asp-action="Notifications">
+                                <i class="bi bi-bell"></i> Notifications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                               asp-controller="Patient" asp-action="Profile">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Doctor"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctor" && ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                               asp-controller="Doctor" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DoctorAppointment" && ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : "")"
+                               asp-controller="DoctorAppointment" asp-action="Appointments">
+                                <i class="bi bi-calendar-check"></i> Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctor" && ViewContext.RouteData.Values["action"]?.ToString() == "Schedule" ? "active" : "")"
+                               asp-controller="Doctor" asp-action="Schedule">
+                                <i class="bi bi-calendar2-week"></i> Schedule
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Prescription" && ViewContext.RouteData.Values["action"]?.ToString() == "Prescriptions" ? "active" : "")"
+                               asp-controller="Prescription" asp-action="Prescriptions">
+                                <i class="bi bi-capsule"></i> Prescriptions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctor" && ViewContext.RouteData.Values["action"]?.ToString() == "Notifications" ? "active" : "")"
+                               asp-controller="Doctor" asp-action="Notifications">
+                                <i class="bi bi-bell"></i> Notifications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctor" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                               asp-controller="Doctor" asp-action="Profile">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Receptionist"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="Index">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "BookAppointment" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="BookAppointment">
+                                <i class="bi bi-calendar-plus"></i> Book Appointment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="Appointments">
+                                <i class="bi bi-calendar-check"></i> Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "PatientSearch" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="PatientSearch">
+                                <i class="bi bi-search"></i> Patient Search
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "LiveQueue" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="LiveQueue">
+                                <i class="bi bi-queue-front"></i> Live Queue
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Receptionist" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                               asp-controller="Receptionist" asp-action="Profile">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("ClinicManager"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Doctors" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Doctors">
+                                <i class="bi bi-person-badge"></i> Doctors
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Appointments">
+                                <i class="bi bi-calendar-check"></i> Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Reports">
+                                <i class="bi bi-bar-chart"></i> Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "UserAccounts" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="UserAccounts">
+                                <i class="bi bi-people"></i> Accounts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "CreateAnnouncement" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="CreateAnnouncement">
+                                <i class="bi bi-megaphone"></i> Announcements
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Notifications" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Notifications">
+                                <i class="bi bi-bell"></i> Notifications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClinicManager" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"
+                               asp-controller="ClinicManager" asp-action="Profile">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                <div class="sidebar-footer">
+                    <small class="user-info"><i class="bi bi-person-circle me-1"></i>@User.Identity?.Name</small>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-logout">
+                            <i class="bi bi-box-arrow-left me-1"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div class="content-area">
+                    <partial name="_AlertMessages" />
+                    @RenderBody()
+                </div>
+                <footer class="layout-footer">
+                    &copy; @DateTime.Now.Year - GentleCare
+                </footer>
+            </div>
         </div>
-    </header>
-
-    <div class="layout-main">
-        <main role="main">
-            <partial name="_AlertMessages" />
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="layout-footer">
-        &copy; @DateTime.Now.Year - GentleCare
-    </footer>
+    }
+    else
+    {
+        @RenderBody()
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
