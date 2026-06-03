@@ -17,8 +17,9 @@ builder.Services
  .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
  .AddCookie(options =>
  {
-     options.LoginPath = "/Account/Login";
-     options.AccessDeniedPath = "/Account/AccessDenied";
+     options.LoginPath = "/Auth/Login";
+     options.AccessDeniedPath = "/Auth/AccessDenied";
+     options.AccessDeniedPath = "/Auth/Logout";
      options.ExpireTimeSpan = TimeSpan.FromHours(1);
      options.SlidingExpiration = false;
  });
@@ -37,8 +38,9 @@ builder.Services.AddHttpClient<IClinicApiService, ClinicApiService>(client =>
 //  App Services 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-//Middleware Pipeline (as in Lab 4.3)
 var app = builder.Build();
+
+//Middleware Pipeline (as in Lab 4.3)
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
